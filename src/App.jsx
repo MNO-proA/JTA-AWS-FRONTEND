@@ -1,37 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import appLogo from '/favicon.svg'
-import PWABadge from './PWABadge.jsx'
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import { createTheme } from "@mui/material/styles";
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css'
+import { useMemo } from "react";
+import { useSelector } from "react-redux";
+import { themeSettings } from "./theme.js";
+import PWABadge from './PWABadge.jsx'
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  RouterProvider,
+  Route,
+} from "react-router-dom";
+// import Layout from "./Pages/layout/index.jsx";
+import Login from "./Pages/login/index.jsx";
+import RequireAuth from "./Pages/login/RequireAuth.jsx";
+import Layout from "./Pages/layout/index.jsx";
+import Overview from "./Pages/home/index.jsx";
+import Shifts from "./Pages/shifts/index.jsx";
+import Expenses from "./Pages/expenses/index.jsx";
+import AllDashboard from "./Pages/dashboard/index.jsx";
 
-function App() {
-  const [count, setCount] = useState(0)
 
-  return (
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={appLogo} className="logo" alt="pwa-jta-app logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>pwa-jta-app</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-      <PWABadge />
+      <Route path="/" element={<Login />} />
+      <Route element={<RequireAuth />}>
+      <Route element={<Layout />}>
+        <Route path="Overview" element={<Overview />} />
+        <Route path="Shifts" element={<Shifts />} />
+        <Route path="Expense" element={<Expenses />} />
+        <Route path="Dashboard" element={<AllDashboard/>} />
+      </Route>
+       
+      </Route> 
     </>
   )
+);
+function App() {
+  const mode = useSelector((state) => state.global.mode);
+  const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
+  return (
+    <div className="app">
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <RouterProvider router={router} />;
+        </ThemeProvider>
+    </div>
+  )
 }
-
+<PWABadge />
 export default App
