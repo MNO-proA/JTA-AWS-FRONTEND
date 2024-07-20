@@ -40,10 +40,7 @@ const navItems = [
     text: "Overview",
     icon: <Groups2Outlined />,
   },
-  //  {
-  //   text: "Staffs",
-  //   icon: <Groups2Outlined />,
-  // },
+
   {
     text: "Shifts",
     icon: <TodayOutlined />,
@@ -56,32 +53,7 @@ const navItems = [
     text: "Dashboard",
     icon: <DashboardIcon/>,
   },
-  // {
-  //   text: "Customers",
-  //   icon: <Groups2Outlined />,
-  // },
-  // {
-  //   text: "Transactions",
-  //   icon: <ReceiptLongOutlined />,
-  // },
-  // {
-  //   text: "Geography",
-  //   icon: <PublicOutlined />,
-  // },
-  // {
-  //   text: "Sales",
-  //   icon: null,
-  // },
-  
-  // {
-  //   text: "Daily",
-  //   icon: <TodayOutlined />,
-  // },
-  
-  // {
-  //   text: "Admin",
-  //   icon: <AdminPanelSettingsOutlined />,
-  // },
+ 
 ];
 
 const Sidebar = ({
@@ -127,7 +99,8 @@ const Sidebar = ({
                 alt="profile"
                 src={logo}
                 height="80px"
-                width="80px"
+                width="100px"
+                ml={'30px'}
                 sx={{ objectFit: "cover" }}
               />
                 </Box>
@@ -169,7 +142,7 @@ const Sidebar = ({
                         color:
                           active === lcText
                             ? theme.palette.primary[900]
-                            : theme.palette.secondary[100],
+                            : theme.palette.primary[200],
                       }}
                     >
                       <ListItemIcon
@@ -178,7 +151,7 @@ const Sidebar = ({
                           color:
                             active === lcText
                               ? theme.palette.primary[900]
-                              : theme.palette.secondary[200],
+                              : theme.palette.primary[200],
                         }}
                       >
                         {icon}

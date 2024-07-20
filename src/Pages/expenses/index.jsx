@@ -117,8 +117,8 @@ const Expenses = () => {
         {/* ======================================================================= */}
        
         {/* ======================================================================== */}
-        <Header title="Expenses"  />
-        <Button sx={{marginTop: '7px', color: 'grey',  '&:hover': {
+        <Header title="Expenses" color= '#10453e'  />
+        <Button sx={{marginTop: '7px', color: '#10453e',  '&:hover': {
                                   backgroundColor: theme.palette.secondary[200], 
                                   color: theme.palette.primary[900], 
                                 }, }}  variant="contained">
@@ -130,10 +130,12 @@ const Expenses = () => {
           sx={{
             "& .MuiDataGrid-root": {
               border: "none",
+              
              
             },
             "& .MuiDataGrid-cell": {
               borderBottom: "none",
+              backgroundColor: theme.palette.background.alt
             },
             "& .MuiDataGrid-columnHeaders": {
               backgroundColor: theme.palette.background.alt,
@@ -152,10 +154,10 @@ const Expenses = () => {
               color: `${theme.palette.secondary[200]} !important`,
             },
             '& .MuiCheckbox-root': {
-                color: '#555',
+                color: '#7e7e7e',
               },
               '& .MuiCheckbox-colorPrimary.Mui-checked': {
-                color: '#555'
+                color: '#7e7e7e'
               },
           }}
         >

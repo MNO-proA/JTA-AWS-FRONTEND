@@ -23,6 +23,7 @@ import {
   MenuItem,
   useTheme,
 } from "@mui/material";
+import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 
 const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const dispatch = useDispatch();
@@ -90,16 +91,16 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                   fontSize="0.85rem"
                   sx={{ color: theme.palette.secondary[100] }}
                 >
-                  Powered By
+                  ADMIN
                 </Typography>
-                <Typography
+                {/* <Typography
                   fontSize="0.85rem"
                   sx={{ color: theme.palette.secondary[200] }}
                 >
                   Qodexcore
-                </Typography>
+                </Typography> */}
               </Box>
-              <ArrowDropDownOutlined
+              <PowerSettingsNewIcon
                 sx={{ color: theme.palette.secondary[300], fontSize: "25px" }}
               />
             </Button>

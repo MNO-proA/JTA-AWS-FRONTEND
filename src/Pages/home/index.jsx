@@ -37,7 +37,7 @@ const SingleStaff = ({
         <CardContent>
           <Typography
             sx={{ fontSize: 14 }}
-            color={theme.palette.secondary[700]}
+            color={theme.palette.secondary[200]}
             gutterBottom
           >
             { staffID}
@@ -45,10 +45,10 @@ const SingleStaff = ({
           <Typography variant="h5" component="div">
             {fullName}
           </Typography>
-          <Typography sx={{ mb: "1.5rem" }} color={theme.palette.secondary[400]}>
+          <Typography sx={{ mb: "1.5rem" }} color={theme.palette.secondary[100]}>
             {jobTitle}
           </Typography>
-          <Typography sx={{ mb: "1.5rem" }} color={theme.palette.secondary[400]}>
+          <Typography sx={{ mb: "1.5rem" }} color={theme.palette.secondary[100]}>
             {employmentType}
           </Typography>
           
@@ -82,7 +82,7 @@ const SingleStaff = ({
           }}
         >
           <CardContent>
-            <Typography>id: {staffID}</Typography>
+            <Typography color={theme.palette.secondary[100]}>id: {staffID}</Typography>
             {/* <Typography>Supply Left: {supply}</Typography>
             <Typography>
               Yearly Sales This Year: {stat.yearlySalesTotal}
@@ -166,8 +166,8 @@ const Overview = () => {
   
     return (
       <Box m="1.5rem 2.5rem">
-        <Header title="STAFFS"  />
-        <Button sx={{marginTop: '10px', color: 'grey', '&:hover': {
+        <Header title="STAFFS" color= '#10453e' />
+        <Button sx={{marginTop: '10px', color: '#10453e', '&:hover': {
                                   backgroundColor: theme.palette.secondary[200], 
                                   color: theme.palette.primary[900], 
                                 },}}   variant="contained">

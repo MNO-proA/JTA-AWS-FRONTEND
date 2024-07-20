@@ -22,9 +22,9 @@ export const tokensDark = {
     400: "#4dc4b8",
     500: "#186052", // Main Color for secondary
     600: "#145349",
-    700: "#10453e",
+    700: "#072b29",
     800: "#0c3834",
-    900: "#072b29",
+    900: "#202020",
   },
   secondary: {
     50: "#f0f0f0", // manually adjusted
@@ -83,6 +83,9 @@ export const themeSettings = (mode) => {
               default: tokensDark.primary[900],
               alt: tokensDark.primary[700],
             },
+//             #072b29
+// #2a2a2a
+// #202020
           }
         : {
             // palette values for light mode
@@ -255,3 +258,4 @@ export const tokens = (mode) => ({
         },
       }),
 });
+
