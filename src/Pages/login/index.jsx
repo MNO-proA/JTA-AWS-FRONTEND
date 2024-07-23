@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import StartScreen from "../../Components/StartScreen"
 import logo from '/1024x1024.png'
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../../features/auth/authSlice";
+
+import { useLoginMutation } from "../../features/auth/authApiSlice";
 
 
 
@@ -14,7 +18,12 @@ const Login = () => {
     const [errMsg, setErrMsg] = useState("");
     const navigate = useNavigate();
     // const [login, { isLoading }] = useLoginMutation();
-    const [isLoading, setIsLoading] = useState(false)
+    // const [isLoading, setIsLoading] = useState(false)
+    const [login, { isLoading }] = useLoginMutation();
+
+   
+  
+    const dispatch = useDispatch();
   
     const [successMsg, setSuccessMsg] = useState("");
   
@@ -41,40 +50,40 @@ const Login = () => {
     }, [user, pwd]);
   
     const handleSubmit = async (e) => {
-    //   e.preventDefault();
+      e.preventDefault();
   
-    //   try {
-    //     const requestData = {
-    //       email: user,
-    //       password: pwd,
-    //     };
-    //     const userData = await login(requestData).unwrap();
-    //     dispatch(setCredentials({ ...userData }));
-    //     console.log(userData);
-    //     setSuccessMsg("Successful, redirecting...");
-    //     setUser("");
-    //     setPwd("");
-    //     navigate("home");
-    //   } catch (err) {
-    //     if (!err?.originalStatus) {
-    //       setErrMsg("An Error Ocurred");
-    //       console.log(err);
-    //       setErrMsg(err?.data?.message);
-    //       if (err?.status === "FETCH_ERROR") {
-    //         setErrMsg("Server not responding");
-    //       } else if (err?.originalStatus === 400) {
-    //         setErrMsg("Missing Username or Password");
-    //       } else if (err?.originalStatus === 401) {
-    //         setErrMsg("Unauthorized");
-    //       } else if (err?.originalStatus === 404) {
-    //         setErrMsg("Login Failed");
-    //       }
-    //     } else {
-    //       setErrMsg("Login Failed");
-    //     }
-    //     msgRef.current.focus();
-    //   }
-    navigate("overview")
+      try {
+        const requestData = {
+          username: user,
+          password: pwd,
+        };
+        const userData = await login(requestData).unwrap();
+        dispatch(setCredentials({ ...userData }));
+        console.log(userData);
+        setSuccessMsg("Successful, redirecting...");
+        setUser("");
+        setPwd("");
+        navigate("overview")
+      } catch (err) {
+        if (!err?.originalStatus) {
+          setErrMsg("An Error Ocurred");
+          console.log(err);
+          setErrMsg(err?.data?.message);
+          if (err?.status === "FETCH_ERROR") {
+            setErrMsg("Server not responding");
+          } else if (err?.originalStatus === 400) {
+            setErrMsg("Missing Username or Password");
+          } else if (err?.originalStatus === 401) {
+            setErrMsg("Unauthorized");
+          } else if (err?.originalStatus === 404) {
+            setErrMsg("Login Failed");
+          }
+        } else {
+          setErrMsg("Login Failed");
+        }
+        msgRef.current.focus();
+      }
+    
     };
   
     const handleUserInput = (e) => setUser(e.target.value);
@@ -121,10 +130,10 @@ const Login = () => {
                   >
                     <div className="form-group ">
                       <input
-                        type="email"
+                        type="text"
                         className="form-control form-control-lg"
                         id="exampleInputEmail1"
-                        placeholder="Email"
+                        placeholder="Username"
                         ref={userRef}
                         value={user}
                         onChange={handleUserInput}
@@ -155,9 +164,9 @@ const Login = () => {
                           "LOG IN"
                         )}
                       </button>
-                      <button className="btn btn-block btn-color btn-lg font-weight-medium auth-form-btn" onClick={() => navigate('overview')}>
+                      {/* <button className="btn btn-block btn-color btn-lg font-weight-medium auth-form-btn" onClick={() => navigate('overview')}>
                        navigate
-                      </button>
+                      </button> */}
                     </div>
                   </form>
                 </div>

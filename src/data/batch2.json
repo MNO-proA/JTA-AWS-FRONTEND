@@ -1,0 +1,17 @@
+{
+   
+    "Staff": [
+      {
+        "PutRequest": {
+          "Item": {
+            "staffID": { "S": "JTA026" },
+            "fullName": { "S": "Care Solutions Agency" },
+            "employmentType": { "S": "Agency" },
+            "jobTitle": { "S": "Agency RCW" },
+            "hourlyRate": { "N": "20.39" }
+          }
+        }
+      }
+    ]
+ 
+}

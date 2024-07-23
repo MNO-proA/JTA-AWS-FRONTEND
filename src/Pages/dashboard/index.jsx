@@ -1,4 +1,4 @@
-import  { useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { Box, Grid, Card, CardContent, Typography, Button, Stack } from '@mui/material';
 import { ResponsiveBar } from '@nivo/bar';
 import { ResponsivePie } from '@nivo/pie';
@@ -6,30 +6,14 @@ import dayjs from 'dayjs';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useTheme } from '@mui/material';
+import { useGetShiftsQuery, selectAllShifts } from '../../features/shifts/shiftSlice';
+import { useGetExpensesQuery, selectAllExpenses } from '../../features/expenses/expenseSlice';
+import { selectAllStaff, selectStaffsTotal, useGetStaffQuery } from "../../features/staffs/staffSlice";
+import { useSelector } from 'react-redux';
+import useDashboardData from './hook/Dataprocessing';
 
-// Mock data (replace with your actual data)
-const employeeData = [
-  { id: 'Employee 1', wages: 1000, hours: 40 },
-  { id: 'Employee 2', wages: 1200, hours: 45 },
-  { id: 'Employee 3', wages: 800, hours: 35 },
-];
 
-const houseData = [
-  { id: 'House A', value: 30 },
-  { id: 'House B', value: 40 },
-  { id: 'House C', value: 30 },
-];
 
-const absenceData = [
-  { id: 'Present', value: 85 },
-  { id: 'Absent', value: 15 },
-];
-
-const expenseData = [
-  { expense: 'Category 1', value: 1000 },
-  { expense: 'Category 2', value: 1500 },
-  { expense: 'Category 3', value: 800 },
-];
 
 const shortcutRanges = [
     {
@@ -64,99 +48,503 @@ const shortcutRanges = [
 
 
 const AllDashboard = () => {
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  // const [startDate, setStartDate] = useState(null);
+  // const [endDate, setEndDate] = useState(null);
+  const {isLoading: isStaffLoading} = useGetStaffQuery()
+  const {isLoading: isShiftsLoading} = useGetShiftsQuery()
+  const {isLoading: isExpenseLoading} = useGetExpensesQuery()
 
-  const handleDateRangeChange = (start, end) => {
-    setStartDate(start);
-    setEndDate(end);
-    // Update your data based on the new date range here
-  };
+  const staffsData = useSelector(selectAllStaff)
+  const shiftsData = useSelector(selectAllShifts)
+  const expensesData = useSelector(selectAllExpenses)
+  const staffsTotal = useSelector(selectStaffsTotal)
+
+  useEffect(()=>{
+    console.log(staffsData)
+  }, [staffsData])
+  useEffect(()=>{
+    console.log(shiftsData)
+  }, [shiftsData])
+  useEffect(()=>{
+    console.log(expensesData)
+  }, [expensesData])
+
+
+
+
+  const {
+    wageData,
+    hoursData,
+    absenceData,
+    expenseData,
+    shiftProportions,
+    grandTotalWage,
+    grandTotalExpense,
+    staffList,
+    startDate,
+    endDate,
+    handleDateRangeChange,
+    handleShortcutRange
+  } = useDashboardData(shiftsData, expensesData, staffsData);
+
+
+
 
   const theme = useTheme()
-
 
   return (
     <Box m="20px">
       <Grid container spacing={3}>
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <Card  sx={{ bgcolor: theme.palette.neutral[800]}}>
             <CardContent>
               <Typography mb={2} variant="h6">Date Range Picker</Typography>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <Stack direction="row" spacing={2} alignItems="center" mb={2}>
-                  <DatePicker
-                    label="Start Date"
-                    value={startDate}
-                    onChange={(newValue) => handleDateRangeChange(newValue, endDate)}
-                  />
-                  <DatePicker
-                    label="End Date"
-                    value={endDate}
-                    onChange={(newValue) => handleDateRangeChange(startDate, newValue)}
-                  />
-                </Stack>
-                <Stack direction="row" spacing={1} flexWrap="wrap">
-                  {shortcutRanges.map((range) => (
-                    <>
-                    <Button
-                      key={range.label}
-                      variant="contained"
-                      onClick={() => {
-                        const [start, end] = range.getDates();
-                        handleDateRangeChange(start, end);
-                      }}
-                    >
-                      {range.label}
-                    </Button>
-                   
-                    </>
-                  ))}
-                   <Button
-                      variant="contained"
-                      onClick={() => {
-                        handleDateRangeChange(null);
-                      }}
-                    >
-                      Reset
-                    </Button>
-                </Stack>
+                  <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+                    <DatePicker
+                      label="Start Date"
+                      value={startDate}
+                      onChange={(newValue) => handleDateRangeChange(newValue, endDate)}
+                    />
+                    <DatePicker
+                      label="End Date"
+                      value={endDate}
+                      onChange={(newValue) => handleDateRangeChange(startDate, newValue)}
+                    />
+                  </Stack>
+                  <Stack direction="row" spacing={1} flexWrap="wrap">
+                    {['This Week', 'Last Week', 'This Month', 'Last Month', 'Reset'].map((range) => (
+                      <Button
+                        key={range}
+                        variant="contained"
+                        onClick={() => handleShortcutRange(range)}
+                      >
+                        {range}
+                      </Button>
+                    ))}
+                  </Stack>
               </LocalizationProvider>
             </CardContent>
           </Card>
-        </Grid>
+        </Grid> */}
+          <Grid item xs={12}>
+            <Card sx={{   bgcolor: theme.palette.background.default }}>
+              <CardContent>
+                <Typography mb={2} variant="h6">Date Range Picker</Typography>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" mb={2}>
+                    <DatePicker
+                      label="Start Date"
+                      value={startDate}
+                      onChange={(newValue) => handleDateRangeChange(newValue, endDate)}
+                      sx={{ width: { xs: '100%', sm: 'auto' } }} // Full width on small screens
+                    />
+                    <DatePicker
+                      label="End Date"
+                      value={endDate}
+                      onChange={(newValue) => handleDateRangeChange(startDate, newValue)}
+                      sx={{ width: { xs: '100%', sm: 'auto' } }} // Full width on small screens
+                    />
+                  </Stack>
+                  <Stack direction="row" spacing={1} flexWrap="wrap">
+                    {['This Week', 'Last Week', 'This Month', 'Last Month', 'Reset'].map((range) => (
+                      <Button
+                        key={range}
+                        variant="contained"
+                        onClick={() => handleShortcutRange(range)}
+                        sx={{ mb: 5 }} // Add margin-bottom for better spacing on small screens
+                      >
+                        {range}
+                      </Button>
+                    ))}
+                  </Stack>
+                </LocalizationProvider>
+              </CardContent>
+            </Card>
+          </Grid>
+
+        {/* ++++++++++++++++++++++++++++ TOTAL WAGE BAR +++++++++++++++++++++++++++ */}
         <Grid item xs={12} md={8}>
-          <Card   sx={{ bgcolor: theme.palette.neutral[800]}}>
+          <Card   sx={{   bgcolor: theme.palette.background.default  }}>
             <CardContent>
               <Typography variant="h6">Total Wages per Employee</Typography>
-              <Box height={300}>
-                <ResponsiveBar
-                  data={employeeData}
-                  keys={['wages']}
-                  indexBy="id"
-                  margin={{ top: 50, right: 130, bottom: 50, left: 90 }}
-                  padding={0.3}
+              <Box height={500} sx={{mt: '20px'}}>
+              <ResponsiveBar
+                  data={wageData}
+                  keys={['totalWage']}
+                  indexBy="staffID"
+                  margin={{ top: 10, right: 90, bottom: 10, left: 50 }}
+                  padding={0.1}
                   layout="horizontal"
                   valueScale={{ type: 'linear' }}
                   colors="#4dc4b8"
                   indexScale={{ type: 'band', round: true }}
                   // colors={{ scheme: 'nivo' }}
                   axisTop={null}
-                  axisRight={100}
-                  axisBottom={{
-                    tickSize: 5,
-                    tickPadding: 5,
-                    tickRotation: 0,
-                    legend: 'Wages',
-                    legendPosition: 'middle',
-                    legendOffset: 32,
-                    
-                  }}
+                  axisRight={null}
+                  innerPadding={4}
+                  axisBottom={null}
                   axisLeft={{
                     tickSize: 5,
                     tickPadding: 0,
                     tickRotation: 0,
                     // legend: 'Employee',
+                    // legendPosition: 'middle',
+                    // legendOffset: -40
+                  }}
+                  tooltip={({ data }) => (
+                    <div style={{backgroundColor: theme.palette.primary[100], color: theme.palette.primary[900], padding: '8px' }}>
+                      <strong>{data.fullName}</strong><br />
+                      Staff ID: {data.staffID}<br />
+                      Total Wage: ${data.totalWage.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}
+                    </div>
+                  )}
+                  theme={{
+                    axis: {
+                      ticks: {
+                        text: {
+                          fill: theme.palette.primary[100], // Font color for axis ticks
+                        },
+                      },
+                      legend: {
+                        text: {
+                          fill: theme.palette.primary[100],// Font color for axis legends
+                        },
+                      },
+                    },
+                    legends: {
+                      text: {
+                        fill: theme.palette.primary[100], // Font color for chart legends
+                      },
+                    },
+                    labels: {
+                      text: {
+                        fill: theme.palette.primary[100], // Font color for bar labels
+                      },
+                    },
+                    tooltip: {
+                      container: {
+                        background: theme.palette.secondary[100], // Background color for tooltip
+                        color: theme.palette.primary[900], // Font color for tooltip
+                        fontSize: '14px', // Font size for tooltip
+                      },
+                    },
+                   
+                  }}
+                
+                  // 5px 5px 5px 5px ${theme.palette.primary[900]}
+                /> 
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+        {/* ++++++++++++++++++++++++++++ CARD TOTALS  +++++++++++++++++++++++++++ */}
+        <Grid item xs={12} md={4}>
+          <Card  sx={{ bgcolor: theme.palette.background.default, boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`} }>
+            <CardContent>
+              <Typography variant="h6">Total Employees</Typography>
+              <Typography variant="h3">{staffsTotal}</Typography>
+            </CardContent>
+          </Card>
+          <br />
+          <br />
+       
+          <Card  sx={{ bgcolor: theme.palette.background.default, boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`} }>
+            <CardContent>
+              <Typography variant="h6">Grand Total Wage</Typography>
+              <Typography variant="h3">{grandTotalWage.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}</Typography>
+            </CardContent>
+          </Card>
+          <br />
+          <br />
+      
+          <Card sx={{ bgcolor: theme.palette.background.default, boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`} } >
+            <CardContent>
+              <Typography variant="h6">Grand Total Expense</Typography>
+              <Typography variant="h3">${grandTotalExpense.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}</Typography>
+            </CardContent>
+          </Card>
+        {/* </Grid> */}
+        </Grid>
+         {/* ++++++++++++++++++++++++++++ TOTAL HOURS BAR  +++++++++++++++++++++++++++ */}
+        <Grid item xs={12} md={8}>
+          <Card  sx={{ bgcolor: theme.palette.background.default}}>
+            <CardContent>
+              <Typography variant="h6">Total Hours per Staff</Typography>
+              <Box height={500} sx={{mt: '20px'}}>
+                <ResponsiveBar
+                  data={hoursData}
+                  keys={['totalHours']}
+                  indexBy="staffID"
+                  margin={{ top: 10, right: 90, bottom: 10, left: 50 }}
+                  padding={0.1}
+                  layout="horizontal"
+                  valueScale={{ type: 'linear' }}
+                  indexScale={{ type: 'band', round: true }}
+                  colors="#4dc4b8"
+                  axisTop={null}
+                  axisRight={null}
+                  axisBottom={null}
+                  innerPadding={4}
+                  axisLeft={{
+                    tickSize: 5,
+                    tickPadding: 5,
+                    tickRotation: 0,
+                    // legend: 'Employee',
+                    legendPosition: 'middle',
+                    legendOffset: -40
+                  }}
+                  tooltip={({ data }) => (
+                    <div style={{backgroundColor: theme.palette.primary[100], color: theme.palette.primary[900], padding: '8px' }}>
+                      <strong>{data.fullName}</strong><br />
+                      Staff ID: {data.staffID}<br />
+                      Total Hours: {data.totalHours}
+                    </div>
+                  )}
+                  theme={{
+                    axis: {
+                      ticks: {
+                        text: {
+                          fill: theme.palette.primary[100], // Font color for axis ticks
+                        },
+                      },
+                      legend: {
+                        text: {
+                          fill: theme.palette.primary[100],// Font color for axis legends
+                        },
+                      },
+                    },
+                    legends: {
+                      text: {
+                        fill: theme.palette.primary[100], // Font color for chart legends
+                      },
+                    },
+                    labels: {
+                      text: {
+                        fill: theme.palette.primary[100], // Font color for bar labels
+                      },
+                    },
+                    tooltip: {
+                      container: {
+                        background: theme.palette.primary[100], // Background color for tooltip
+                        color: theme.palette.primary[900], // Font color for tooltip
+                        fontSize: '14px', // Font size for tooltip
+                      },
+                    },
+                  }}
+                />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+         {/* ++++++++++++++++++++++++++++ ABSENCE BAR +++++++++++++++++++++++++++ */}
+         <Grid item xs={12} md={8}>
+          <Card  sx={{ bgcolor: theme.palette.background.default}}>
+            <CardContent>
+              <Typography variant="h6">Total Absence</Typography>
+              <Box height={500} sx={{mt: '20px'}}>
+                {/* <ResponsiveBar
+                data={absenceData}
+                keys={['yes', 'no']}
+                indexBy="staffID"
+                margin={{ top: 10, right: 90, bottom: 10, left: 50 }}
+                padding={0.1}
+                layout="horizontal"
+                valueScale={{ type: 'linear' }}
+                indexScale={{ type: 'band', round: true }}
+                colors="#4dc4b8"
+                axisTop={null}
+                axisRight={null}
+                axisBottom={null}
+                innerPadding={4}
+                  // axisBottom={{
+                  //   tickSize: 5,
+                  //   tickPadding: 5,
+                  //   tickRotation: 0,
+                  //   legend: 'Category',
+                  //   legendPosition: 'middle',
+                  //   legendOffset: 32
+                  // }}
+                  axisLeft={{
+                    tickSize: 5,
+                    tickPadding: 5,
+                    tickRotation: 0,
+                    // legendPosition: 'middle',
+                    legendOffset: -40
+                  }}
+                  theme={{
+                    axis: {
+                      ticks: {
+                        text: {
+                          fill: theme.palette.primary[100], // Font color for axis ticks
+                        },
+                      },
+                      legend: {
+                        text: {
+                          fill: theme.palette.primary[100],// Font color for axis legends
+                        },
+                      },
+                    },
+                    legends: {
+                      text: {
+                        fill: theme.palette.primary[100], // Font color for chart legends
+                      },
+                    },
+                    labels: {
+                      text: {
+                        fill: theme.palette.primary[100], // Font color for bar labels
+                      },
+                    },
+                    tooltip: {
+                      container: {
+                        background: theme.palette.primary[100], // Background color for tooltip
+                        color: theme.palette.primary[900], // Font color for tooltip
+                        fontSize: '14px', // Font size for tooltip
+                      },
+                    },
+                  }}
+                /> */}
+                 <ResponsiveBar
+                 data={absenceData}
+                 keys={['yes', 'no']}
+                 indexBy="staffID"
+                 margin={{ top: 10, right: 90, bottom: 10, left: 50 }}
+                 padding={0.1}
+                  layout="horizontal"
+                  valueScale={{ type: 'linear' }}
+                  indexScale={{ type: 'band', round: true }}
+                  colors="#4dc4b8"
+                  axisTop={null}
+                  axisRight={null}
+                  axisBottom={null}
+                  innerPadding={4}
+                  axisLeft={{
+                    tickSize: 5,
+                    tickPadding: 5,
+                    tickRotation: 0,
+                    // legend: 'Value',
+                    // legendPosition: 'middle',
+                    // legendOffset: -40
+                  }}
+                  tooltip={({ id, value, data }) => (
+                    <div style={{backgroundColor: theme.palette.primary[100], color: theme.palette.primary[900], padding: '8px' }}>
+                      <strong>{data.fullName}</strong><br />
+                      Staff ID: {data.staffID}<br />
+                      {id === 'yes' ? 'Absences' : 'Attendances'}: {value}
+                    </div>
+                  )}
+                  theme={{
+                    axis: {
+                      ticks: {
+                        text: {
+                          fill: theme.palette.primary[100],
+                        },
+                      },
+                      legend: {
+                        text: {
+                          fill: theme.palette.primary[100],
+                        },
+                      },
+                    },
+                    legends: {
+                      text: {
+                        fill: theme.palette.primary[100],
+                      },
+                    },
+                    labels: {
+                      text: {
+                        fill: theme.palette.primary[100],
+                      },
+                    },
+                    tooltip: {
+                      container: {
+                        background: theme.palette.primary[100],
+                        color: theme.palette.primary[900],
+                        fontSize: '14px',
+                      },
+                    },
+                  }}
+                />
+
+
+
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+         {/* ++++++++++++++++++++++++++++ DAY/NIGHT PIE +++++++++++++++++++++++++++ */}
+        <Grid item xs={12} md={4}>
+          <Card   sx={{
+                    bgcolor: theme.palette.background.default,
+                    boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`,
+                    mt: {
+                      xs: 0, // No margin-top on extra-small and small screens
+                      md: '-750px', // Apply margin-top on medium and larger screens
+                    },
+                  }}>
+            <CardContent>
+              <Typography variant="h6">Shifts</Typography>
+              <Box height={300}>
+                <ResponsivePie
+                  data={[
+                    { id: 'Day', value: shiftProportions.day.toFixed(1) },
+                    { id: 'Night', value: shiftProportions.night.toFixed(1) }
+                  ]}
+                  margin={{ top: 20, right: 40, bottom: 40, left: 40 }}
+                  // innerRadius={0.5}
+                  // padAngle={0.7}
+                  // cornerRadius={10}
+                  // activeOuterRadiusOffset={8}
+                  colors={['#4dc4b8', '#b8e1dd', '#2fad9a', '#56b6a4', '#00a08b']}
+                  enableArcLinkLabels={false} // Disable arc link labels
+                  // arcLinkLabelsSkipAngle={0.2}
+                  // arcLinkLabelsTextColor= {theme.palette.primary[100]}
+                  // arcLinkLabelsThickness={0.5}
+                  // arcLinkLabelsColor={{ from: 'color' }}
+                  // arcLabelsSkipAngle={0.2}
+                  // arcLabelsTextColor={{ from: 'color', modifiers: [['darker', 2]] }}
+                  theme={{
+                    axis: {
+                   
+                    },
+                   
+                    tooltip: {
+                      container: {
+                        background: theme.palette.primary[100], // Background color for tooltip
+                        color: theme.palette.primary[900], // Font color for tooltip
+                        fontSize: '14px', // Font size for tooltip
+                      },
+                    },
+                  }}
+                />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+         {/* ++++++++++++++++++++++++++++ TOTAL EXPENSE BAR +++++++++++++++++++++++++++ */}
+        <Grid item xs={12} md={8}>
+          <Card  sx={{ bgcolor: theme.palette.background.default}}>
+            <CardContent>
+              <Typography variant="h6">Total Expenses</Typography>
+              <Box height={300} sx={{mt: '20px'}}>
+                <ResponsiveBar
+                  data={expenseData}
+                  keys={['total']}
+                  indexBy="category"
+                  margin={{ top: 50, right: 130, bottom: 50, left: 90 }}
+                  padding={0.3}
+                  layout="horizontal"
+                  valueScale={{ type: 'linear' }}
+                  indexScale={{ type: 'band', round: true }}
+                  colors="#4dc4b8"
+                  axisTop={null}
+                  axisRight={null}
+                  axisBottom={null}
+                  axisLeft={{
+                    tickSize: 5,
+                    tickPadding: 5,
+                    tickRotation: 0,
+                    // legend: 'Value',
                     // legendPosition: 'middle',
                     // legendOffset: -40
                   }}
@@ -191,289 +579,30 @@ const AllDashboard = () => {
                       },
                     },
                   }}
-                
-                  // `5px 5px 5px 5px ${theme.palette.primary[900]}`
                 />
               </Box>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
-          <Card  sx={{ bgcolor: theme.palette.neutral[800], boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`} }>
-            <CardContent>
-              <Typography variant="h6">Total Employees</Typography>
-              <Typography variant="h3">{employeeData.length}</Typography>
-            </CardContent>
-          </Card>
-          <br />
-          <br />
-       
-          <Card  sx={{ bgcolor: theme.palette.neutral[800], boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`} }>
-            <CardContent>
-              <Typography variant="h6">Grand Total Wage</Typography>
-              <Typography variant="h3">{employeeData.length}</Typography>
-            </CardContent>
-          </Card>
-          <br />
-          <br />
-      
-          <Card sx={{ bgcolor: theme.palette.neutral[800], boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`} } >
-            <CardContent>
-              <Typography variant="h6">Grand Total Expense</Typography>
-              <Typography variant="h3">
-                ${expenseData.reduce((total, expense) => total + expense.value, 0).toLocaleString()}
+        
+         {/* ++++++++++++++++++++++++++++ STAFF LIST  +++++++++++++++++++++++++++ */}
+        <Grid item xs={12} md={4} sx={{ mt: {
+                  xs: 0, // No margin-top on extra-small and small screens
+                  md: '-890px', // Apply margin-top on medium and larger screens
+                },
+                bgcolor: theme.palette.background.default}}>
+        <Card>
+          <CardContent>
+            <Typography variant="h4">STAFF LISTS</Typography>
+            <hr />
+            {staffList.map(staff => (
+              <Typography key={staff.staffID}>
+                {staff.staffID} - {staff.fullName}
               </Typography>
-            </CardContent>
-          </Card>
-        {/* </Grid> */}
-        </Grid>
-        <Grid item xs={12} md={8}>
-          <Card  sx={{ bgcolor: theme.palette.neutral[800]}}>
-            <CardContent>
-              <Typography variant="h6">Total Hours per Employee</Typography>
-              <Box height={300}>
-                <ResponsiveBar
-                  data={employeeData}
-                  keys={['hours']}
-                  indexBy="id"
-                  margin={{ top: 50, right: 130, bottom: 50, left: 90 }}
-                  padding={0.3}
-                  layout="horizontal"
-                  valueScale={{ type: 'linear' }}
-                  indexScale={{ type: 'band', round: true }}
-                  colors="#4dc4b8"
-                  axisTop={null}
-                  axisRight={100}
-                  axisBottom={{
-                    tickSize: 5,
-                    tickPadding: 5,
-                    tickRotation: 0,
-                    legend: 'Hours',
-                    legendPosition: 'middle',
-                    legendOffset: 32
-                  }}
-                  axisLeft={{
-                    tickSize: 5,
-                    tickPadding: 5,
-                    tickRotation: 0,
-                    // legend: 'Employee',
-                    legendPosition: 'middle',
-                    legendOffset: -40
-                  }}
-                  theme={{
-                    axis: {
-                      ticks: {
-                        text: {
-                          fill: theme.palette.primary[100], // Font color for axis ticks
-                        },
-                      },
-                      legend: {
-                        text: {
-                          fill: theme.palette.primary[100],// Font color for axis legends
-                        },
-                      },
-                    },
-                    legends: {
-                      text: {
-                        fill: theme.palette.primary[100], // Font color for chart legends
-                      },
-                    },
-                    labels: {
-                      text: {
-                        fill: theme.palette.primary[100], // Font color for bar labels
-                      },
-                    },
-                    tooltip: {
-                      container: {
-                        background: theme.palette.primary[100], // Background color for tooltip
-                        color: theme.palette.primary[900], // Font color for tooltip
-                        fontSize: '14px', // Font size for tooltip
-                      },
-                    },
-                  }}
-                />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Card  sx={{ bgcolor: theme.palette.neutral[800], boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`}}>
-            <CardContent>
-              <Typography variant="h6">Proportion of Houses</Typography>
-              <Box height={300}>
-                <ResponsivePie
-                  data={houseData}
-                  margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
-                  innerRadius={0.5}
-                  padAngle={0.7}
-                  cornerRadius={3}
-                  activeOuterRadiusOffset={8}
-                  colors={['#4dc4b8', '#b8e1dd', '#2fad9a', '#56b6a4', '#00a08b']}
-                  arcLinkLabelsSkipAngle={10}
-                  arcLinkLabelsTextColor= {theme.palette.primary[100]}
-                  arcLinkLabelsThickness={2}
-                  arcLinkLabelsColor={{ from: 'color' }}
-                  arcLabelsSkipAngle={10}
-                  arcLabelsTextColor={{ from: 'color', modifiers: [['darker', 2]] }}
-                  theme={{
-                    axis: {
-                      ticks: {
-                        text: {
-                          fill: theme.palette.primary[100], // Font color for axis ticks
-                        },
-                      },
-                      legend: {
-                        text: {
-                          fill: theme.palette.primary[100],// Font color for axis legends
-                        },
-                      },
-                    },
-                    legends: {
-                      text: {
-                        fill: theme.palette.primary[100], // Font color for chart legends
-                      },
-                    },
-                    labels: {
-                      text: {
-                        fill: theme.palette.primary[100], // Font color for bar labels
-                      },
-                    },
-                    tooltip: {
-                      container: {
-                        background: theme.palette.primary[100], // Background color for tooltip
-                        color: theme.palette.primary[900], // Font color for tooltip
-                        fontSize: '14px', // Font size for tooltip
-                      },
-                    },
-                  }}
-                />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Card  sx={{ bgcolor: theme.palette.neutral[800], boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`}}>
-            <CardContent>
-              <Typography variant="h6">Proportion of Absence</Typography>
-              <Box height={300}>
-                <ResponsivePie
-                  data={absenceData}
-                  margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
-                  innerRadius={0.5}
-                  padAngle={0.7}
-                  cornerRadius={3}
-                  activeOuterRadiusOffset={8}
-                  colors={['#4dc4b8', '#b8e1dd', '#2fad9a', '#56b6a4', '#00a08b']}
-                  arcLinkLabelsSkipAngle={10}
-                  arcLinkLabelsTextColor= {theme.palette.primary[100]}
-                  arcLinkLabelsThickness={2}
-                  arcLinkLabelsColor={{ from: 'color' }}
-                  arcLabelsSkipAngle={10}
-                  arcLabelsTextColor={{ from: 'color', modifiers: [['darker', 2]] }}
-                  theme={{
-                    axis: {
-                      ticks: {
-                        text: {
-                          fill: theme.palette.primary[100], // Font color for axis ticks
-                        },
-                      },
-                      legend: {
-                        text: {
-                          fill: theme.palette.primary[100],// Font color for axis legends
-                        },
-                      },
-                    },
-                    legends: {
-                      text: {
-                        fill: theme.palette.primary[100], // Font color for chart legends
-                      },
-                    },
-                    labels: {
-                      text: {
-                        fill: theme.palette.primary[100], // Font color for bar labels
-                      },
-                    },
-                    tooltip: {
-                      container: {
-                        background: theme.palette.primary[100], // Background color for tooltip
-                        color: theme.palette.primary[900], // Font color for tooltip
-                        fontSize: '14px', // Font size for tooltip
-                      },
-                    },
-                  }}
-                />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={8}>
-          <Card  sx={{ bgcolor: theme.palette.neutral[800]}}>
-            <CardContent>
-              <Typography variant="h6">Total Expenses</Typography>
-              <Box height={300}>
-                <ResponsiveBar
-                  data={expenseData}
-                  keys={['value']}
-                  indexBy="expense"
-                  margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
-                  padding={0.3}
-                  valueScale={{ type: 'linear' }}
-                  indexScale={{ type: 'band', round: true }}
-                  colors="#4dc4b8"
-                  axisTop={null}
-                  axisRight={null}
-                  axisBottom={{
-                    tickSize: 5,
-                    tickPadding: 5,
-                    tickRotation: 0,
-                    legend: 'Category',
-                    legendPosition: 'middle',
-                    legendOffset: 32
-                  }}
-                  axisLeft={{
-                    tickSize: 5,
-                    tickPadding: 5,
-                    tickRotation: 0,
-                    legend: 'Value',
-                    legendPosition: 'middle',
-                    legendOffset: -40
-                  }}
-                  theme={{
-                    axis: {
-                      ticks: {
-                        text: {
-                          fill: theme.palette.primary[100], // Font color for axis ticks
-                        },
-                      },
-                      legend: {
-                        text: {
-                          fill: theme.palette.primary[100],// Font color for axis legends
-                        },
-                      },
-                    },
-                    legends: {
-                      text: {
-                        fill: theme.palette.primary[100], // Font color for chart legends
-                      },
-                    },
-                    labels: {
-                      text: {
-                        fill: theme.palette.primary[100], // Font color for bar labels
-                      },
-                    },
-                    tooltip: {
-                      container: {
-                        background: theme.palette.primary[100], // Background color for tooltip
-                        color: theme.palette.primary[900], // Font color for tooltip
-                        fontSize: '14px', // Font size for tooltip
-                      },
-                    },
-                  }}
-                />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+            ))}
+          </CardContent>
+        </Card>
+      </Grid>
        
       </Grid>
       <br />
@@ -491,3 +620,60 @@ const AllDashboard = () => {
 export default AllDashboard;
 
 
+
+
+{/* <Grid item xs={12} md={4}>
+<Card  sx={{ bgcolor: theme.palette.neutral[800], boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`}}>
+  <CardContent>
+    <Typography variant="h6">Proportion of Houses</Typography>
+    <Box height={300}>
+      <ResponsivePie
+        data={houseData}
+        margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+        innerRadius={0.5}
+        padAngle={0.7}
+        cornerRadius={3}
+        activeOuterRadiusOffset={8}
+        colors={['#4dc4b8', '#b8e1dd', '#2fad9a', '#56b6a4', '#00a08b']}
+        arcLinkLabelsSkipAngle={10}
+        arcLinkLabelsTextColor= {theme.palette.primary[100]}
+        arcLinkLabelsThickness={2}
+        arcLinkLabelsColor={{ from: 'color' }}
+        arcLabelsSkipAngle={10}
+        arcLabelsTextColor={{ from: 'color', modifiers: [['darker', 2]] }}
+        theme={{
+          axis: {
+            ticks: {
+              text: {
+                fill: theme.palette.primary[100], // Font color for axis ticks
+              },
+            },
+            legend: {
+              text: {
+                fill: theme.palette.primary[100],// Font color for axis legends
+              },
+            },
+          },
+          legends: {
+            text: {
+              fill: theme.palette.primary[100], // Font color for chart legends
+            },
+          },
+          labels: {
+            text: {
+              fill: theme.palette.primary[100], // Font color for bar labels
+            },
+          },
+          tooltip: {
+            container: {
+              background: theme.palette.primary[100], // Background color for tooltip
+              color: theme.palette.primary[900], // Font color for tooltip
+              fontSize: '14px', // Font size for tooltip
+            },
+          },
+        }}
+      />
+    </Box>
+  </CardContent>
+</Card>
+</Grid> */}

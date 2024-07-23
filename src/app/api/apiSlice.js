@@ -1,50 +1,45 @@
-// import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-// import { setCredentials, logOut } from "../../features/auth/authSlice";
-// import { refreshAccessToken } from "../../utils/utilsFunc";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { logOut } from "../../features/auth/authSlice";
 
-// const baseQuery = fetchBaseQuery({
-//   baseUrl: "https://jta.pythonanywhere.com/api",
-//   credentials: "include",
-//   prepareHeaders: (headers, { getState }) => {
-//     const token = getState().auth.token;
-//     if (token) {
-//       headers.set("authorization", `Bearer ${token}`);
-//     }
-//     return headers;
-//   },
-// });
 
-// const baseQueryWithReauth = async (args, api, extraOptions) => {
-//   let result = await baseQuery(args, api, extraOptions);
+const baseQuery = fetchBaseQuery({
+  baseUrl: import.meta.env.VITE_API_URL,
+  credentials: "include",
+  prepareHeaders: (headers, { getState }) => {
+    const token = getState().auth.token;
+    if (token) {
+      headers.set("authorization", `Bearer ${token}`);
+    }
+    return headers;
+  },
+});
 
-//   if (result.error && result.error.status === 401) {
-//     console.log("sending refresh token");
-//     // send refresh token to get new access token
-//     // console.log(api.getState().auth.refreshToken);
-//     const refreshResult = await refreshAccessToken(
-//       api.getState().auth.refreshToken
-//     );
-//     // console.log(`access: ${refreshResult}`);
-//     if (refreshResult) {
-//       const user = api.getState().auth.user;
-//       const refresh = api.getState().auth.refreshToken;
-//       // store the new token
-//       const access = refreshResult || null;
-//       api.dispatch(setCredentials({ access, user, refresh }));
-//       // retry the original query with new access token
-//       result = await baseQuery(args, api, extraOptions);
-//     } else {
-//       api.dispatch(logOut());
-//     }
-//   }
+const baseQueryWithReauth = async (args, api, extraOptions) => {
+    try {
+      let result = await baseQuery(args, api, extraOptions);
+  
+      if (result.error) {
+        if (result.error.status === 401) {
+          // Handle unauthorized errors
+          api.dispatch(logOut());
+        } else {
+          // Handle other HTTP errors
+          console.error("API Error:", result.error);
+        }
+      }
+  
+      return result;
+    } catch (error) {
+      // Handle unexpected errors
+      console.error("Unexpected Error:", error);
+      throw error; // Re-throw the error to be handled by calling code
+    }
+  };
 
-//   return result;
-// };
-
-// export const apiSlice = createApi({
-//   baseQuery: baseQueryWithReauth,
-//   // eslint-disable-next-line no-unused-vars
-//   tagTypes: ["Tracks", "Employees"],
-//   // eslint-disable-next-line no-unused-vars
-//   endpoints: (builder) => ({}),
-// });
+export const apiSlice = createApi({
+  baseQuery: baseQueryWithReauth,
+  // eslint-disable-next-line no-unused-vars
+   tagTypes: ['Staff', 'Shifts', 'Expenses'],
+  // eslint-disable-next-line no-unused-vars
+  endpoints: (builder) => ({}),
+});

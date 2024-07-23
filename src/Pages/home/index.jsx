@@ -1,223 +1,381 @@
-/* eslint-disable react/prop-types */
 import { useState } from "react";
 import {
   Box,
-  Card,
-  CardActions,
-  CardContent,
-  Collapse,
   Button,
-  Typography,
   useTheme,
   useMediaQuery,
 } from "@mui/material";
 import Header from "../../Components/Header";
-// import { useGetProductsQuery } from "state/api";
+import { selectAllStaff, useGetStaffQuery, useAddStaffMutation, useUpdateStaffMutation, useDeleteStaffMutation } from "../../features/staffs/staffSlice";
+import { useSelector } from "react-redux";
+
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import SingleStaff from "./SingleStaff";  // Assuming you have this component
+/* eslint-disable react/prop-types */
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import {
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  MenuItem,
+} from "@mui/material";
+
+
+import DeleteIcon from '@mui/icons-material/Delete';
 
 
 
-const SingleStaff = ({
-    staffID,
-    fullName,
-    employmentType,
-    jobTitle,
-    hourlyRate
-  }) => {
-    const theme = useTheme();
-    const [isExpanded, setIsExpanded] = useState(false);
-  
-    return (
-      <Card
-        sx={{
-          backgroundImage: "none",
-          backgroundColor: theme.palette.background.alt,
-          borderRadius: "0.55rem",
-        }}
-      >
-        <CardContent>
-          <Typography
-            sx={{ fontSize: 14 }}
-            color={theme.palette.secondary[200]}
-            gutterBottom
-          >
-            { staffID}
-          </Typography>
-          <Typography variant="h5" component="div">
-            {fullName}
-          </Typography>
-          <Typography sx={{ mb: "1.5rem" }} color={theme.palette.secondary[100]}>
-            {jobTitle}
-          </Typography>
-          <Typography sx={{ mb: "1.5rem" }} color={theme.palette.secondary[100]}>
-            {employmentType}
-          </Typography>
-          
-  
-          {/* <Typography variant="body2">{description}</Typography> */}
-        </CardContent>
-        <CardActions>
-          <Button
-            variant="primary"
-            size="small"
-            onClick={() => setIsExpanded(!isExpanded)}
-            sx={{marginRight: '1rem'}}
-          >
-            See More
-          </Button>
-          <Button
-            variant="danger"
-            size="small"
-        
-          
-          >
-            Delete
-          </Button>
-        </CardActions>
-        <Collapse
-          in={isExpanded}
-          timeout="auto"
-          unmountOnExit
-          sx={{
-            color: theme.palette.neutral[300],
+// Function to generate the new staffID
+const generateStaffID = (staffsData) => {
+  if (staffsData.length === 0) return 'JTA001'; // Default ID if no staff exists
+
+  const lastStaffID = staffsData[0]?.staffID; // Get the ID of the last staff member (first in descending order)
+  const numericPart = parseInt(lastStaffID.match(/\d+/)[0], 10); // Extract numeric part
+  const newNumericPart = numericPart + 1; // Increment numeric part
+  return `JTA${newNumericPart.toString().padStart(3, '0')}`; // Construct new staff ID
+};
+
+// Validation schema for the staff form
+const isAllCaps = (value) => {
+  if (!value) {
+    // Skip validation if value is empty or undefined
+    return true;
+  }
+
+  return value === value.toUpperCase();
+};
+const capitalizeFirstLetter = (value) => {
+  if (!value) {
+    // Skip validation if value is empty or undefined
+    return true;
+  }
+
+  const words = value.split(' ');
+  return words.every((word) => /^[A-Z]/.test(word));
+};
+
+
+
+const staffValidationSchema = Yup.object().shape({
+  fullName: Yup.string()
+    .required('Full name is required')
+    .test('capitalized', 'Please capitalize the first letter of each word', capitalizeFirstLetter),
+  employmentType: Yup.string()
+    .required('Employment type is required')
+    .test('capitalized', 'Please capitalize the first letter of each word', capitalizeFirstLetter),
+  jobTitle: Yup.string()
+    .required('Job title is required')
+    .test('allCaps', 'Job title must be all uppercase', isAllCaps),
+  hourlyRate: Yup.number()
+    .positive('Hourly rate must be positive')
+    .required('Hourly rate is required'),
+});
+
+
+// StaffForm component
+const StaffForm = ({ initialValues, onSubmit, onCancel, staffData }) => {
+  const theme = useTheme();
+  const initialStaffID = generateStaffID(staffData);
+  const formik = useFormik({
+    initialValues: initialValues || {
+      staffID: initialStaffID,
+      fullName: '',
+      employmentType: '',
+      jobTitle: '',
+      hourlyRate: '',
+    },
+    validationSchema: staffValidationSchema,
+    onSubmit: (values) => {
+      onSubmit(values);
+    },
+  });
+
+  return (
+    <form onSubmit={formik.handleSubmit}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: '10px' }}>
+      <TextField
+          fullWidth
+          id="staffID"
+          name="staffID"
+          label="Staff ID"
+          value={formik.values.staffID}
+          InputProps={{
+            readOnly: true,
           }}
-        >
-          <CardContent>
-            <Typography color={theme.palette.secondary[100]}>id: {staffID}</Typography>
-            {/* <Typography>Supply Left: {supply}</Typography>
-            <Typography>
-              Yearly Sales This Year: {stat.yearlySalesTotal}
-            </Typography>
-            <Typography>
-              Yearly Units Sold This Year: {stat.yearlyTotalSoldUnits}
-            </Typography> */}
-          </CardContent>
-        </Collapse>
-      </Card>
-    );
-  };
+        />
+        <TextField
+          fullWidth
+          id="fullName"
+          name="fullName"
+          label="Full Name"
+          value={formik.values.fullName}
+          onChange={formik.handleChange}
+          error={formik.touched.fullName && Boolean(formik.errors.fullName)}
+          helperText={formik.touched.fullName && formik.errors.fullName}
+        />
+        <TextField
+          fullWidth
+          id="employmentType"
+          name="employmentType"
+          label="Employment Type"
+          value={formik.values.employmentType}
+          onChange={formik.handleChange}
+          error={formik.touched.employmentType && Boolean(formik.errors.employmentType)}
+          helperText={formik.touched.employmentType && formik.errors.employmentType}
+        />
+       
+       
+        <TextField
+          fullWidth
+          id="jobTitle"
+          name="jobTitle"
+          label="Job Title"
+          value={formik.values.jobTitle}
+          onChange={formik.handleChange}
+          error={formik.touched.jobTitle && Boolean(formik.errors.jobTitle)}
+          helperText={formik.touched.jobTitle && formik.errors.jobTitle}
+        />
+        <TextField
+          fullWidth
+          id="hourlyRate"
+          name="hourlyRate"
+          label="Hourly Rate"
+          type="number"
+          value={formik.values.hourlyRate}
+          onChange={formik.handleChange}
+          error={formik.touched.hourlyRate && Boolean(formik.errors.hourlyRate)}
+          helperText={formik.touched.hourlyRate && formik.errors.hourlyRate}
+        />
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+          <Button onClick={onCancel} sx={{ color: theme.palette.grey[500] }}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained" sx={{
+            color: 'grey',
+            '&:hover': {
+              backgroundColor: theme.palette.secondary[200],
+              color: theme.palette.primary[900],
+            },
+          }}>
+            Submit
+          </Button>
+        </Box>
+      </Box>
+    </form>
+  );
+};
+
+// StaffDialog component
+const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData }) => {
+  const isEditing = Boolean(staff);
+  const title = isEditing ? 'Edit Staff' : 'Create New Staff';
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>{title}</DialogTitle>
+      <DialogContent>
+        <StaffForm
+          initialValues={staff}
+          onSubmit={(values) => {
+            onSubmit(values);
+            onClose();
+          }}
+          onCancel={onClose}
+          staffData={staffData}
+        />
+        {isEditing && 
+          <DeleteIcon sx={{
+            mt: '-70px',
+            color: 'grey',
+          }}
+          onClick={handleDelete}
+          />
+        }
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// DeleteConfirmationDialog component
+const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme }) => {
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Confirm Deletion</DialogTitle>
+      <DialogContent>
+        Are you sure you want to delete this staff member?
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} sx={{
+          color: 'grey',
+          '&:hover': {
+            backgroundColor: theme.palette.secondary[200],
+            color: theme.palette.primary[900],
+          },
+        }}>
+          Cancel
+        </Button>
+        <Button onClick={onConfirm} sx={{
+          color: 'grey',
+          '&:hover': {
+            backgroundColor: theme.palette.secondary[200],
+            color: theme.palette.primary[900],
+          },
+        }} autoFocus>
+          Delete
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 
 
-
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 const Overview = () => {
-    // const { data, isLoading } = useGetProductsQuery();
-    const isNonMobile = useMediaQuery("(min-width: 1000px)");
-    const [isLoading, SetIsLoading] = useState()
-    const theme = useTheme();
-    const data = [
-        {
-          "staffID": "Staff-1",
-          "fullName": "Staff Member 1",
-          "employmentType": "Full-time",
-          "jobTitle": "Caregiver",
-          "hourlyRate": 22.987654321
-        },
-        {
-          "staffID": "Staff-2",
-          "fullName": "Staff Member 2",
-          "employmentType": "Part-time",
-          "jobTitle": "Nurse",
-          "hourlyRate": 12.3456789
-        },
-        {
-          "staffID": "Staff-3",
-          "fullName": "Staff Member 3",
-          "employmentType": "Full-time",
-          "jobTitle": "Administrator",
-          "hourlyRate": 18.7654321
-        },
-        {
-          "staffID": "Staff-4",
-          "fullName": "Staff Member 4",
-          "employmentType": "Part-time",
-          "jobTitle": "Caregiver",
-          "hourlyRate": 20.123456789
-        },
-        {
-          "staffID": "Staff-5",
-          "fullName": "Staff Member 5",
-          "employmentType": "Full-time",
-          "jobTitle": "Nurse",
-          "hourlyRate": 29.87654321
-        },
-        {
-          "staffID": "Staff-6",
-          "fullName": "Staff Member 6",
-          "employmentType": "Part-time",
-          "jobTitle": "Caregiver",
-          "hourlyRate": 14.567890123
-        },
-        {
-          "staffID": "Staff-7",
-          "fullName": "Staff Member 7",
-          "employmentType": "Full-time",
-          "jobTitle": "Administrator",
-          "hourlyRate": 27.654321
-        },
-        {
-          "staffID": "Staff-8",
-          "fullName": "Staff Member 8",
-          "employmentType": "Part-time",
-          "jobTitle": "Nurse",
-          "hourlyRate": 19.87654321
-        }
-      ]
-  
-    return (
-      <Box m="1.5rem 2.5rem">
-        <Header title="STAFFS" color= '#10453e' />
-        <Button sx={{marginTop: '10px', color: '#10453e', '&:hover': {
-                                  backgroundColor: theme.palette.secondary[200], 
-                                  color: theme.palette.primary[900], 
-                                },}}   variant="contained">
-                Create New Staff
-              </Button>
-        {data || !isLoading ? (
-          <Box
-            mt="20px"
-            display="grid"
-            gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-            justifyContent="space-between"
-            rowGap="20px"
-            columnGap="1.33%"
-            sx={{
-              "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
-            }}
-          >
-            {data.map(
-              ({
-                _id,
-                staffID,
-                fullName,
-                employmentType,
-                jobTitle,
-                hourlyRate
-              }) => (
-                <SingleStaff 
-                  key={_id}
-                  _id={_id}
-                  staffID={staffID}
-                  fullName={fullName}
-                  employmentType={employmentType}
-                  jobTitle={jobTitle}
-                  hourlyRate={hourlyRate}
-                />
-              )
-            )}
-          </Box>
-        ) : (
-          <>Loading...</>
-        )}
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-      </Box>
-    );
-}
+  const isNonMobile = useMediaQuery("(min-width: 1000px)");
+  const theme = useTheme();
+  const { isLoading: isStaffLoading } = useGetStaffQuery();
+  const staffData = useSelector(selectAllStaff);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [editingStaff, setEditingStaff] = useState(null);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState(null);
 
-export default Overview
+  const [addStaff] = useAddStaffMutation();
+  const [updateStaff] = useUpdateStaffMutation();
+  const [deleteStaff] = useDeleteStaffMutation();
+
+  const handleOpenDialog = () => {
+    setEditingStaff(null);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setEditingStaff(null);
+  };
+
+  const handleSubmit = async (values) => {
+    const { staffID, fullName, employmentType, jobTitle, hourlyRate } = values;
+  
+    try {
+      if (editingStaff) {
+        const updates = {};
+        if (jobTitle !== editingStaff.jobTitle) {
+          updates.jobTitle = jobTitle;
+        }
+        if (parseFloat(hourlyRate) !== parseFloat(editingStaff.hourlyRate)) {
+          updates.hourlyRate = parseFloat(hourlyRate);
+        }
+        if (fullName !== editingStaff.fullName) {
+          updates.fullName = fullName;
+        }
+        if (employmentType !== editingStaff.employmentType) {
+          updates.employmentType = employmentType;
+        }
+  
+        if (Object.keys(updates).length > 0) {
+          const staffID = editingStaff.staffID; // Ensure we're using the correct staffID
+          console.log({ staffID, updates });
+          await updateStaff({ staffID, updates }).unwrap();
+          toast.success('Staff updated successfully');
+        } else {
+          toast.info('No changes to update');
+        }
+      } else {
+        await addStaff(values).unwrap();
+        toast.success('Staff added successfully');
+      }
+      handleCloseDialog();
+      console.log(values);
+    } catch (error) {
+      toast.error('An error occurred. Please try again.');
+    }
+  };
+  const handleEdit = (staff) => {
+    setEditingStaff(staff);
+    setOpenDialog(true);
+  };
+
+  const handleDelete = (staff) => {
+    setSelectedStaff(staff);
+    setOpenDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await deleteStaff(selectedStaff.staffID).unwrap();
+      toast.success('Staff deleted successfully');
+      setSelectedStaff(null);
+    } catch (error) {
+      toast.error('An error occurred while deleting staff. Please try again.');
+    }
+    setOpenDeleteDialog(false);
+  };
+
+  return (
+    <Box m="1.5rem 2.5rem">
+      <Header title="STAFFS" color='#10453e' />
+      <Button
+        sx={{
+          marginTop: '10px',
+          color: '#10453e',
+          '&:hover': {
+            backgroundColor: theme.palette.secondary[200],
+            color: theme.palette.primary[900],
+          },
+        }}
+        variant="contained"
+        onClick={handleOpenDialog}
+      >
+        Create New Staff
+      </Button>
+      {staffData && !isStaffLoading ? (
+        <Box
+          mt="20px"
+          display="grid"
+          gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+          justifyContent="space-between"
+          rowGap="20px"
+          columnGap="1.33%"
+          sx={{
+            "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
+          }}
+        >
+          {staffData.map((staff) => (
+            <SingleStaff
+              key={staff.staffID}
+              {...staff}
+              onEdit={() => handleEdit(staff)}
+              onDelete={() => handleDelete(staff)}
+            />
+          ))}
+        </Box>
+      ) : (
+        <>Loading...</>
+      )}
+      <StaffDialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        staff={editingStaff}
+        onSubmit={handleSubmit}
+        handleDelete={() => handleDelete(editingStaff)}
+        staffData={staffData}
+      />
+      <DeleteConfirmationDialog
+        open={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}
+        onConfirm={handleConfirmDelete}
+        theme={theme}
+      />
+      <ToastContainer />
+    </Box>
+  );
+};
+
+export default Overview;

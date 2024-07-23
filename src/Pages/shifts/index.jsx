@@ -2,46 +2,19 @@
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import Header from "../../Components/Header";
 import { useTheme } from "@mui/material";
-import  { useState } from 'react';
+import  { useState, useEffect } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, MenuItem } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { useGetShiftsQuery, selectAllShifts } from "../../features/shifts/shiftSlice";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useSelector } from "react-redux";
+import { selectAllStaff, useGetStaffQuery } from "../../features/staffs/staffSlice";
 
 
-// Define the API slice using Redux Toolkit Query
-// export const shiftsApi = createApi({
-//   reducerPath: 'shiftsApi',
-//   baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
-//   endpoints: (builder) => ({
-//     addShift: builder.mutation({
-//       query: (newShift) => ({
-//         url: '/shifts',
-//         method: 'POST',
-//         body: newShift,
-//       }),
-//     }),
-//     updateShift: builder.mutation({
-//       query: (updatedShift) => ({
-//         url: `/shifts/${updatedShift.id}`,
-//         method: 'PUT',
-//         body: updatedShift,
-//       }),
-//     }),
-//     deleteShift: builder.mutation({
-//       query: (id) => ({
-//         url: `/shifts/${id}`,
-//         method: 'DELETE',
-//       }),
-//     }),
-//   }),
-// });
-
-// export const { useAddShiftMutation, useUpdateShiftMutation, useDeleteShiftMutation } = shiftsApi;
 
 // Validation schema for the shift form
 const shiftValidationSchema = Yup.object().shape({
@@ -61,7 +34,7 @@ const shiftValidationSchema = Yup.object().shape({
 });
 
 // ShiftForm component
-const ShiftForm = ({ initialValues, onSubmit, onCancel }) => {
+const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData }) => {
   const theme = useTheme();
   const [hourlyRate] = useState(15); // Assuming a fixed hourly rate of $15
 
@@ -101,16 +74,37 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel }) => {
   return (
     <form onSubmit={formik.handleSubmit}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <TextField
-          fullWidth
-          id="staffID"
-          name="staffID"
-          label="Staff ID"
-          value={formik.values.staffID}
-          onChange={formik.handleChange}
-          error={formik.touched.staffID && Boolean(formik.errors.staffID)}
-          helperText={formik.touched.staffID && formik.errors.staffID}
-        />
+      <TextField
+            fullWidth
+            id="staffID"
+            name="staffID"
+            label="Staff Name"
+            select
+            value={formik.values.staffID}
+            onChange={formik.handleChange}
+            error={formik.touched.staffID && Boolean(formik.errors.staffID)}
+            helperText={formik.touched.staffID && formik.errors.staffID}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                // '& fieldset': {
+                //   borderColor: 'your_color_here', // Normal border color
+                // },
+                // '&:hover fieldset': {
+                //   borderColor: 'your_hover_color_here', // Border color on hover
+                // },
+                '&.Mui-focused fieldset': {
+                  borderColor: theme.palette.secondary[100], // Border color when focused
+                },
+              },
+            }}
+          >
+            {staffsData.map((staff) => (
+              <MenuItem key={staff.staffID} value={staff.staffID}>
+                {staff.fullName}
+              </MenuItem>
+            ))}
+      </TextField>
+
         <TextField
           fullWidth
           id="startDate"
@@ -224,7 +218,7 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel }) => {
 };
 
 // ShiftDialog component
-const ShiftDialog = ({ open, onClose, shift, onSubmit, handleDelete }) => {
+const ShiftDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData }) => {
   const isEditing = Boolean(shift);
   const title = isEditing ? 'Edit Shift' : 'Record New Shift';
 
@@ -239,6 +233,7 @@ const ShiftDialog = ({ open, onClose, shift, onSubmit, handleDelete }) => {
             onClose();
           }}
           onCancel={onClose}
+          staffsData={staffsData}
         />
         {isEditing? 
       
@@ -299,6 +294,18 @@ const Shifts = () => {
   const [editingShift, setEditingShift] = useState(null);
   const [selectedShift, setSelectedShift] = useState();
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const {isLoading: isShiftsLoading} = useGetShiftsQuery()
+  const { isLoading: isStaffLoading } = useGetStaffQuery();
+
+
+  const staffsData = useSelector(selectAllStaff);
+
+
+
+  const shiftsData = useSelector(selectAllShifts)
+  useEffect(()=>{
+    console.log(shiftsData)
+  },[shiftsData])
 
 
 
@@ -306,85 +313,7 @@ const Shifts = () => {
 //   const [updateShift] = useUpdateShiftMutation();
 //   const [deleteShift] = useDeleteShiftMutation();
 
-  const  shiftData = [
-    {
-        "id": 1,
-      "staffID": "Staff-1",
-      "startDate": "2024-06-27",
-      "endDate": "2024-06-27",
-      "house": "House B",
-      "shift": "Shift 1",
-      "shiftStart": "08:23",
-      "shiftEnd": "13:17",
-      "overtime": 3.45,
-      "totalHours": 6.78,
-      "totalWage": 89.01,
-      "absence": "No",
-      "absenceStatus": "Null"
-    },
-    {
-        "id": 2,
-      "staffID": "Staff-2",
-      "startDate": "2024-06-27",
-      "endDate": "2024-06-27",
-      "house": "House A",
-      "shift": "Shift 2",
-      "shiftStart": "12:45",
-      "shiftEnd": "18:15",
-      "overtime": 1.23,
-      "totalHours": 9.87,
-      "totalWage": 120.98,
-      "absence": "No",
-      "absenceStatus": "Null"
-    },
-    {
-        "id": 3,
-      "staffID": "Staff-3",
-      "startDate": "2024-06-27",
-      "endDate": "2024-06-27",
-      "house": "House C",
-      "shift": "Shift 3",
-      "shiftStart": "10:30",
-      "shiftEnd": "14:45",
-      "overtime": 0.98,
-      "totalHours": 8.76,
-      "totalWage": 105.43,
-      "absence": "No",
-      "absenceStatus": "Null"
-    },
-    {
-        "id": 4,
-      "staffID": "Staff-4",
-      "startDate": "",
-      "endDate": "",
-      "house": "",
-      "shift": "",
-      "shiftStart": "",
-      "shiftEnd": "",
-      "overtime": 0,
-      "totalHours": 0,
-      "totalWage": 0,
-      "absence": "Yes",
-      "absenceStatus": "Sick Leave"
-    },
-        {
-            "id": 5,
-          "staffID": "Staff-1",
-          "startDate": "2024-06-28",
-          "endDate": "2024-06-28",
-          "house": "House B",
-          "shift": "Shift 1",
-          "shiftStart": "08:23",
-          "shiftEnd": "13:17",
-          "overtime": 3.45,
-          "totalHours": 6.78,
-          "totalWage": 89.01,
-          "absence": "No",
-          "absenceStatus": "Null"
-        }
-    
-]
-
+  
   const handleOpenDialog = () => {
     setEditingShift(null);
     setOpenDialog(true);
@@ -431,41 +360,19 @@ const Shifts = () => {
   };
 
   const columns = [
-    { field: "staffID", headerName: "ID", flex: 0.5 },
-
-    { field: "startDate", headerName: "startDate",
-      flex: 0.7 },
-    { field: "endDate", headerName: "endDate",
-      flex: 0.7 },
-  //   { field: "shiftStart", headerName: "shiftStart",
-  //     flex: 1 },
-  //   { field: "shiftEnd", headerName: "shiftEnd",
-  //     flex: 1 },
-    { field: "overtime", headerName: "overtime" ,
-      flex: 0.5},
-    { field: "totalHours", headerName: "totalHours",
-      flex: 0.5 },
-    { field: "totalWage", headerName: "totalWage",
-      flex: 0.5 },
-    { field: "absence", headerName: "absence",
-      flex: 0.5 },
-    { field: "absenceStatus", headerName: "absenceStatus",
-      flex: 0.7 },
-  //   {
-  //     field: "name",
-  //     headerName: "Name",
-  //     flex: 1,
-  //     cellClassName: "name-column--cell",
-  //   },
-  //   {
-  //     field: "age",
-  //     headerName: "Age",
-  //     type: "number",
-  //     headerAlign: "left",
-  //     align: "left",
-  //   },
-  //  
- 
+    { field: 'shiftID', headerName: 'Shift ID', flex: 1 },
+    { field: 'staffID', headerName: 'Staff ID', flex: 1 },
+    { field: 'startDate', headerName: 'Start Date', flex: 1 },
+    { field: 'Absence', headerName: 'Absence', flex: 1 },
+    { field: 'End_Date', headerName: 'End Date', flex: 1 },
+    { field: 'Absence_Status', headerName: 'Absence Status', flex: 1 },
+    // { field: 'House', headerName: 'House', flex: 1 },
+    { field: 'Overtime', headerName: 'Overtime', flex: 1 },
+    // { field: 'Shift', headerName: 'Shift', flex: 1 },
+    // { field: 'Shift_End', headerName: 'Shift End', flex: 1 },
+    // { field: 'Shift_Start', headerName: 'Shift Start', flex: 1 },
+    { field: 'Total_Hours', headerName: 'Total Hours', flex: 1 },
+    { field: 'Total_Wage', headerName: 'Total Wage', flex: 1 },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -480,7 +387,7 @@ const Shifts = () => {
   ];
 
   return (
-    <Box m="20px">
+    <Box m="20px" >
       <Header title="SHIFTS"  color= '#10453e' />
       <Button
         sx={{
@@ -496,22 +403,7 @@ const Shifts = () => {
       >
         Record Shifts
       </Button>
-      {/* <Button
-        sx={{
-          marginTop: '10px',
-          marginLeft: '10px',
-          color: 'grey',
-          '&:hover': {
-            backgroundColor: theme.palette.secondary[200],
-            color: theme.palette.primary[900],
-          },
-        }}
-        variant="contained"
-        onClick={handleDelete}
-        disabled={selectedShifts.length === 0}
-      >
-        Delete Selected
-      </Button> */}
+    
       <Box
            m="40px 0 0 0"
           height="60vh"
@@ -522,7 +414,7 @@ const Shifts = () => {
             },
             "& .MuiDataGrid-cell": {
               borderBottom: "none",
-              backgroundColor: theme.palette.background.alt,
+              // backgroundColor: theme.palette.background.alt,
             },
             "& .MuiDataGrid-columnHeaders": {
               backgroundColor: theme.palette.background.alt,
@@ -550,9 +442,10 @@ const Shifts = () => {
         >
         <DataGrid
           checkboxSelection
-          rows={shiftData}
+          rows={shiftsData}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
+          getRowId={(row) => row.shiftID}
         />
       </Box>
       <ShiftDialog
@@ -561,6 +454,7 @@ const Shifts = () => {
         shift={editingShift}
         onSubmit={handleSubmit}
         handleDelete={handleDelete}
+        staffsData={staffsData}
       />
       <DeleteConfirmationDialog
         open={openDeleteDialog}
@@ -576,56 +470,22 @@ const Shifts = () => {
 export default Shifts;
 
 
-// return (
-//     <Box m="20px">
-//     <Header title="SHIFTS"  />
-//     <Button sx={{marginTop: '10px', color: 'grey', '&:hover': {
-//                               backgroundColor: theme.palette.secondary[200], 
-//                               color: theme.palette.primary[900], 
-//                             },}}  variant="contained">
-//             Record Shifts
-//     </Button>
-//     <Box
-//        m="40px 0 0 0"
-//       height="60vh"
-//       sx={{
-//         "& .MuiDataGrid-root": {
-//           border: "none",
-         
-//         },
-//         "& .MuiDataGrid-cell": {
-//           borderBottom: "none",
-//         },
-//         "& .MuiDataGrid-columnHeaders": {
-//           backgroundColor: theme.palette.background.alt,
-//           color: theme.palette.secondary[100],
-//           borderBottom: "none",
-//         },
-//         "& .MuiDataGrid-virtualScroller": {
-//           backgroundColor: theme.palette.primary.light,
-//         },
-//         "& .MuiDataGrid-footerContainer": {
-//           backgroundColor: theme.palette.background.alt,
-//           color: theme.palette.secondary[100],
-//           borderTop: "none",
-//         },
-//         "& .MuiDataGrid-toolbarContainer .MuiButton-text": {
-//           color: `${theme.palette.secondary[200]} !important`,
-//         },  
-//         '& .MuiCheckbox-root': {
-//             color: '#555',
-//           },
-//           '& .MuiCheckbox-colorPrimary.Mui-checked': {
-//             color: '#555'
-//           },
-//       }}
-//     >
-//       <DataGrid
-//       checkboxSelection
-//         rows={shiftData}
-//         columns={columns}
-//         components={{ Toolbar: GridToolbar }}
-//       />
-//     </Box>
-//   </Box>
-// );
+ //   { field: "shiftStart", headerName: "shiftStart",
+  //     flex: 1 },
+  //   { field: "shiftEnd", headerName: "shiftEnd",
+  //     flex: 1 },
+
+  //   {
+  //     field: "name",
+  //     headerName: "Name",
+  //     flex: 1,
+  //     cellClassName: "name-column--cell",
+  //   },
+  //   {
+  //     field: "age",
+  //     headerName: "Age",
+  //     type: "number",
+  //     headerAlign: "left",
+  //     align: "left",
+  //   },
+  //  

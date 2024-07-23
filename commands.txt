@@ -1,0 +1,4 @@
+{
+    "username":"sam-admin@jta",
+    "password":"|!beralcat"
+}

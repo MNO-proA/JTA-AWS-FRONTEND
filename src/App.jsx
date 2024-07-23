@@ -20,6 +20,7 @@ import Overview from "./Pages/home/index.jsx";
 import Shifts from "./Pages/shifts/index.jsx";
 import Expenses from "./Pages/expenses/index.jsx";
 import AllDashboard from "./Pages/dashboard/index.jsx";
+import CacheLoader from "./Pages/home/CacheLoader.js"
 
 
 
@@ -29,7 +30,7 @@ const router = createBrowserRouter(
       <Route path="/" element={<Login />} />
       <Route element={<RequireAuth />}>
       <Route element={<Layout />}>
-        <Route path="Overview" element={<Overview />} />
+        <Route path="Overview" element={<Overview />} loader={CacheLoader} />
         <Route path="Shifts" element={<Shifts />} />
         <Route path="Expense" element={<Expenses />} />
         <Route path="Dashboard" element={<AllDashboard/>} />
