@@ -166,7 +166,17 @@ const Sidebar = ({
               })}
             </List>
           </Box>
-
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
+          <Box p="2rem" textAlign="center">
+            <Typography variant="body2" color="textSecondary" >
+              © 2024 Powered By Qodexcore
+            </Typography>
+          </Box>
         </Drawer>
       )}
     </Box>

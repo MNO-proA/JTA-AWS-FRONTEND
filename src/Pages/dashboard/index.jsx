@@ -146,13 +146,13 @@ const AllDashboard = () => {
                       sx={{ width: { xs: '100%', sm: 'auto' } }} // Full width on small screens
                     />
                   </Stack>
-                  <Stack direction="row" spacing={1} flexWrap="wrap">
+                  <Stack direction="row" spacing={2} flexWrap="wrap" gap={2} >
                     {['This Week', 'Last Week', 'This Month', 'Last Month', 'Reset'].map((range) => (
                       <Button
                         key={range}
                         variant="contained"
                         onClick={() => handleShortcutRange(range)}
-                        sx={{ mb: 5 }} // Add margin-bottom for better spacing on small screens
+                        sx={{ margin: '70px' }}// Add margin-bottom for better spacing on small screens
                       >
                         {range}
                       </Button>
@@ -261,7 +261,7 @@ const AllDashboard = () => {
           <Card sx={{ bgcolor: theme.palette.background.default, boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`} } >
             <CardContent>
               <Typography variant="h6">Grand Total Expense</Typography>
-              <Typography variant="h3">${grandTotalExpense.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}</Typography>
+              <Typography variant="h3">{grandTotalExpense.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}</Typography>
             </CardContent>
           </Card>
         {/* </Grid> */}
