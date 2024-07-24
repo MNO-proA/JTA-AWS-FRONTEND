@@ -24,6 +24,7 @@ import {
   useTheme,
 } from "@mui/material";
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
+import { logOut } from "../features/auth/authSlice";
 
 const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const dispatch = useDispatch();
@@ -48,18 +49,18 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
             <MenuIcon />
           </IconButton>
-          <FlexBetween
+           {/* <FlexBetween
             backgroundColor={theme.palette.background.alt}
             borderRadius="9px"
             gap="3rem"
             p="0.1rem 1.5rem"
           >
-            <InputBase placeholder="Search..." />
+             <InputBase placeholder="Search..." />
             <IconButton>
               <Search />
-            </IconButton>
-          </FlexBetween>
-        </FlexBetween>
+            </IconButton> 
+          </FlexBetween>  */}
+        </FlexBetween> 
 
         {/* RIGHT SIDE */}
         <FlexBetween gap="1.5rem">
@@ -110,7 +111,7 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
               onClose={handleClose}
               anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
             >
-              <MenuItem onClick={handleClose}>Log Out</MenuItem>
+              <MenuItem onClick={window.location.reload()}>Log Out</MenuItem>
             </Menu>
           </FlexBetween>
         </FlexBetween>

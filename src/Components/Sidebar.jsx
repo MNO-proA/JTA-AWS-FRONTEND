@@ -46,6 +46,10 @@ const navItems = [
     icon: <TodayOutlined />,
   },
   {
+    text: "Absence",
+    icon: <CalendarMonthOutlined />,
+  },
+  {
     text: "Expense",
     icon: <PaymentsIcon/>,
   }, 

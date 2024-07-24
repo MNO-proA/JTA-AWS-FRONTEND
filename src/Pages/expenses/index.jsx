@@ -8,11 +8,44 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useGetExpensesQuery, selectAllExpenses } from "../../features/expenses/expenseSlice";
+import { useGetExpensesQuery, selectAllExpenses, useAddExpenseMutation, useDeleteExpenseMutation, useUpdateExpenseMutation } from "../../features/expenses/expenseSlice";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { useSelector } from "react-redux";
+import { selectCurrentToken } from "../../features/auth/authSlice"
+
+
+
+// Function to generate the next expenseID based on the largest existing expenseID in the expense data
+const generateExpenseID = (expenseData) => {
+  if (expenseData.length === 0) return 'exp001'; // Default ID if no expenses exist
+
+  // Find the maximum numeric part from all expenseIDs
+  const maxNumericPart = expenseData.reduce((max, item) => {
+    const match = item.expenseID.match(/\d+/);
+    if (match) {
+      const numericPart = parseInt(match[0], 10);
+      return Math.max(max, numericPart);
+    }
+    return max;
+  }, 0);
+
+  const newNumericPart = maxNumericPart + 1; // Increment numeric part
+  return `exp${newNumericPart.toString().padStart(3, '0')}`; // Construct new expense ID
+};
+
+
+// const generateExpenseID = (expenseData) => {
+//   if (expenseData.length === 0) return 'exp001'; // Default ID if no expenses exist
+
+//   const lastExpenseID = expenseData[0]?.expenseID; // Get the ID of the last expense (first in descending order)
+//   const numericPart = parseInt(lastExpenseID.match(/\d+/)[0], 10); // Extract numeric part
+//   const newNumericPart = numericPart + 1; // Increment numeric part
+//   return `exp${newNumericPart.toString().padStart(3, '0')}`; // Construct new expense ID
+// };
+
+
 
 // Validation schema for the expense form
 const expenseValidationSchema = Yup.object().shape({
@@ -27,13 +60,19 @@ const expenseValidationSchema = Yup.object().shape({
   date: Yup.date().required('Date is required'),
 });
 
+
+
+
 // ExpenseForm component
-const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel }) => {
+const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel,expensesData }) => {
   const theme = useTheme();
+  const initialExpensesData = generateExpenseID(expensesData);
   const [customFields, setCustomFields] = useState([]);
 
   const formik = useFormik({
     initialValues: initialValues || {
+      expenseID: initialExpensesData,
+      date: '',
       Administrative: '',
       IT: '',
       Maintenance: '',
@@ -42,7 +81,6 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel }) => 
       'Petty Cash': '',
       'REG 44': '',
       'Young Person Weekly Money': '',
-      date: '',
       ...customFields.reduce((acc, field) => ({ ...acc, [field.name]: '' }), {}),
     },
 
@@ -67,24 +105,35 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel }) => 
 
   return (
     <form onSubmit={formik.handleSubmit}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {Object.keys(formik.initialValues).map((field) => (
-          <TextField
-            key={field}
-            fullWidth
-            id={field}
-            name={field}
-            label={field}
-            type={field === 'date' ? 'date' : 'number'}
-            value={formik.values[field]}
-            onChange={formik.handleChange}
-            error={formik.touched[field] && Boolean(formik.errors[field])}
-            helperText={formik.touched[field] && formik.errors[field]}
-            InputLabelProps={field === 'date' ? { shrink: true } : {}}
-          />
-        ))}
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: '10px' }}>
+        <TextField
+          fullWidth
+          id="expenseID"
+          name="expenseID"
+          label="Expense ID"
+          value={formik.values.expenseID}
+          InputProps={{
+            readOnly: true,
+          }}
+        />
+        {Object.keys(formik.initialValues)
+          .filter(field => field !== 'expenseID') // Exclude expenseID from this loop
+          .map((field) => (
+            <TextField
+              key={field}
+              fullWidth
+              id={field}
+              name={field}
+              label={field}
+              type={field === 'date' ? 'date' : 'number'}
+              value={formik.values[field]}
+              onChange={formik.handleChange}
+              error={formik.touched[field] && Boolean(formik.errors[field])}
+              helperText={formik.touched[field] && formik.errors[field]}
+              InputLabelProps={field === 'date' ? { shrink: true } : {}}
+            />
+          ))}
         {customFields.map((field) => (
-          <>
           <TextField
             key={field.name}
             fullWidth
@@ -94,16 +143,17 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel }) => 
             type="number"
             value={formik.values[field.name]}
             onChange={formik.handleChange}
+            error={formik.touched[field.name] && Boolean(formik.errors[field.name])}
+            helperText={formik.touched[field.name] && formik.errors[field.name]}
           />
-           <TextField
+        ))}
+        <TextField
           id="custom-expense-name"
           label="Custom Expense Name"
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           fullWidth
         />
-          </>
-        ))}
         <IconButton onClick={addCustomField} sx={{ alignSelf: 'flex-start' }}>
           <AddIcon />
         </IconButton>
@@ -111,13 +161,17 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel }) => 
           <Button onClick={onCancel} sx={{ color: theme.palette.grey[500] }}>
             Cancel
           </Button>
-          <Button type="submit" variant="contained" sx={{
-            color: 'grey',
-            '&:hover': {
-              backgroundColor: theme.palette.secondary[200],
-              color: theme.palette.primary[900],
-            },
-          }}>
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{
+              color: 'grey',
+              '&:hover': {
+                backgroundColor: theme.palette.secondary[200],
+                color: theme.palette.primary[900],
+              },
+            }}
+          >
             Submit
           </Button>
         </Box>
@@ -127,7 +181,7 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel }) => 
 };
 
 // ExpenseDialog component
-const ExpenseDialog = ({ open, onClose, expense, onSubmit, handleDelete, label }) => {
+const ExpenseDialog = ({ open, onClose, expense, onSubmit, handleDelete, label, expensesData }) => {
   const isEditing = Boolean(expense);
   const title = isEditing ? 'Edit Expense' : 'Record New Expense';
 
@@ -143,6 +197,7 @@ const ExpenseDialog = ({ open, onClose, expense, onSubmit, handleDelete, label }
           }}
           onCancel={onClose}
           label={label}
+          expensesData={expensesData}
         />
         
         {isEditing && (
@@ -160,7 +215,7 @@ const ExpenseDialog = ({ open, onClose, expense, onSubmit, handleDelete, label }
 };
 
 // DeleteConfirmationDialog component
-const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme }) => {
+const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme, isDeleteLoading  }) => {
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Confirm Deletion</DialogTitle>
@@ -188,7 +243,15 @@ const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme }) => {
             color: theme.palette.primary[900],
           },
         }} autoFocus>
-          Delete
+          {isDeleteLoading  ? (
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                        ) : (
+                          "Submit"
+                        )}
         </Button>
       </DialogActions>
     </Dialog>
@@ -202,18 +265,19 @@ const Expenses = () => {
   const [editingExpense, setEditingExpense] = useState(null);
   const [selectedExpense, setSelectedExpense] = useState(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  const { isLoading: isExpensesLoading } = useGetExpensesQuery();
+  const { isLoading: isExpensesLoading,  refetch } = useGetExpensesQuery();
   const [label, setLabel] = useState('')
+  const token = useSelector(selectCurrentToken)
 
   const expensesData = useSelector(selectAllExpenses);
   useEffect(() => {
     console.log(expensesData);
   }, [expensesData]);
 
-  // Uncomment these lines when you have the actual mutation hooks
-  // const [addExpense] = useAddExpenseMutation();
-  // const [updateExpense] = useUpdateExpenseMutation();
-  // const [deleteExpense] = useDeleteExpenseMutation();
+
+  const [addExpense] = useAddExpenseMutation();
+  const [updateExpense] = useUpdateExpenseMutation();
+  const [deleteExpense, {isLoading: isDeleteLoading}] = useDeleteExpenseMutation();
 
   const handleOpenDialog = () => {
     setEditingExpense(null);
@@ -227,13 +291,13 @@ const Expenses = () => {
 
   const handleSubmit = async (values) => {
     try {
-      if (editingExpense) {
-        // await updateExpense(values).unwrap();
-        toast.success('Expense updated successfully');
-      } else {
-        // await addExpense(values).unwrap();
+    //   if (editingExpense) {
+    //     await updateExpense(values).unwrap();
+    //     toast.success('Expense updated successfully');
+    //   } else {
+        await addExpense(values).unwrap();
         toast.success('Expense added successfully');
-      }
+      // }
       handleCloseDialog();
     } catch (error) {
       toast.error('An error occurred. Please try again.');
@@ -245,40 +309,64 @@ const Expenses = () => {
     setOpenDialog(true);
   };
 
-  const handleDelete = () => {
+  const handleDelete = (expense) => {
     setOpenDeleteDialog(true);
+    setSelectedExpense(expense)
   };
 
   const handleConfirmDelete = async () => {
-    try {
-      // await deleteExpense(selectedExpense).unwrap();
+  try { 
+    const {expenseID, date} = selectedExpense
+    console.log({ expenseID, date})
+    const myHeaders = new Headers();
+    myHeaders.append("Authorization", `Bearer ${token}`);
+    
+    const requestOptions = {
+      method: "DELETE",
+      headers: myHeaders,
+      redirect: "follow"
+    };
+    
+    fetch(`https://jta-node-api.onrender.com/expense/${expenseID}/${date}`, requestOptions)
+      .then((response) => {
+         if (!response.ok) {
+          // Handle HTTP errors
+          throw new Error(`Error ${response.status}`);
+        } else{response.json()}
+  })
+      .then((result) => refetch())
+      .catch((error) => console.error(error));
       toast.success('Selected expense(s) deleted successfully');
       setSelectedExpense(null);
-    } catch (error) {
-      toast.error('An error occurred while deleting expense(s). Please try again.');
-    }
+
+  } catch (error) {
+    toast.error('An error occurred while deleting expense(s). Please try again.');
+    return (error.response.data);
+    
+  } 
+  finally{
     setOpenDeleteDialog(false);
-  };
+}
+}
+  
 
   const columns = [
+    { field: 'date', headerName: 'Date', flex: 1, minWidth: 100  },
     { field: 'expenseID', headerName: 'Expense ID', flex: 1, minWidth: 100  },
     { field: 'Administrative', headerName: 'Administrative', flex: 1, minWidth: 100  },
-    { field: 'IT', headerName: 'IT', flex: 1 },
+    { field: 'IT', headerName: 'IT/Purchases', flex: 1 },
     { field: 'Maintenance', headerName: 'Maintenance', flex: 1, minWidth: 100  },
     { field: 'Miscellaneous', headerName: 'Miscellaneous', flex: 1, minWidth: 100  },
     { field: 'Ofsted (Admin)', headerName: 'Ofsted (Admin)', flex: 1, minWidth: 100  },
     { field: 'Petty Cash', headerName: 'Petty Cash', flex: 1, minWidth: 100  },
     { field: 'REG 44', headerName: 'REG 44', flex: 1, minWidth: 100  },
-    { field: 'Young Person Weekly Money', headerName: 'Young Person Weekly Money', flex: 1, minWidth: 100  },
-    { field: 'date', headerName: 'Date', flex: 1, minWidth: 100  },
+    { field: 'Young Person Weekly Money', headerName: 'YPWM', flex: 1, minWidth: 100  },
     {
       field: 'actions',
       headerName: 'Actions',
       width: 60,
       renderCell: (params) => (
-        <EditIcon onClick={() => handleEdit(params.row)} sx={{
-          color: 'grey'
-        }}/>
+        <DeleteIcon  color="error" onClick={() =>  handleDelete(params.row)} />
       ),
     },
   ];
@@ -356,12 +444,14 @@ const Expenses = () => {
         handleDelete={handleDelete}
         label={label}
         setLabel={setLabel}
+        expensesData={expensesData}
       />
       <DeleteConfirmationDialog
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
         onConfirm={handleConfirmDelete}
         theme={theme}
+        isDeleteLoading = {isDeleteLoading }
       />
       <ToastContainer />
     </Box>

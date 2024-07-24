@@ -64,23 +64,36 @@ export const shiftApiSlice = apiSlice.injectEndpoints({
       },
     }),
     deleteShift: builder.mutation({
-      query: (id) => ({
-        url: `/shifts/${id}`,
+      query: ({ shiftID, date }) => ({
+        url: `/shifts/${shiftID}/${date}`,
         method: 'DELETE',
       }),
-      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+      invalidatesTags: (result, error, { shiftID }) => [{ type: 'Shifts', id: shiftID }],
+      async onQueryStarted({ shiftID, date }, { dispatch, queryFulfilled }) {
+        // Optimistic update
         const patchResult = dispatch(
-            shiftApiSlice.util.updateQueryData('getShifts', undefined, (draft) => {
-            shiftsAdapter.removeOne(draft, id);
+          shiftApiSlice.util.updateQueryData('getShifts', undefined, (draft) => {
+            const index = draft.ids.findIndex(id => {
+              const shift = draft.entities[id];
+              return shift.shiftID === shiftID && shift.startDate === date;
+            });
+            if (index !== -1) {
+              const id = draft.ids[index];
+              shiftsAdapter.removeOne(draft, id);
+            }
           })
         );
         try {
           await queryFulfilled;
+          // If successful, the optimistic update is kept
         } catch {
+          // If error occurs, revert the optimistic update
           patchResult.undo();
         }
       },
     }),
+    
+   
   }),
 });
 

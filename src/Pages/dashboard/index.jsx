@@ -11,40 +11,8 @@ import { useGetExpensesQuery, selectAllExpenses } from '../../features/expenses/
 import { selectAllStaff, selectStaffsTotal, useGetStaffQuery } from "../../features/staffs/staffSlice";
 import { useSelector } from 'react-redux';
 import useDashboardData from './hook/Dataprocessing';
+// import CaptureDashboardButton from './CaptureDashboardButton';
 
-
-
-
-const shortcutRanges = [
-    {
-      label: 'This Week',
-      getDates: () => {
-        const today = dayjs();
-        return [today.startOf('week'), today.endOf('week')];
-      },
-    },
-    {
-      label: 'Last Week',
-      getDates: () => {
-        const lastWeek = dayjs().subtract(1, 'week');
-        return [lastWeek.startOf('week'), lastWeek.endOf('week')];
-      },
-    },
-    {
-      label: 'This Month',
-      getDates: () => {
-        const today = dayjs();
-        return [today.startOf('month'), today.endOf('month')];
-      },
-    },
-    {
-      label: 'Last Month',
-      getDates: () => {
-        const lastMonth = dayjs().subtract(1, 'month');
-        return [lastMonth.startOf('month'), lastMonth.endOf('month')];
-      },
-    },
-  ];
 
 
 const AllDashboard = () => {
@@ -88,6 +56,14 @@ const AllDashboard = () => {
   } = useDashboardData(shiftsData, expensesData, staffsData);
 
 
+  // Sort wageData in ascending order by totalWage
+  const sortedWageData = wageData.sort((a, b) => a.totalWage - b.totalWage);
+  // Sort hoursData in ascending order by totalHours
+  const sortedHoursData = hoursData.sort((a, b) => a.totalHours - b.totalHours);
+  // Sort absenceData in ascending order by 'yes'
+  const sortedAbsenceData = absenceData.sort((a, b) => a.yes - b.yes)
+  // Sort expenseData in ascending order by 'total'
+  const sortedExpenseData = expenseData.sort((a, b) => a.total - b.total);
 
 
   const theme = useTheme()
@@ -95,42 +71,11 @@ const AllDashboard = () => {
   return (
     <Box m="20px">
       <Grid container spacing={3}>
-        {/* <Grid item xs={12}>
-          <Card  sx={{ bgcolor: theme.palette.neutral[800]}}>
-            <CardContent>
-              <Typography mb={2} variant="h6">Date Range Picker</Typography>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <Stack direction="row" spacing={2} alignItems="center" mb={2}>
-                    <DatePicker
-                      label="Start Date"
-                      value={startDate}
-                      onChange={(newValue) => handleDateRangeChange(newValue, endDate)}
-                    />
-                    <DatePicker
-                      label="End Date"
-                      value={endDate}
-                      onChange={(newValue) => handleDateRangeChange(startDate, newValue)}
-                    />
-                  </Stack>
-                  <Stack direction="row" spacing={1} flexWrap="wrap">
-                    {['This Week', 'Last Week', 'This Month', 'Last Month', 'Reset'].map((range) => (
-                      <Button
-                        key={range}
-                        variant="contained"
-                        onClick={() => handleShortcutRange(range)}
-                      >
-                        {range}
-                      </Button>
-                    ))}
-                  </Stack>
-              </LocalizationProvider>
-            </CardContent>
-          </Card>
-        </Grid> */}
+        {/* <CaptureDashboardButton /> */}
           <Grid item xs={12}>
             <Card sx={{   bgcolor: theme.palette.background.default }}>
               <CardContent>
-                <Typography mb={2} variant="h6">Date Range Picker</Typography>
+                {/* <Typography mb={2} variant="h6">Date Range Picker</Typography> */}
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center" mb={2}>
                     <DatePicker
@@ -170,10 +115,11 @@ const AllDashboard = () => {
               <Typography variant="h6">Total Wages per Employee</Typography>
               <Box height={500} sx={{mt: '20px'}}>
               <ResponsiveBar
-                  data={wageData}
+                  data={sortedWageData}
                   keys={['totalWage']}
                   indexBy="staffID"
                   margin={{ top: 10, right: 90, bottom: 10, left: 50 }}
+                  sx={{height: '900px'}}
                   padding={0.1}
                   layout="horizontal"
                   valueScale={{ type: 'linear' }}
@@ -273,7 +219,7 @@ const AllDashboard = () => {
               <Typography variant="h6">Total Hours per Staff</Typography>
               <Box height={500} sx={{mt: '20px'}}>
                 <ResponsiveBar
-                  data={hoursData}
+                  data={sortedHoursData}
                   keys={['totalHours']}
                   indexBy="staffID"
                   margin={{ top: 10, right: 90, bottom: 10, left: 50 }}
@@ -343,70 +289,9 @@ const AllDashboard = () => {
             <CardContent>
               <Typography variant="h6">Total Absence</Typography>
               <Box height={500} sx={{mt: '20px'}}>
-                {/* <ResponsiveBar
-                data={absenceData}
-                keys={['yes', 'no']}
-                indexBy="staffID"
-                margin={{ top: 10, right: 90, bottom: 10, left: 50 }}
-                padding={0.1}
-                layout="horizontal"
-                valueScale={{ type: 'linear' }}
-                indexScale={{ type: 'band', round: true }}
-                colors="#4dc4b8"
-                axisTop={null}
-                axisRight={null}
-                axisBottom={null}
-                innerPadding={4}
-                  // axisBottom={{
-                  //   tickSize: 5,
-                  //   tickPadding: 5,
-                  //   tickRotation: 0,
-                  //   legend: 'Category',
-                  //   legendPosition: 'middle',
-                  //   legendOffset: 32
-                  // }}
-                  axisLeft={{
-                    tickSize: 5,
-                    tickPadding: 5,
-                    tickRotation: 0,
-                    // legendPosition: 'middle',
-                    legendOffset: -40
-                  }}
-                  theme={{
-                    axis: {
-                      ticks: {
-                        text: {
-                          fill: theme.palette.primary[100], // Font color for axis ticks
-                        },
-                      },
-                      legend: {
-                        text: {
-                          fill: theme.palette.primary[100],// Font color for axis legends
-                        },
-                      },
-                    },
-                    legends: {
-                      text: {
-                        fill: theme.palette.primary[100], // Font color for chart legends
-                      },
-                    },
-                    labels: {
-                      text: {
-                        fill: theme.palette.primary[100], // Font color for bar labels
-                      },
-                    },
-                    tooltip: {
-                      container: {
-                        background: theme.palette.primary[100], // Background color for tooltip
-                        color: theme.palette.primary[900], // Font color for tooltip
-                        fontSize: '14px', // Font size for tooltip
-                      },
-                    },
-                  }}
-                /> */}
                  <ResponsiveBar
-                 data={absenceData}
-                 keys={['yes', 'no']}
+                 data={sortedAbsenceData }
+                 keys={['yes']}
                  indexBy="staffID"
                  margin={{ top: 10, right: 90, bottom: 10, left: 50 }}
                  padding={0.1}
@@ -426,11 +311,11 @@ const AllDashboard = () => {
                     // legendPosition: 'middle',
                     // legendOffset: -40
                   }}
-                  tooltip={({ id, value, data }) => (
+                  tooltip={({  data }) => (
                     <div style={{backgroundColor: theme.palette.primary[100], color: theme.palette.primary[900], padding: '8px' }}>
-                      <strong>{data.fullName}</strong><br />
-                      Staff ID: {data.staffID}<br />
-                      {id === 'yes' ? 'Absences' : 'Attendances'}: {value}
+                    <strong>{data.fullName}</strong><br />
+                    Staff ID: {data.staffID}<br />
+                    Absences: {data.yes}
                     </div>
                   )}
                   theme={{
@@ -528,7 +413,7 @@ const AllDashboard = () => {
               <Typography variant="h6">Total Expenses</Typography>
               <Box height={300} sx={{mt: '20px'}}>
                 <ResponsiveBar
-                  data={expenseData}
+                  data={sortedExpenseData}
                   keys={['total']}
                   indexBy="category"
                   margin={{ top: 50, right: 130, bottom: 50, left: 90 }}
@@ -622,58 +507,3 @@ export default AllDashboard;
 
 
 
-{/* <Grid item xs={12} md={4}>
-<Card  sx={{ bgcolor: theme.palette.neutral[800], boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`}}>
-  <CardContent>
-    <Typography variant="h6">Proportion of Houses</Typography>
-    <Box height={300}>
-      <ResponsivePie
-        data={houseData}
-        margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
-        innerRadius={0.5}
-        padAngle={0.7}
-        cornerRadius={3}
-        activeOuterRadiusOffset={8}
-        colors={['#4dc4b8', '#b8e1dd', '#2fad9a', '#56b6a4', '#00a08b']}
-        arcLinkLabelsSkipAngle={10}
-        arcLinkLabelsTextColor= {theme.palette.primary[100]}
-        arcLinkLabelsThickness={2}
-        arcLinkLabelsColor={{ from: 'color' }}
-        arcLabelsSkipAngle={10}
-        arcLabelsTextColor={{ from: 'color', modifiers: [['darker', 2]] }}
-        theme={{
-          axis: {
-            ticks: {
-              text: {
-                fill: theme.palette.primary[100], // Font color for axis ticks
-              },
-            },
-            legend: {
-              text: {
-                fill: theme.palette.primary[100],// Font color for axis legends
-              },
-            },
-          },
-          legends: {
-            text: {
-              fill: theme.palette.primary[100], // Font color for chart legends
-            },
-          },
-          labels: {
-            text: {
-              fill: theme.palette.primary[100], // Font color for bar labels
-            },
-          },
-          tooltip: {
-            container: {
-              background: theme.palette.primary[100], // Background color for tooltip
-              color: theme.palette.primary[900], // Font color for tooltip
-              fontSize: '14px', // Font size for tooltip
-            },
-          },
-        }}
-      />
-    </Box>
-  </CardContent>
-</Card>
-</Grid> */}

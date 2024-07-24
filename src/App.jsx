@@ -21,6 +21,7 @@ import Shifts from "./Pages/shifts/index.jsx";
 import Expenses from "./Pages/expenses/index.jsx";
 import AllDashboard from "./Pages/dashboard/index.jsx";
 import CacheLoader from "./Pages/home/CacheLoader.js"
+import AbsentReadOnly from "./Pages/Absent/index.jsx";
 
 
 
@@ -34,6 +35,7 @@ const router = createBrowserRouter(
         <Route path="Shifts" element={<Shifts />} />
         <Route path="Expense" element={<Expenses />} />
         <Route path="Dashboard" element={<AllDashboard/>} />
+        <Route path="Absence" element={<AbsentReadOnly/>} />
       </Route>
        
       </Route> 

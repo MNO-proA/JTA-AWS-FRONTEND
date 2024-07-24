@@ -23,7 +23,7 @@ const SingleStaff = ({
     jobTitle,
     // eslint-disable-next-line no-unused-vars
     hourlyRate,
-    onEdit,
+    // onEdit,
     onDelete
   }) => {
     const theme = useTheme();
@@ -108,7 +108,7 @@ const SingleStaff = ({
           >
             See More
           </Button>
-          <Button
+          {/* <Button
           variant="primary"
         //   color="success"
           size="small"
@@ -116,7 +116,7 @@ const SingleStaff = ({
           
         >
           Edit
-        </Button>
+        </Button> */}
         <Button
           variant="contained"
           color="error"
@@ -138,8 +138,11 @@ const SingleStaff = ({
             <Typography sx={{ mb: "1.5rem" }}  >
               Accumulated Total Wage: {accumTotal.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}
             </Typography>
-            <Typography>
+            <Typography sx={{ mb: "1.5rem" }} >
               Acuumulated Total Hours: {accumTotalHours}
+            </Typography> 
+            <Typography>
+              Hourly Rate: {hourlyRate}
             </Typography> 
           </CardContent>
         </Collapse>

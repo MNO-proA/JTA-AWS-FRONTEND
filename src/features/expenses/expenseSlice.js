@@ -1,10 +1,9 @@
-// expensesSlice.js
 import { createEntityAdapter, createSelector } from '@reduxjs/toolkit';
 import { apiSlice } from '../../app/api/apiSlice';
 
 const expensesAdapter = createEntityAdapter({
     selectId: (entity) => entity.expenseID,
-    sortComparer: (a, b) => new Date(b.startDate) - new Date(a.startDate),
+    sortComparer: (a, b) => new Date(b.date) - new Date(a.date),
 });
 
 const initialState = expensesAdapter.getInitialState();
@@ -27,60 +26,86 @@ export const expenseApiSlice = apiSlice.injectEndpoints({
     }),
     addExpense: builder.mutation({
       query: (newExpense) => ({
-        url: '/expenses',
+        url: '/expense',
         method: 'POST',
         body: newExpense,
       }),
+      invalidatesTags: [{ type: 'Expenses', id: 'LIST' }],
       async onQueryStarted(newExpense, { dispatch, queryFulfilled }) {
+        const tempId = Date.now().toString();
         const patchResult = dispatch(
-            expenseApiSlice.util.updateQueryData('getExpenses', undefined, (draft) => {
-            expensesAdapter.addOne(draft, newExpense);
+          expenseApiSlice.util.updateQueryData('getExpenses', undefined, (draft) => {
+            expensesAdapter.addOne(draft, { ...newExpense, expenseID: tempId });
           })
         );
         try {
           await queryFulfilled;
+          // The optimistic update becomes permanent if the request is successful
         } catch {
+          // Undo the optimistic update if the request fails
           patchResult.undo();
         }
       },
     }),
     updateExpense: builder.mutation({
-      query: ({ id, ...updates }) => ({
-        url: `/expenses/${id}`,
+      query: ({ expenseId, ...updates }) => ({
+        url: `/expense/${expenseId}`,
         method: 'PUT',
         body: updates,
       }),
-      async onQueryStarted({ id, ...updates }, { dispatch, queryFulfilled }) {
+      invalidatesTags: (result, error, { expenseId }) => [{ type: 'Expenses', id: expenseId }],
+      async onQueryStarted({ expenseId, ...updates }, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
-            expenseApiSlice.util.updateQueryData('getExpenses', undefined, (draft) => {
-            expensesAdapter.updateOne(draft, { id, changes: updates });
+          expenseApiSlice.util.updateQueryData('getExpenses', undefined, (draft) => {
+            expensesAdapter.updateOne(draft, { id: expenseId, changes: updates });
           })
         );
         try {
           await queryFulfilled;
+          // Optionally, you can refetch the data
         } catch {
           patchResult.undo();
         }
       },
     }),
     deleteExpense: builder.mutation({
-      query: (id) => ({
-        url: `/expenses/${id}`,
+      query: ({ expenseId, date }) => ({
+        url: `/expense/${expenseId}/${date}`,
         method: 'DELETE',
       }),
-      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+      invalidatesTags: (result, error, { expenseId }) => [{ type: 'Expenses', id: expenseId }],
+      async onQueryStarted({ expenseId, date }, { dispatch, queryFulfilled }) {
+        // Optimistic update
         const patchResult = dispatch(
-            expenseApiSlice.util.updateQueryData('getExpenses', undefined, (draft) => {
-            expensesAdapter.removeOne(draft, id);
+          expenseApiSlice.util.updateQueryData('getExpenses', undefined, (draft) => {
+            const index = draft.ids.findIndex(id => {
+              const expense = draft.entities[id];
+              return expense.expenseID === expenseId && expense.date === date;
+            });
+            if (index !== -1) {
+              const id = draft.ids[index];
+              expensesAdapter.removeOne(draft, id);
+            }
           })
         );
         try {
           await queryFulfilled;
+          // If successful, the optimistic update is kept
         } catch {
+          // If error occurs, revert the optimistic update
           patchResult.undo();
         }
       },
     }),
+    // deleteExpense: builder.mutation({
+    //   query: ({ id, date }) => ({
+    //         url: `/expense/${id}/${date}`,
+    //         method: 'DELETE',
+    //       }),
+    //   invalidatesTags: (result, error, arg) => [
+    //     { type: 'Expenses', id: arg.id },
+    //   ],
+    // }),
   }),
 });
 

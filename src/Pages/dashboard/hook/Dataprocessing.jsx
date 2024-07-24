@@ -163,8 +163,19 @@ const useDashboardData = (shifts, expenses, staffData) => {
     const totalWage = Object.values(staffTotals).reduce((sum, data) => sum + data.totalWage, 0);
     const totalExpense = Object.values(expenseTotals).reduce((sum, total) => sum + total, 0);
 
+    // Sort staff data by staffID in ascending order
+    const sortedStaffData = staffData.sort((a, b) => {
+      if (a.staffID < b.staffID) {
+        return -1;
+      }
+      if (a.staffID > b.staffID) {
+        return 1;
+      }
+      return 0;
+    });
+
     // Prepare staff list
-    const staffListData = staffData.map(staff => ({
+    const staffListData = sortedStaffData.map(staff => ({
       staffID: staff.staffID,
       fullName: staff.fullName
     }));

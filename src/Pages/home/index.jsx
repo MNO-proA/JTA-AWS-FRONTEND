@@ -77,7 +77,7 @@ const staffValidationSchema = Yup.object().shape({
 
 
 // StaffForm component
-const StaffForm = ({ initialValues, onSubmit, onCancel, staffData }) => {
+const StaffForm = ({ initialValues, onSubmit, onCancel, staffData, isStaffLoading }) => {
   const theme = useTheme();
   const initialStaffID = generateStaffID(staffData);
   const formik = useFormik({
@@ -154,7 +154,18 @@ const StaffForm = ({ initialValues, onSubmit, onCancel, staffData }) => {
           <Button onClick={onCancel} sx={{ color: theme.palette.grey[500] }}>
             Cancel
           </Button>
-          <Button type="submit" variant="contained" sx={{
+          <button type="submit" className="btn btn-block btn-color btn-lg font-weight-medium auth-form-btn">
+                        {isStaffLoading ? (
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                        ) : (
+                          "Submit"
+                        )}
+                      </button>
+                      {/* <Button type="submit" variant="contained" sx={{
             color: 'grey',
             '&:hover': {
               backgroundColor: theme.palette.secondary[200],
@@ -162,7 +173,7 @@ const StaffForm = ({ initialValues, onSubmit, onCancel, staffData }) => {
             },
           }}>
             Submit
-          </Button>
+          </Button> */}
         </Box>
       </Box>
     </form>
@@ -201,7 +212,7 @@ const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData }
 };
 
 // DeleteConfirmationDialog component
-const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme }) => {
+const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme, isDeleteLoading }) => {
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Confirm Deletion</DialogTitle>
@@ -225,7 +236,15 @@ const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme }) => {
             color: theme.palette.primary[900],
           },
         }} autoFocus>
-          Delete
+           {isDeleteLoading  ? (
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                        ) : (
+                          "Submit"
+                        )}
         </Button>
       </DialogActions>
     </Dialog>
@@ -248,7 +267,7 @@ const Overview = () => {
 
   const [addStaff] = useAddStaffMutation();
   const [updateStaff] = useUpdateStaffMutation();
-  const [deleteStaff] = useDeleteStaffMutation();
+  const [deleteStaff, {isLoading: isDeleteLoading}] = useDeleteStaffMutation();
 
   const handleOpenDialog = () => {
     setEditingStaff(null);
@@ -353,6 +372,8 @@ const Overview = () => {
               {...staff}
               onEdit={() => handleEdit(staff)}
               onDelete={() => handleDelete(staff)}
+              isStaffLoading={isStaffLoading}
+              
             />
           ))}
         </Box>
@@ -377,6 +398,7 @@ const Overview = () => {
         onClose={() => setOpenDeleteDialog(false)}
         onConfirm={handleConfirmDelete}
         theme={theme}
+        isDeleteLoading={isDeleteLoading}
       />
       <ToastContainer />
     </Box>
