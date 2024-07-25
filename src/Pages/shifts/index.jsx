@@ -8,12 +8,13 @@ import * as Yup from 'yup';
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, MenuItem } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useGetShiftsQuery, selectAllShifts, useAddShiftMutation, useDeleteShiftMutation, useUpdateShiftMutation } from "../../features/shifts/shiftSlice";
+import { useGetShiftsQuery, selectAllShifts, useAddShiftMutation, useDeleteShiftMutation, useUpdateShiftMutation, selectShiftIds } from "../../features/shifts/shiftSlice";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useSelector } from "react-redux";
 import { selectAllStaff, useGetStaffQuery } from "../../features/staffs/staffSlice";
 import { selectCurrentToken } from "../../features/auth/authSlice"
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -21,196 +22,383 @@ import { selectCurrentToken } from "../../features/auth/authSlice"
 const shiftValidationSchema = Yup.object().shape({
   staffID: Yup.string().required('Staff ID is required'),
   startDate: Yup.date().required('Start date is required'),
-  End_Date: Yup.date().required('End date is required'),
-  House: Yup.string().required('House is required'),
-  Shift: Yup.string().required('Shift is required'),
-  Shift_Start: Yup.string().required('Shift start time is required'),
-  Shift_End: Yup.string().required('Shift end time is required'),
-  Absence: Yup.string().required('Absence is required'),
-  Absence_Status: Yup.string().required('Absence status is required'),
+  // End_Date: Yup.date().required('End date is required'),
+  // House: Yup.string().required('House is required'),
+  // Shift: Yup.string().required('Shift is required'),
+  // Shift_Start: Yup.string().required('Shift start time is required'),
+  // Shift_End: Yup.string().required('Shift end time is required'),
+  // Absence: Yup.string().required('Absence is required'),
+  // Absence_Status: Yup.string().required('Absence status is required'),
 });
 
 const generateShiftID = (shiftData) => {
-  if (shiftData.length === 0) return 'shift001'; // Default ID if no shifts exist
+  if (shiftData.length === 0) return 'S001'; // Default ID if no shifts exist
 
-  const lastShiftID = shiftData[0]?.shiftID; // Get the ID of the last shift (first in descending order)
-  const numericPart = parseInt(lastShiftID.match(/\d+/)[0], 10); // Extract numeric part
-  const newNumericPart = numericPart + 1; // Increment numeric part
-  return `S${newNumericPart.toString().padStart(3, '0')}`; // Construct new shift ID
+  // Filter out elements that match the pattern S followed by digits
+  const validShiftIDs = shiftData.filter(id => /^S\d+$/.test(id));
+
+  // If no valid IDs found, return default
+  if (validShiftIDs.length === 0) return 'S001';
+
+  // Extract numeric parts and find the largest number
+  const largestNumericPart = validShiftIDs
+    .map(id => parseInt(id.match(/\d+/)[0], 10))
+    .reduce((max, num) => Math.max(max, num), 0);
+
+  // Increment the largest number
+  const newNumericPart = largestNumericPart + 1;
+
+  // Construct new shift ID
+  return `S${newNumericPart.toString().padStart(3, '0')}`;
 };
 
 // ShiftForm component
-const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData }) => {
+// const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData }) => {
+//   const theme = useTheme();
+//   const initialshiftID= generateShiftID(shiftsData);
+//   const formik = useFormik({
+//     initialValues: initialValues || {
+//       shiftID: initialshiftID,
+//       staffID: '',
+//       startDate: '',
+//       End_Date: '',
+//       House: '',
+//       Shift: '',
+//       Shift_Start: '',
+//       Shift_End: '',
+//       Absence: 'No',
+//       Absence_Status: 'None',
+//     },
+//     validationSchema: shiftValidationSchema,
+//     onSubmit: (values) => {
+//       const shiftStartTime = new Date(`${values.startDate}T${values.Shift_Start}`);
+//       const shiftEndTime = new Date(`${values.End_Date}T${values.Shift_End}`);
+
+//       // If shiftEndTime is earlier than shiftStartTime, add one day to shiftEndTime
+//       if (shiftEndTime <= shiftStartTime) {
+//         shiftEndTime.setDate(shiftEndTime.getDate() + 1);
+//       }
+
+//       const shiftDuration = (shiftEndTime - shiftStartTime) / (1000 * 60 * 60); // in hours
+//       console.log(shiftDuration);
+//       const totalHours = Math.min(shiftDuration); // Cap at 12 hours
+//       const overtime = Math.max(0, shiftDuration - 12);
+
+//       // Find the staff's hourly rate
+//       const staff = staffsData.find(staff => staff.staffID === values.staffID);
+//       const hourlyRate = staff ? staff.hourlyRate : 0; // Default to 15 if not found
+
+//       const totalWage = (totalHours) * hourlyRate;
+
+//       const shiftData = {
+//         ...values,
+//         Overtime: overtime.toFixed(2),
+//         Total_Hours: totalHours.toFixed(2),
+//         Total_Wage: totalWage.toFixed(2),
+//       };
+//       onSubmit(shiftData)
+//     },
+//   });
+
+//   return (
+//     <form onSubmit={formik.handleSubmit}>
+//       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+//       <TextField
+//           fullWidth
+//           id="shiftID"
+//           name="shiftID"
+//           label="Shift ID"
+//           value={formik.values.shiftID}
+//           onChange={formik.handleChange}
+//           InputProps={{
+//             readOnly: true,
+//           }}
+//         />
+//       <TextField
+//             fullWidth
+//             id="staffID"
+//             name="staffID"
+//             label="Staff Name"
+//             select
+//             value={formik.values.staffID}
+//             onChange={formik.handleChange}
+//             error={formik.touched.staffID && Boolean(formik.errors.staffID)}
+//             helperText={formik.touched.staffID && formik.errors.staffID}
+//             sx={{
+//               '& .MuiOutlinedInput-root': {
+//                 // '& fieldset': {
+//                 //   borderColor: 'your_color_here', // Normal border color
+//                 // },
+//                 // '&:hover fieldset': {
+//                 //   borderColor: 'your_hover_color_here', // Border color on hover
+//                 // },
+//                 '&.Mui-focused fieldset': {
+//                   borderColor: theme.palette.secondary[100], // Border color when focused
+//                 },
+//               },
+//             }}
+//           >
+//             {staffsData.map((staff) => (
+//               <MenuItem key={staff.staffID} value={staff.staffID}>
+//                 {staff.fullName}
+//               </MenuItem>
+//             ))}
+//       </TextField>
+//       <TextField
+//           fullWidth
+//           id="Absence"
+//           name="Absence"
+//           label="Absence"
+//           select
+//           value={formik.values.Absence}
+//           onChange={formik.handleChange}
+//           error={formik.touched.Absence && Boolean(formik.errors.Absence)}
+//           helperText={formik.touched.Absence && formik.errors.Absence}
+//         >
+//           <MenuItem value="No">No</MenuItem>
+//           <MenuItem value="Yes">Yes</MenuItem>
+//         </TextField>
+
+
+//         <TextField
+//           fullWidth
+//           id="startDate"
+//           name="startDate"
+//           label="Start Date"
+//           type="date"
+//           value={formik.values.startDate}
+//           onChange={formik.handleChange}
+//           error={formik.touched.startDate && Boolean(formik.errors.startDate)}
+//           helperText={formik.touched.startDate && formik.errors.startDate}
+//           InputLabelProps={{ shrink: true }}
+//         />
+//         <TextField
+//           fullWidth
+//           id="End_Date"
+//           name="End_Date"
+//           label="End Date"
+//           type="date"
+//           value={formik.values.End_Date}
+//           onChange={formik.handleChange}
+//           error={formik.touched.End_Date && Boolean(formik.errors.End_Date)}
+//           helperText={formik.touched.endDate && formik.errors.endDate}
+//           InputLabelProps={{ shrink: true }}
+//         />
+//         <TextField
+//           fullWidth
+//           select
+//           id="House"
+//           name="House"
+//           label="House"
+//           value={formik.values.House}
+//           onChange={formik.handleChange}
+//           error={formik.touched.House && Boolean(formik.errors.House)}
+//           helperText={formik.touched.House && formik.errors.House}
+//         >
+//            <MenuItem value="Jericho House">Jericho House</MenuItem>
+//            <MenuItem value="Howards House">Howards House</MenuItem>
+
+//         </TextField>
+
+//         <TextField
+//           fullWidth
+//           id="Shift"
+//           name="Shift"
+//           label="Shift"
+//           select
+//           value={formik.values.Shift}
+//           onChange={formik.handleChange}
+//           error={formik.touched.Shift && Boolean(formik.errors.Shift)}
+//           helperText={formik.touched.Shift && formik.errors.Shift}
+//         >
+//           <MenuItem value="Day">Day</MenuItem>
+//           <MenuItem value="Night">Night</MenuItem>
+//         </TextField>
+
+//         <TextField
+//           fullWidth
+//           id="Shift_Start"
+//           name="Shift_Start"
+//           label="Shift_Start"
+//           type="time"
+//           value={formik.values.Shift_Start}
+//           onChange={formik.handleChange}
+//           error={formik.touched.Shift_Start && Boolean(formik.errors.Shift_Start)}
+//           helperText={formik.touched.Shift_Start && formik.errors.Shift_Start}
+//           InputLabelProps={{ shrink: true }}
+//         />
+//         <TextField
+//           fullWidth
+//           id="Shift_End"
+//           name="Shift_End"
+//           label="Shift End"
+//           type="time"
+//           value={formik.values.Shift_End}
+//           onChange={formik.handleChange}
+//           error={formik.touched.Shift_End && Boolean(formik.errors.Shift_End)}
+//           helperText={formik.touched.Shift_End && formik.errors.Shift_End}
+//           InputLabelProps={{ shrink: true }}
+//         />
+//         {/* <TextField
+//           fullWidth
+//           id="Absence"
+//           name="Absence"
+//           label="Absence"
+//           select
+//           value={formik.values.Absence}
+//           onChange={formik.handleChange}
+//           error={formik.touched.Absence && Boolean(formik.errors.Absence)}
+//           helperText={formik.touched.Absence && formik.errors.Absence}
+//         >
+//           <MenuItem value="No">No</MenuItem>
+//           <MenuItem value="Yes">Yes</MenuItem>
+//         </TextField> */}
+//           <TextField
+//             fullWidth
+//             id="Absence_Status"
+//             name="Absence_Status"
+//             label="Absence Status"
+//             select
+//             value={formik.values.Absence_Status}
+//             onChange={formik.handleChange}
+//             error={formik.touched.Absence_Status &&  Boolean(formik.errors.Absence_Status)}
+//             helperText={formik.touched.Absence_Status && formik.errors.Absence_Status}
+//           >
+//               <MenuItem value="None">None</MenuItem>
+//               <MenuItem value="Sick">Sick</MenuItem>
+//               <MenuItem value="Vacation">Vacation</MenuItem>
+//               <MenuItem value="Personal">Personal</MenuItem>
+//               <MenuItem value="Absence Without Leave">Absence Without Leave</MenuItem>
+//               <MenuItem value="Holiday">Holiday</MenuItem>
+//         </TextField>
+
+//         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+//           <Button onClick={onCancel} sx={{ color: theme.palette.grey[500] }}>
+//             Cancel
+//           </Button>
+//           <Button type="submit" variant="contained"  sx={{color: 'grey',
+//           '&:hover': {
+//             backgroundColor: theme.palette.secondary[200],
+//             color: theme.palette.primary[900],
+//           },
+//         }} >
+//             Submit
+//           </Button>
+//         </Box>
+//       </Box>
+//     </form>
+//   );
+// };
+
+
+const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, shiftsIds, navigate }) => {
   const theme = useTheme();
-  const initialshiftID= generateShiftID(shiftsData);
+  const initialShiftID = generateShiftID(shiftsIds);
+  
   const formik = useFormik({
     initialValues: initialValues || {
-      shiftID: initialshiftID,
+      shiftID: initialShiftID,
       staffID: '',
       startDate: '',
+      Absence: 'No',
+      Absence_Status: 'None',
       End_Date: '',
       House: '',
       Shift: '',
       Shift_Start: '',
       Shift_End: '',
-      Absence: 'No',
-      Absence_Status: 'None',
     },
     validationSchema: shiftValidationSchema,
     onSubmit: (values) => {
-      const shiftStartTime = new Date(`${values.startDate}T${values.Shift_Start}`);
-      const shiftEndTime = new Date(`${values.End_Date}T${values.Shift_End}`);
-
-      // If shiftEndTime is earlier than shiftStartTime, add one day to shiftEndTime
-      if (shiftEndTime <= shiftStartTime) {
-        shiftEndTime.setDate(shiftEndTime.getDate() + 1);
+      let shiftData;
+      if (values.Absence === 'Yes') {
+        shiftData = {
+          shiftID: values.shiftID,
+          staffID: values.staffID,
+          startDate: values.startDate,
+          Absence: values.Absence,
+          Absence_Status: values.Absence_Status,
+          End_Date: '',
+          House: '',
+          Shift: '',
+          Shift_Start: '',
+          Shift_End: '',
+          Total_Hours: 0,
+          Total_Wage: 0,
+          Overtime: 0
+        };
+      } else {
+        const shiftStartTime = new Date(`${values.startDate}T${values.Shift_Start}`);
+        const shiftEndTime = new Date(`${values.End_Date}T${values.Shift_End}`);
+  
+        // If shiftEndTime is earlier than shiftStartTime, add one day to shiftEndTime
+        if (shiftEndTime <= shiftStartTime) {
+          shiftEndTime.setDate(shiftEndTime.getDate() + 1);
+        }
+  
+        const shiftDuration = (shiftEndTime - shiftStartTime) / (1000 * 60 * 60); // in hours
+        console.log(shiftDuration);
+        const totalHours = Math.min(shiftDuration); // Cap at 12 hours
+        const overtime = Math.max(0, shiftDuration - 12);
+  
+        // Find the staff's hourly rate
+        const staff = staffsData.find(staff => staff.staffID === values.staffID);
+        const hourlyRate = staff ? staff.hourlyRate : 0; // Default to 15 if not found
+  
+        const totalWage = (totalHours) * hourlyRate;
+  
+        shiftData = {
+          ...values,
+          Overtime: overtime.toFixed(2),
+          Total_Hours: totalHours.toFixed(2),
+          Total_Wage: totalWage.toFixed(2),
+        };
       }
-
-      const shiftDuration = (shiftEndTime - shiftStartTime) / (1000 * 60 * 60); // in hours
-      console.log(shiftDuration);
-      const totalHours = Math.min(shiftDuration); // Cap at 12 hours
-      const overtime = Math.max(0, shiftDuration - 12);
-
-      // Find the staff's hourly rate
-      const staff = staffsData.find(staff => staff.staffID === values.staffID);
-      const hourlyRate = staff ? staff.hourlyRate : 0; // Default to 15 if not found
-
-      const totalWage = (totalHours) * hourlyRate;
-
-      const shiftData = {
-        ...values,
-        Overtime: overtime.toFixed(2),
-        Total_Hours: totalHours.toFixed(2),
-        Total_Wage: totalWage.toFixed(2),
-      };
-      onSubmit(shiftData)
+      onSubmit(shiftData);
+      if (values.Absence === 'Yes') {
+        navigate('/Absence');
+      }
     },
   });
 
   return (
     <form onSubmit={formik.handleSubmit}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <TextField
+        <TextField
           fullWidth
           id="shiftID"
           name="shiftID"
           label="Shift ID"
           value={formik.values.shiftID}
           onChange={formik.handleChange}
-          // InputProps={{
-          //   readOnly: true,
-          // }}
+          InputProps={{
+            readOnly: true,
+          }}
         />
-      <TextField
-            fullWidth
-            id="staffID"
-            name="staffID"
-            label="Staff Name"
-            select
-            value={formik.values.staffID}
-            onChange={formik.handleChange}
-            error={formik.touched.staffID && Boolean(formik.errors.staffID)}
-            helperText={formik.touched.staffID && formik.errors.staffID}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                // '& fieldset': {
-                //   borderColor: 'your_color_here', // Normal border color
-                // },
-                // '&:hover fieldset': {
-                //   borderColor: 'your_hover_color_here', // Border color on hover
-                // },
-                '&.Mui-focused fieldset': {
-                  borderColor: theme.palette.secondary[100], // Border color when focused
-                },
+        <TextField
+          fullWidth
+          id="staffID"
+          name="staffID"
+          label="Staff Name"
+          select
+          value={formik.values.staffID}
+          onChange={formik.handleChange}
+          error={formik.touched.staffID && Boolean(formik.errors.staffID)}
+          helperText={formik.touched.staffID && formik.errors.staffID}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              '&.Mui-focused fieldset': {
+                borderColor: theme.palette.secondary[100],
               },
-            }}
-          >
-            {staffsData.map((staff) => (
-              <MenuItem key={staff.staffID} value={staff.staffID}>
-                {staff.fullName}
-              </MenuItem>
-            ))}
-      </TextField>
-
-        <TextField
-          fullWidth
-          id="startDate"
-          name="startDate"
-          label="Start Date"
-          type="date"
-          value={formik.values.startDate}
-          onChange={formik.handleChange}
-          error={formik.touched.startDate && Boolean(formik.errors.startDate)}
-          helperText={formik.touched.startDate && formik.errors.startDate}
-          InputLabelProps={{ shrink: true }}
-        />
-        <TextField
-          fullWidth
-          id="End_Date"
-          name="End_Date"
-          label="End Date"
-          type="date"
-          value={formik.values.End_Date}
-          onChange={formik.handleChange}
-          error={formik.touched.End_Date && Boolean(formik.errors.End_Date)}
-          helperText={formik.touched.endDate && formik.errors.endDate}
-          InputLabelProps={{ shrink: true }}
-        />
-        <TextField
-          fullWidth
-          select
-          id="House"
-          name="House"
-          label="House"
-          value={formik.values.House}
-          onChange={formik.handleChange}
-          error={formik.touched.House && Boolean(formik.errors.House)}
-          helperText={formik.touched.House && formik.errors.House}
+            },
+          }}
         >
-           <MenuItem value="Jericho House">Jericho House</MenuItem>
-           <MenuItem value="Howards House">Howards House</MenuItem>
-
+          {staffsData.map((staff) => (
+            <MenuItem key={staff.staffID} value={staff.staffID}>
+              {staff.fullName}
+            </MenuItem>
+          ))}
         </TextField>
-
-        <TextField
-          fullWidth
-          id="Shift"
-          name="Shift"
-          label="Shift"
-          select
-          value={formik.values.Shift}
-          onChange={formik.handleChange}
-          error={formik.touched.Shift && Boolean(formik.errors.Shift)}
-          helperText={formik.touched.Shift && formik.errors.Shift}
-        >
-          <MenuItem value="Day">Day</MenuItem>
-          <MenuItem value="Night">Night</MenuItem>
-        </TextField>
-
-        <TextField
-          fullWidth
-          id="Shift_Start"
-          name="Shift_Start"
-          label="Shift_Start"
-          type="time"
-          value={formik.values.Shift_Start}
-          onChange={formik.handleChange}
-          error={formik.touched.Shift_Start && Boolean(formik.errors.Shift_Start)}
-          helperText={formik.touched.Shift_Start && formik.errors.Shift_Start}
-          InputLabelProps={{ shrink: true }}
-        />
-        <TextField
-          fullWidth
-          id="Shift_End"
-          name="Shift_End"
-          label="Shift End"
-          type="time"
-          value={formik.values.Shift_End}
-          onChange={formik.handleChange}
-          error={formik.touched.Shift_End && Boolean(formik.errors.Shift_End)}
-          helperText={formik.touched.Shift_End && formik.errors.Shift_End}
-          InputLabelProps={{ shrink: true }}
-        />
         <TextField
           fullWidth
           id="Absence"
@@ -225,6 +413,19 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData }
           <MenuItem value="No">No</MenuItem>
           <MenuItem value="Yes">Yes</MenuItem>
         </TextField>
+        <TextField
+          fullWidth
+          id="startDate"
+          name="startDate"
+          label={formik.values.Absence === 'Yes' ? 'Date' : 'Start Date'}
+          type="date"
+          value={formik.values.startDate}
+          onChange={formik.handleChange}
+          error={formik.touched.startDate && Boolean(formik.errors.startDate)}
+          helperText={formik.touched.startDate && formik.errors.startDate}
+          InputLabelProps={{ shrink: true }}
+        />
+        {formik.values.Absence === 'Yes' && (
           <TextField
             fullWidth
             id="Absence_Status"
@@ -233,27 +434,101 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData }
             select
             value={formik.values.Absence_Status}
             onChange={formik.handleChange}
-            error={formik.touched.Absence_Status &&  Boolean(formik.errors.Absence_Status)}
+            error={formik.touched.Absence_Status && Boolean(formik.errors.Absence_Status)}
             helperText={formik.touched.Absence_Status && formik.errors.Absence_Status}
           >
-              <MenuItem value="None">None</MenuItem>
-              <MenuItem value="Sick">Sick</MenuItem>
-              <MenuItem value="Vacation">Vacation</MenuItem>
-              <MenuItem value="Personal">Personal</MenuItem>
-              <MenuItem value="Absence Without Leave">Absence Without Leave</MenuItem>
-              <MenuItem value="Holiday">Holiday</MenuItem>
-        </TextField>
+            <MenuItem value="None">None</MenuItem>
+            <MenuItem value="Sick">Sick</MenuItem>
+            <MenuItem value="Personal">Personal</MenuItem>
+            <MenuItem value="Absence Without Leave">Absence Without Leave</MenuItem>
+            <MenuItem value="Holiday">Holiday</MenuItem>
+          </TextField>
+        )}
+
+        {formik.values.Absence === 'No' && (
+          <>
+            <TextField
+              fullWidth
+              id="End_Date"
+              name="End_Date"
+              label="End Date"
+              type="date"
+              value={formik.values.End_Date}
+              onChange={formik.handleChange}
+              error={formik.touched.End_Date && Boolean(formik.errors.End_Date)}
+              helperText={formik.touched.End_Date && formik.errors.End_Date}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              fullWidth
+              select
+              id="House"
+              name="House"
+              label="House"
+              value={formik.values.House}
+              onChange={formik.handleChange}
+              error={formik.touched.House && Boolean(formik.errors.House)}
+              helperText={formik.touched.House && formik.errors.House}
+            >
+              <MenuItem value="Jericho House">Jericho House</MenuItem>
+              <MenuItem value="Howards House">Howards House</MenuItem>
+            </TextField>
+            <TextField
+              fullWidth
+              id="Shift"
+              name="Shift"
+              label="Shift"
+              select
+              value={formik.values.Shift}
+              onChange={formik.handleChange}
+              error={formik.touched.Shift && Boolean(formik.errors.Shift)}
+              helperText={formik.touched.Shift && formik.errors.Shift}
+            >
+              <MenuItem value="Day">Day</MenuItem>
+              <MenuItem value="Night">Night</MenuItem>
+            </TextField>
+            <TextField
+              fullWidth
+              id="Shift_Start"
+              name="Shift_Start"
+              label="Shift Start"
+              type="time"
+              value={formik.values.Shift_Start}
+              onChange={formik.handleChange}
+              error={formik.touched.Shift_Start && Boolean(formik.errors.Shift_Start)}
+              helperText={formik.touched.Shift_Start && formik.errors.Shift_Start}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              fullWidth
+              id="Shift_End"
+              name="Shift_End"
+              label="Shift End"
+              type="time"
+              value={formik.values.Shift_End}
+              onChange={formik.handleChange}
+              error={formik.touched.Shift_End && Boolean(formik.errors.Shift_End)}
+              helperText={formik.touched.Shift_End && formik.errors.Shift_End}
+              InputLabelProps={{ shrink: true }}
+            />
+          </>
+        )}
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
           <Button onClick={onCancel} sx={{ color: theme.palette.grey[500] }}>
             Cancel
           </Button>
-          <Button type="submit" variant="contained"  sx={{color: 'grey',
-          '&:hover': {
-            backgroundColor: theme.palette.secondary[200],
-            color: theme.palette.primary[900],
-          },
-        }} >
+          <Button 
+            type="submit" 
+            variant="contained"  
+            sx={{
+              color: 'grey',
+              '&:hover': {
+                backgroundColor: theme.palette.secondary[200],
+                color: theme.palette.primary[900],
+              },
+            }}
+          >
             Submit
           </Button>
         </Box>
@@ -262,8 +537,10 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData }
   );
 };
 
+
+
 // ShiftDialog component
-const ShiftDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData, shiftsData }) => {
+const ShiftDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData, shiftsData, shiftsIds, navigate }) => {
   const isEditing = Boolean(shift);
   const title = isEditing ? 'Edit Shift' : 'Record New Shift';
 
@@ -280,6 +557,8 @@ const ShiftDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData,
           onCancel={onClose}
           staffsData={staffsData}
           shiftsData={shiftsData}
+          shiftsIds={shiftsIds}
+          navigate={navigate}
         />
         {isEditing? 
       
@@ -351,7 +630,8 @@ const Shifts = () => {
   const {isLoading: isShiftsLoading, refetch} = useGetShiftsQuery()
   const { isLoading: isStaffLoading } = useGetStaffQuery();
   const token = useSelector(selectCurrentToken)
-
+  const shiftsIds = useSelector(selectShiftIds)
+  const navigate = useNavigate();
 
   const staffsData = useSelector(selectAllStaff);
 
@@ -360,7 +640,8 @@ const Shifts = () => {
   const shiftsData = useSelector(selectAllShifts)
   useEffect(()=>{
     console.log(shiftsData)
-  },[shiftsData])
+    console.log(shiftsIds)
+  },[shiftsData, shiftsIds])
 
 
 
@@ -401,31 +682,7 @@ const Shifts = () => {
     setSelectedShift(shift)
   };
 
-  // const deleteShift = async (shiftID, startDate, refetch) => {
-  //   const url = `https://jta-node-api.onrender.com/shifts/${shiftID}/${startDate}`;
-  //   const requestOptions = {
-  //     method: 'DELETE',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //   };
-  
-  //   try {
-  //     const response = await fetch(url, requestOptions);
-  //     if (!response.ok) {
-  //       // Handle HTTP errors
-  //       const errorText = await response.text();
-  //       throw new Error(`Error ${response.status}: ${errorText}`);
-  //     }
-  //     // Assuming the response is a text
-  //     const result = await response.text();
-  //     console.log('Delete successful:', result);
-  //     refetch(); // Trigger refetch
-  //   } catch (error) {
-  //     console.error('Delete failed:', error);
-  //   }
-  // };
-
+ 
   const handleConfirmDelete = async () => {
   
      
@@ -468,7 +725,8 @@ const Shifts = () => {
 
 
   function mapShiftAndStaffData(shiftData, staffData) {
-    return shiftData.map(shift => {
+    const shiftRefined = shiftData.filter((shift)=> shift.Absence !== "Yes" )
+    return shiftRefined.map(shift => {
         const staff = staffData.find(staff => staff.staffID === shift.staffID);
         if (staff) {
             return {
@@ -590,6 +848,8 @@ const revisedShiftsData = mapShiftAndStaffData(shiftsData, staffsData)
         handleDelete={handleDelete}
         staffsData={staffsData}
         shiftsData={shiftsData}
+        shiftsIds={shiftsIds}
+        navigate={navigate}
       />
       <DeleteConfirmationDialog
         open={openDeleteDialog}
@@ -597,7 +857,7 @@ const revisedShiftsData = mapShiftAndStaffData(shiftsData, staffsData)
         onConfirm={handleConfirmDelete}
         theme={theme}
         isDeleteLoading = {isDeleteLoading }
-      token = {token }
+        token = {token }
       />
       <ToastContainer />
     </Box>

@@ -6,7 +6,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import Header from "../../Components/Header";
-import { selectAllStaff, useGetStaffQuery, useAddStaffMutation, useUpdateStaffMutation, useDeleteStaffMutation } from "../../features/staffs/staffSlice";
+import { selectAllStaff, useGetStaffQuery, useAddStaffMutation, useUpdateStaffMutation, useDeleteStaffMutation, selectStaffIds } from "../../features/staffs/staffSlice";
 import { useSelector } from "react-redux";
 
 import { toast, ToastContainer } from 'react-toastify';
@@ -25,19 +25,34 @@ import {
 } from "@mui/material";
 
 
+
 import DeleteIcon from '@mui/icons-material/Delete';
 
 
 
-// Function to generate the new staffID
 const generateStaffID = (staffsData) => {
   if (staffsData.length === 0) return 'JTA001'; // Default ID if no staff exists
 
-  const lastStaffID = staffsData[0]?.staffID; // Get the ID of the last staff member (first in descending order)
-  const numericPart = parseInt(lastStaffID.match(/\d+/)[0], 10); // Extract numeric part
-  const newNumericPart = numericPart + 1; // Increment numeric part
-  return `JTA${newNumericPart.toString().padStart(3, '0')}`; // Construct new staff ID
+  // Filter out elements that match the pattern JTA followed by digits
+  const validStaffIDs = staffsData.filter(id => /^JTA\d+$/.test(id));
+
+  // If no valid IDs found, return default
+  if (validStaffIDs.length === 0) return 'JTA001';
+
+  // Extract numeric parts and find the largest number
+  const largestNumericPart = validStaffIDs
+    .map(id => parseInt(id.match(/\d+/)[0], 10))
+    .reduce((max, num) => Math.max(max, num), 0);
+
+  // Increment the largest number
+  const newNumericPart = largestNumericPart + 1;
+
+  // Construct new staff ID
+  return `JTA${newNumericPart.toString().padStart(3, '0')}`;
 };
+
+
+
 
 // Validation schema for the staff form
 const isAllCaps = (value) => {
@@ -77,9 +92,9 @@ const staffValidationSchema = Yup.object().shape({
 
 
 // StaffForm component
-const StaffForm = ({ initialValues, onSubmit, onCancel, staffData, isStaffLoading }) => {
+const StaffForm = ({ initialValues, onSubmit, onCancel, staffData, isStaffLoading,staffsIds }) => {
   const theme = useTheme();
-  const initialStaffID = generateStaffID(staffData);
+  const initialStaffID = generateStaffID(staffsIds);
   const formik = useFormik({
     initialValues: initialValues || {
       staffID: initialStaffID,
@@ -181,7 +196,7 @@ const StaffForm = ({ initialValues, onSubmit, onCancel, staffData, isStaffLoadin
 };
 
 // StaffDialog component
-const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData }) => {
+const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData, staffsIds }) => {
   const isEditing = Boolean(staff);
   const title = isEditing ? 'Edit Staff' : 'Create New Staff';
 
@@ -197,6 +212,7 @@ const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData }
           }}
           onCancel={onClose}
           staffData={staffData}
+          staffsIds={staffsIds}
         />
         {isEditing && 
           <DeleteIcon sx={{
@@ -264,7 +280,7 @@ const Overview = () => {
   const [editingStaff, setEditingStaff] = useState(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState(null);
-
+  const staffsIds = useSelector(selectStaffIds)
   const [addStaff] = useAddStaffMutation();
   const [updateStaff] = useUpdateStaffMutation();
   const [deleteStaff, {isLoading: isDeleteLoading}] = useDeleteStaffMutation();
@@ -392,6 +408,7 @@ const Overview = () => {
         onSubmit={handleSubmit}
         handleDelete={() => handleDelete(editingStaff)}
         staffData={staffData}
+        staffsIds={staffsIds}
       />
       <DeleteConfirmationDialog
         open={openDeleteDialog}

@@ -147,7 +147,7 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel,expens
             helperText={formik.touched[field.name] && formik.errors[field.name]}
           />
         ))}
-        <TextField
+        {/* <TextField
           id="custom-expense-name"
           label="Custom Expense Name"
           value={label}
@@ -156,7 +156,7 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel,expens
         />
         <IconButton onClick={addCustomField} sx={{ alignSelf: 'flex-start' }}>
           <AddIcon />
-        </IconButton>
+        </IconButton> */}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
           <Button onClick={onCancel} sx={{ color: theme.palette.grey[500] }}>
             Cancel

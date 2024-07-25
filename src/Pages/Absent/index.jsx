@@ -20,12 +20,12 @@ const AbsentReadOnly = () => {
     const staffsData = useSelector(selectAllStaff);
     const shiftsData = useSelector(selectAllShifts)
   
-    useEffect(()=>{
-      console.log(shiftsData)
-    },[shiftsData])
-    useEffect(()=>{
-      console.log(staffsData)
-    },[staffsData])
+    // useEffect(()=>{
+    //   console.log(shiftsData)
+    // },[shiftsData])
+    // useEffect(()=>{
+    //   console.log(staffsData)
+    // },[staffsData])
 
 
     function mapShiftAndStaffData(shiftData, staffData) {

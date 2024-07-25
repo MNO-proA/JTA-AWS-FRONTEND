@@ -25,11 +25,13 @@ import {
 } from "@mui/material";
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import { logOut } from "../features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
+
 
 const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const dispatch = useDispatch();
   const theme = useTheme();
-
+  const navigate = useNavigate()
   const [anchorEl, setAnchorEl] = useState(null);
   const isOpen = Boolean(anchorEl);
   const handleClick = (event) => setAnchorEl(event.currentTarget);
@@ -111,7 +113,7 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
               onClose={handleClose}
               anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
             >
-              <MenuItem onClick={dispatch(logOut)}>Log Out</MenuItem>
+              <MenuItem>Log Out</MenuItem>
             </Menu>
           </FlexBetween>
         </FlexBetween>
