@@ -321,6 +321,7 @@ useEffect(()=>{
                     <strong>{data.fullName}</strong><br />
                     Staff ID: {data.staffID}<br />
                     Absences: {data.yes}
+                    {/* Absensce_Status */}
                     </div>
                   )}
                   label={d => (d.value > 0 ? `${d.value}` : '')} // Show label only when value is greater than 0
@@ -438,7 +439,10 @@ useEffect(()=>{
           </Card>
         </Grid>
          {/* ++++++++++++++++++++++++++++ DAY/NIGHT PIE +++++++++++++++++++++++++++ */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={4} sx={{ mt: {
+                  xs: 0, // No margin-top on extra-small and small screens
+                  md: '-290px', // Apply margin-top on medium and larger screens
+                }}}>
           <Card   sx={{
                     bgcolor: theme.palette.background.default,
                     boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`,

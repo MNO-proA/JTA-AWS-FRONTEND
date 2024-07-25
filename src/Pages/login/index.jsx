@@ -96,85 +96,82 @@ const Login = () => {
     <>
         <StartScreen/>
         <div className="container-scroller">
-        <div className="container-fluid page-body-wrapper full-page-wrapper">
-          <div className="content-wrapper d-flex align-items-center auth">
-            <div className="row flex-grow">
-              <div className="col-lg-4 mx-auto">
-                <div className="auth-form-light text-left p-5">
-                  <div className="brand-logo">
-                    <img src={logo} />
-                  </div>
-                  {/* eslint-disable-next-line react/no-unescaped-entities */}
-                  <h4>Hello! let's get started</h4>
-                  <h6 className="font-weight-light">Log in to continue.</h6>
-                  {/* ------------------------------------------------ */}
-                  <div className="pt-2 pb-2">
-                    <p
-                      ref={msgRef}
-                      className={
-                        errMsg
-                          ? "errmsg"
-                          : successMsg
-                          ? "successmsg"
-                          : "offscreen"
-                      }
-                      aria-live="assertive"
-                    >
-                      {errMsg ? errMsg : successMsg ? successMsg : ""}
-                    </p>
-                  </div>
-                  {/* ------------------------------------------------------ */}
-                  <form
-                    className="pt-2 needs-validation"
+          <div className="container-fluid page-body-wrapper full-page-wrapper">
+            <div className="content-wrapper d-flex align-items-center justify-content-center auth">
+              <div className="row w-100">
+                <div className="col-lg-4 mx-auto">
+                  <div className="auth-form-light text-center p-5">
+                    <div className="brand-logo">
+                      <img src={logo} alt="Logo" className="mx-auto d-block" />
+                    </div>
+                    {/* eslint-disable-next-line react/no-unescaped-entities */}
+                    <h4>Welcome</h4>
+                    <h6 className="font-weight-light">Log in to continue.</h6>
+                    {/* ------------------------------------------------ */}
+                    <div className="pt-2 pb-2">
+                      <p
+                        ref={msgRef}
+                        className={
+                          errMsg
+                            ? "errmsg"
+                            : successMsg
+                            ? "successmsg"
+                            : "offscreen"
+                        }
+                        aria-live="assertive"
+                      >
+                        {errMsg ? errMsg : successMsg ? successMsg : ""}
+                      </p>
+                    </div>
+                    {/* ------------------------------------------------------ */}
+                    <form
+                      className="pt-2 needs-validation"
                       onSubmit={handleSubmit}
-                  >
-                    <div className="form-group ">
-                      <input
-                        type="text"
-                        className="form-control form-control-lg"
-                        id="exampleInputEmail1"
-                        placeholder="Username"
-                        ref={userRef}
-                        value={user}
-                        onChange={handleUserInput}
-                        required
-                        autoComplete="off"
-                      />
-                    </div>
-                    <div className="form-group">
-                      <input
-                        type="password"
-                        className="form-control form-control-lg"
-                        id="exampleInputPassword1"
-                        placeholder="Password"
-                        onChange={handlePwdInput}
-                        value={pwd}
-                        required
-                      />
-                    </div>
-                    <div className="mt-3">
-                      <button className="btn btn-block btn-color btn-lg font-weight-medium auth-form-btn">
-                        {isLoading ? (
-                          <span
-                            className="spinner-border spinner-border-sm"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                        ) : (
-                          "LOG IN"
-                        )}
-                      </button>
-                      {/* <button className="btn btn-block btn-color btn-lg font-weight-medium auth-form-btn" onClick={() => navigate('overview')}>
-                       navigate
-                      </button> */}
-                    </div>
-                  </form>
+                    >
+                      <div className="form-group">
+                        <input
+                          type="text"
+                          className="form-control form-control-lg"
+                          id="exampleInputEmail1"
+                          placeholder="Username"
+                          ref={userRef}
+                          value={user}
+                          onChange={handleUserInput}
+                          required
+                          autoComplete="off"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <input
+                          type="password"
+                          className="form-control form-control-lg"
+                          id="exampleInputPassword1"
+                          placeholder="Password"
+                          onChange={handlePwdInput}
+                          value={pwd}
+                          required
+                        />
+                      </div>
+                      <div className="mt-3">
+                        <button className="btn btn-block btn-color btn-lg font-weight-medium auth-form-btn">
+                          {isLoading ? (
+                            <span
+                              className="spinner-border spinner-border-sm"
+                              role="status"
+                              aria-hidden="true"
+                            ></span>
+                          ) : (
+                            "LOG IN"
+                          )}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
     </>
   )
 }

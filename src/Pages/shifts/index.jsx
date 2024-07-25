@@ -292,7 +292,7 @@ const generateShiftID = (shiftData) => {
 // };
 
 
-const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, shiftsIds, navigate }) => {
+const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, shiftsIds, navigate, setIsAddLoadingCus }) => {
   const theme = useTheme();
   const initialShiftID = generateShiftID(shiftsIds);
   
@@ -302,7 +302,7 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, 
       staffID: '',
       startDate: '',
       Absence: 'No',
-      Absence_Status: 'None',
+      Absence_Status: 'Present',
       End_Date: '',
       House: '',
       Shift: '',
@@ -356,6 +356,7 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, 
         };
       }
       onSubmit(shiftData);
+      setIsAddLoadingCus(true)
       if (values.Absence === 'Yes') {
         navigate('/Absence');
       }
@@ -364,7 +365,7 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, 
 
   return (
     <form onSubmit={formik.handleSubmit}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: '10px' }}>
         <TextField
           fullWidth
           id="shiftID"
@@ -426,25 +427,28 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, 
           helperText={formik.touched.startDate && formik.errors.startDate}
           InputLabelProps={{ shrink: true }}
         />
-        {formik.values.Absence === 'Yes' && (
-          <TextField
-            fullWidth
-            id="Absence_Status"
-            name="Absence_Status"
-            label="Absence Status"
-            select
-            value={formik.values.Absence_Status}
-            onChange={formik.handleChange}
-            error={formik.touched.Absence_Status && Boolean(formik.errors.Absence_Status)}
-            helperText={formik.touched.Absence_Status && formik.errors.Absence_Status}
-          >
-            <MenuItem value="None">None</MenuItem>
-            <MenuItem value="Sick">Sick</MenuItem>
-            <MenuItem value="Personal">Personal</MenuItem>
-            <MenuItem value="Absence Without Leave">Absence Without Leave</MenuItem>
-            <MenuItem value="Holiday">Holiday</MenuItem>
-          </TextField>
-        )}
+        <TextField
+          fullWidth
+          id="Absence_Status"
+          name="Absence_Status"
+          label="Absence Status"
+          select
+          value={formik.values.Absence_Status}
+          onChange={formik.handleChange}
+          error={formik.touched.Absence_Status && Boolean(formik.errors.Absence_Status)}
+          helperText={formik.touched.Absence_Status && formik.errors.Absence_Status}
+          InputLabelProps={{ shrink: true }}
+        >
+       
+       {formik.values.Absence === 'No' &&  <MenuItem value="Present">Present</MenuItem>}
+       {formik.values.Absence === 'Yes' && <MenuItem value="Sick">Sick</MenuItem>}
+          {formik.values.Absence === 'Yes' && <MenuItem value="Personal">Personal</MenuItem>}
+            {formik.values.Absence === 'Yes' && <MenuItem value="Absence Without Leave">Absence Without Leave</MenuItem>}
+              {formik.values.Absence === 'Yes' && <MenuItem value="Holiday">Holiday</MenuItem>}
+           
+        </TextField>
+
+       
 
         {formik.values.Absence === 'No' && (
           <>
@@ -541,7 +545,7 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, 
 
 
 // ShiftDialog component
-const ShiftDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData, shiftsData, shiftsIds, navigate }) => {
+const ShiftDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData, shiftsData, shiftsIds, navigate, setIsAddLoadingCus }) => {
   const isEditing = Boolean(shift);
   const title = isEditing ? 'Edit Shift' : 'Record New Shift';
 
@@ -560,6 +564,7 @@ const ShiftDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData,
           shiftsData={shiftsData}
           shiftsIds={shiftsIds}
           navigate={navigate}
+          setIsAddLoadingCus={setIsAddLoadingCus}
         />
         {isEditing? 
       
@@ -666,11 +671,6 @@ const Shifts = () => {
 
 
 
-
- 
-
-
-
   const [addShift, {isLoading: isShiftAdding}] = useAddShiftMutation();
   // const [updateShift] = useUpdateShiftMutation();
   const [ {isLoading: isDeleteLoading}] = useDeleteShiftMutation();
@@ -693,7 +693,7 @@ const Shifts = () => {
         toast.success('Shift added successfully');
         console.log(values)
        handleCloseDialog();
-       setIsAddLoadingCus(true)
+      //  setIsAddLoadingCus(true)
     } catch (error) {
       toast.error('An error occurred. Please try again.');
     }
@@ -881,6 +881,7 @@ const revisedShiftsData = mapShiftAndStaffData(shiftsData, staffsData)
         shiftsData={shiftsData}
         shiftsIds={shiftsIds}
         navigate={navigate}
+        setIsAddLoadingCus={ setIsAddLoadingCus}
       />
       <DeleteConfirmationDialog
         open={openDeleteDialog}

@@ -54,7 +54,7 @@ const processShiftData = (shifts, startDate, endDate, staffData) => {
     acc.staffTotals[staffID].nightShifts += (shift?.Shift?.toLowerCase() === 'night' ? 1 : 0);
 
     // Count absence status frequency
-    const absenceStatus = shift?.Absence_Status ?? 'None';
+    const absenceStatus = shift?.Absence_Status ?? 'Present';
     acc.absenceStatusFrequency[absenceStatus] = (acc.absenceStatusFrequency[absenceStatus] || 0) + 1;
 
     return acc;
