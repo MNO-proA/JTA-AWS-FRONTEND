@@ -199,6 +199,14 @@ const StaffForm = ({ initialValues, onSubmit, onCancel, staffData, isStaffLoadin
 const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData, staffsIds }) => {
   const isEditing = Boolean(staff);
   const title = isEditing ? 'Edit Staff' : 'Create New Staff';
+  const sortStaffDataByIDDesc = (staffData) => {
+    return staffData.sort((a, b) => {
+      const numA = parseInt(a.staffID.match(/\d+/)[0], 10);
+      const numB = parseInt(b.staffID.match(/\d+/)[0], 10);
+      return numB - numA; // For descending order
+    });
+  };
+  
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -211,7 +219,7 @@ const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData, 
             onClose();
           }}
           onCancel={onClose}
-          staffData={staffData}
+          staffData = {sortStaffDataByIDDesc(staffData)}
           staffsIds={staffsIds}
         />
         {isEditing && 

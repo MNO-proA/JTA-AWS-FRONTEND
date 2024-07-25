@@ -132,11 +132,11 @@ const AllDashboard = () => {
                   axisBottom={null}
                   axisLeft={{
                     tickSize: 5,
-                    tickPadding: 0,
+                    tickPadding: 8,
                     tickRotation: 0,
                     // legend: 'Employee',
                     // legendPosition: 'middle',
-                    // legendOffset: -40
+                    legendOffset: -40
                   }}
                   tooltip={({ data }) => (
                     <div style={{backgroundColor: theme.palette.primary[100], color: theme.palette.primary[900], padding: '8px' }}>
@@ -234,7 +234,7 @@ const AllDashboard = () => {
                   innerPadding={4}
                   axisLeft={{
                     tickSize: 5,
-                    tickPadding: 5,
+                    tickPadding: 8,
                     tickRotation: 0,
                     // legend: 'Employee',
                     legendPosition: 'middle',
@@ -305,7 +305,7 @@ const AllDashboard = () => {
                   innerPadding={4}
                   axisLeft={{
                     tickSize: 5,
-                    tickPadding: 5,
+                    tickPadding: 8,
                     tickRotation: 0,
                     // legend: 'Value',
                     // legendPosition: 'middle',
@@ -427,7 +427,7 @@ const AllDashboard = () => {
                   axisBottom={null}
                   axisLeft={{
                     tickSize: 5,
-                    tickPadding: 5,
+                    tickPadding: 8,
                     tickRotation: 0,
                     // legend: 'Value',
                     // legendPosition: 'middle',

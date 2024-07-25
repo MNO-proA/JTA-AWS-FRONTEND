@@ -39,7 +39,7 @@ const SingleStaff = ({
     function getTotalWageForStaff(shiftsData, staffID) {
         const totalWage = shiftsData.reduce((total, shift) => {
           if (shift.staffID === staffID) {
-            return total + shift.Total_Wage;
+            return parseFloat(total) + parseFloat(shift.Total_Wage);
           }
           return total;
         }, 0);
@@ -50,7 +50,7 @@ const SingleStaff = ({
       function getTotalHoursForStaff(shiftsData, staffID) {
         const totalHours = shiftsData.reduce((total, shift) => {
           if (shift.staffID === staffID) {
-            return total + shift.Total_Hours;
+            return parseFloat(total) + parseFloat(shift.Total_Hours);
           }
           return total;
         }, 0);

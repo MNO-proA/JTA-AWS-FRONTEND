@@ -49,14 +49,14 @@ const generateExpenseID = (expenseData) => {
 
 // Validation schema for the expense form
 const expenseValidationSchema = Yup.object().shape({
-  Administrative: Yup.number().required('Administrative expense is required'),
-  IT: Yup.number().required('IT expense is required'),
-  Maintenance: Yup.number().required('Maintenance expense is required'),
-  Miscellaneous: Yup.number().required('Miscellaneous expense is required'),
-  'Ofsted (Admin)': Yup.number().required('Ofsted (Admin) expense is required'),
-  'Petty Cash': Yup.number().required('Petty Cash expense is required'),
-  'REG 44': Yup.number().required('REG 44 expense is required'),
-  'Young Person Weekly Money': Yup.number().required('Young Person Weekly Money expense is required'),
+  // Administrative: Yup.number().required('Administrative expense is required'),
+  // IT: Yup.number().required('IT expense is required'),
+  // Maintenance: Yup.number().required('Maintenance expense is required'),
+  // Miscellaneous: Yup.number().required('Miscellaneous expense is required'),
+  // 'Ofsted (Admin)': Yup.number().required('Ofsted (Admin) expense is required'),
+  // 'Petty Cash': Yup.number().required('Petty Cash expense is required'),
+  // 'REG 44': Yup.number().required('REG 44 expense is required'),
+  // 'Young Person Weekly Money': Yup.number().required('Young Person Weekly Money expense is required'),
   date: Yup.date().required('Date is required'),
 });
 
