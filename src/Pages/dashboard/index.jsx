@@ -16,8 +16,6 @@ import useDashboardData from './hook/Dataprocessing';
 
 
 const AllDashboard = () => {
-  // const [startDate, setStartDate] = useState(null);
-  // const [endDate, setEndDate] = useState(null);
   const {isLoading: isStaffLoading} = useGetStaffQuery()
   const {isLoading: isShiftsLoading} = useGetShiftsQuery()
   const {isLoading: isExpenseLoading} = useGetExpensesQuery()
@@ -51,6 +49,7 @@ const AllDashboard = () => {
     staffList,
     startDate,
     endDate,
+    absenceStatusFrequency,
     handleDateRangeChange,
     handleShortcutRange
   } = useDashboardData(shiftsData, expensesData, staffsData);
@@ -64,7 +63,10 @@ const AllDashboard = () => {
   const sortedAbsenceData = absenceData.sort((a, b) => a.yes - b.yes)
   // Sort expenseData in ascending order by 'total'
   const sortedExpenseData = expenseData.sort((a, b) => a.total - b.total);
-
+  const sortedAbsenceStatusData = absenceStatusFrequency.sort((a, b) => a.frequency - b.frequency);
+useEffect(()=>{
+  console.log(sortedAbsenceStatusData)
+}, [sortedAbsenceStatusData])
 
   const theme = useTheme()
 
@@ -316,6 +318,79 @@ const AllDashboard = () => {
                     <strong>{data.fullName}</strong><br />
                     Staff ID: {data.staffID}<br />
                     Absences: {data.yes}
+                    </div>
+                  )}
+                  theme={{
+                    axis: {
+                      ticks: {
+                        text: {
+                          fill: theme.palette.primary[100],
+                        },
+                      },
+                      legend: {
+                        text: {
+                          fill: theme.palette.primary[100],
+                        },
+                      },
+                    },
+                    legends: {
+                      text: {
+                        fill: theme.palette.primary[100],
+                      },
+                    },
+                    labels: {
+                      text: {
+                        fill: theme.palette.primary[100],
+                      },
+                    },
+                    tooltip: {
+                      container: {
+                        background: theme.palette.primary[100],
+                        color: theme.palette.primary[900],
+                        fontSize: '14px',
+                      },
+                    },
+                  }}
+                />
+
+
+
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+         {/* ++++++++++++++++++++++++++++ ABSENCE STATUS BAR +++++++++++++++++++++++++++ */}
+        <Grid item xs={12} md={8}>
+          <Card  sx={{ bgcolor: theme.palette.background.default}}>
+            <CardContent>
+              <Typography variant="h6">Distribution of Absence Status</Typography>
+              <Box height={500} sx={{mt: '20px'}}>
+                 <ResponsiveBar
+                 data={sortedAbsenceStatusData}
+                 keys={['frequency']}
+                 indexBy="status"
+                 margin={{ top: 10, right: 90, bottom: 10, left: 50 }}
+                 padding={0.1}
+                  layout="horizontal"
+                  valueScale={{ type: 'linear' }}
+                  indexScale={{ type: 'band', round: true }}
+                  colors="#4dc4b8"
+                  axisTop={null}
+                  axisRight={null}
+                  axisBottom={null}
+                  innerPadding={4}
+                  axisLeft={{
+                    tickSize: 5,
+                    tickPadding: 8,
+                    tickRotation: 0,
+                    // legend: 'Value',
+                    // legendPosition: 'middle',
+                    // legendOffset: -40
+                  }}
+                  tooltip={({  data }) => (
+                    <div style={{backgroundColor: theme.palette.primary[100], color: theme.palette.primary[900], padding: '8px' }}>
+                    Is staff Absent? : {data.status}<br />
+                    Frequency of status : {data.frequency}
                     </div>
                   )}
                   theme={{

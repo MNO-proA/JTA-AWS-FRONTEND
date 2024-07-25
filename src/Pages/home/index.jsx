@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -196,7 +196,7 @@ const StaffForm = ({ initialValues, onSubmit, onCancel, staffData, isStaffLoadin
 };
 
 // StaffDialog component
-const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData, staffsIds }) => {
+const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData, staffsIds, isDatatLoadingCus,  isAddLoadingCus, isDeleteLoading }) => {
   const isEditing = Boolean(staff);
   const title = isEditing ? 'Edit Staff' : 'Create New Staff';
   const sortStaffDataByIDDesc = (staffData) => {
@@ -221,6 +221,9 @@ const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData, 
           onCancel={onClose}
           staffData = {sortStaffDataByIDDesc(staffData)}
           staffsIds={staffsIds}
+          isAddLoadingCus={ isAddLoadingCus}
+          isDatatLoadingCus={isDatatLoadingCus}
+          isDeleteLoading={isDeleteLoading}
         />
         {isEditing && 
           <DeleteIcon sx={{
@@ -289,9 +292,36 @@ const Overview = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState(null);
   const staffsIds = useSelector(selectStaffIds)
-  const [addStaff] = useAddStaffMutation();
+  const [addStaff, {isLoading: isStaffAddLoading}] = useAddStaffMutation();
   const [updateStaff] = useUpdateStaffMutation();
   const [deleteStaff, {isLoading: isDeleteLoading}] = useDeleteStaffMutation();
+
+
+  const [isAddLoadingCus, setIsAddLoadingCus]=useState(false)
+  const [isDatatLoadingCus, setIsDataLoadingCus]=useState(false)
+  
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setIsDataLoadingCus(false);
+      }, 5000);
+  
+      return () => {
+        clearTimeout(timer);
+      };
+    }, [staffData]);
+  
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setIsAddLoadingCus(false);
+      }, 2000);
+  
+      return () => {
+        clearTimeout(timer);
+      };
+    }, [staffData]);
+  
+
+
 
   const handleOpenDialog = () => {
     setEditingStaff(null);
@@ -333,6 +363,7 @@ const Overview = () => {
       } else {
         await addStaff(values).unwrap();
         toast.success('Staff added successfully');
+        setIsAddLoadingCus(true)
       }
       handleCloseDialog();
       console.log(values);
@@ -355,6 +386,7 @@ const Overview = () => {
       await deleteStaff(selectedStaff.staffID).unwrap();
       toast.success('Staff deleted successfully');
       setSelectedStaff(null);
+      setIsDataLoadingCus(true)
     } catch (error) {
       toast.error('An error occurred while deleting staff. Please try again.');
     }
@@ -397,6 +429,7 @@ const Overview = () => {
               onEdit={() => handleEdit(staff)}
               onDelete={() => handleDelete(staff)}
               isStaffLoading={isStaffLoading}
+              isStaffAddLoading={isStaffAddLoading}
               
             />
           ))}
@@ -417,6 +450,9 @@ const Overview = () => {
         handleDelete={() => handleDelete(editingStaff)}
         staffData={staffData}
         staffsIds={staffsIds}
+        isAddLoadingCus={isAddLoadingCus}
+        isDatatLoadingCus={isDatatLoadingCus}
+        isDeleteLoading={isDeleteLoading}
       />
       <DeleteConfirmationDialog
         open={openDeleteDialog}

@@ -2,9 +2,9 @@
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import Header from "../../Components/Header";
 import { useTheme } from "@mui/material";
-import  { useState, useEffect } from 'react';
+import  { useState, useEffect} from 'react';
 import { Box,  } from '@mui/material';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, MenuItem } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import 'react-toastify/dist/ReactToastify.css';
 import { useGetShiftsQuery, selectAllShifts , useDeleteShiftMutation } from "../../features/shifts/shiftSlice";
 import { toast, ToastContainer } from 'react-toastify';
@@ -17,11 +17,12 @@ const AbsentReadOnly = () => {
     const theme = useTheme();
     const {isLoading: isShiftsLoading, refetch} = useGetShiftsQuery()
     const { isLoading: isStaffLoading } = useGetStaffQuery();
-    const [openDialog, setOpenDialog] = useState(false);
-    const [editingShift, setEditingShift] = useState(null);
+    // const [openDialog, setOpenDialog] = useState(false);
+    // const [editingShift, setEditingShift] = useState(null);
     const [selectedShift, setSelectedShift] = useState();
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-
+    const [isDataLoadingCus, setIsDataLoadingCus] = useState(false)
+    // const [isAddedDataLoadingCus, setIsAddedDataLoadingCus] = useState(false)
     const token = useSelector(selectCurrentToken)
     const [{isLoading: isDeleteLoading}] = useDeleteShiftMutation();
   
@@ -29,9 +30,16 @@ const AbsentReadOnly = () => {
     const staffsData = useSelector(selectAllStaff);
     const shiftsData = useSelector(selectAllShifts)
   
-    // useEffect(()=>{
-    //   console.log(shiftsData)
-    // },[shiftsData])
+    useEffect(() => {
+      const timer = setTimeout(() => {
+        setIsDataLoadingCus(false);
+      }, 5000);
+  
+      return () => {
+        clearTimeout(timer);
+      };
+    }, [shiftsData]);
+
     // useEffect(()=>{
     //   console.log(staffsData)
     // },[staffsData])
@@ -133,7 +141,10 @@ const AbsentReadOnly = () => {
              if (!response.ok) {
               // Handle HTTP errors
               throw new Error(`Error ${response.status}`);
-            } else{response.json()}
+            } else{
+              response.json()
+              setIsDataLoadingCus(true)
+            }
       })
           .then((result) => refetch())
           .catch((error) => console.error(error));
@@ -161,7 +172,7 @@ const AbsentReadOnly = () => {
         headerName: 'Actions',
         width: 60,
         renderCell: (params) => (
-          isShiftsLoading? <span
+          isShiftsLoading || isDataLoadingCus? <span
           className="spinner-border spinner-border-sm"
           role="status"
           aria-hidden="true"

@@ -64,44 +64,36 @@ const expenseValidationSchema = Yup.object().shape({
 
 
 // ExpenseForm component
-const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel,expensesData }) => {
+const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel, expensesData, setIsAddLoadingCus }) => {
   const theme = useTheme();
   const initialExpensesData = generateExpenseID(expensesData);
-  const [customFields, setCustomFields] = useState([]);
 
   const formik = useFormik({
     initialValues: initialValues || {
       expenseID: initialExpensesData,
       date: '',
-      Administrative: '',
-      IT: '',
-      Maintenance: '',
-      Miscellaneous: '',
-      'Ofsted (Admin)': '',
-      'Petty Cash': '',
-      'REG 44': '',
-      'Young Person Weekly Money': '',
-      ...customFields.reduce((acc, field) => ({ ...acc, [field.name]: '' }), {}),
+      Administrative: 0,
+      IT: 0,
+      Maintenance: 0,
+      Miscellaneous: 0,
+      'Ofsted (Admin)': 0,
+      'Petty Cash': 0,
+      'REG 44': 0,
+      'Young Person Weekly Money': 0,
     },
 
     validationSchema: expenseValidationSchema,
     onSubmit: (values) => {
       const expenseData = {
         ...values,
-        ...customFields.reduce((acc, field) => ({ ...acc, [field.name]: values[field.name] }), {}),
       };
       onSubmit(expenseData);
+      setIsAddLoadingCus(true);
+      
     },
   });
 
-  const addCustomField = () => {
-    const newField = {
-      name: label,
-      label: `Custom Field ${customFields.length + 1}`,
-    };
-    setCustomFields([...customFields, newField]);
-    formik.setFieldValue(newField.name, '');
-  };
+
 
   return (
     <form onSubmit={formik.handleSubmit}>
@@ -133,30 +125,7 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel,expens
               InputLabelProps={field === 'date' ? { shrink: true } : {}}
             />
           ))}
-        {customFields.map((field) => (
-          <TextField
-            key={field.name}
-            fullWidth
-            id={field.name}
-            name={field.name}
-            label={field.label}
-            type="number"
-            value={formik.values[field.name]}
-            onChange={formik.handleChange}
-            error={formik.touched[field.name] && Boolean(formik.errors[field.name])}
-            helperText={formik.touched[field.name] && formik.errors[field.name]}
-          />
-        ))}
-        {/* <TextField
-          id="custom-expense-name"
-          label="Custom Expense Name"
-          value={label}
-          onChange={(e) => setLabel(e.target.value)}
-          fullWidth
-        />
-        <IconButton onClick={addCustomField} sx={{ alignSelf: 'flex-start' }}>
-          <AddIcon />
-        </IconButton> */}
+    
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
           <Button onClick={onCancel} sx={{ color: theme.palette.grey[500] }}>
             Cancel
@@ -181,7 +150,7 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel,expens
 };
 
 // ExpenseDialog component
-const ExpenseDialog = ({ open, onClose, expense, onSubmit, handleDelete, label, expensesData }) => {
+const ExpenseDialog = ({ open, onClose, expense, onSubmit, handleDelete, label, expensesData,setIsAddLoadingCus }) => {
   const isEditing = Boolean(expense);
   const title = isEditing ? 'Edit Expense' : 'Record New Expense';
 
@@ -198,6 +167,7 @@ const ExpenseDialog = ({ open, onClose, expense, onSubmit, handleDelete, label, 
           onCancel={onClose}
           label={label}
           expensesData={expensesData}
+          setIsAddLoadingCus={setIsAddLoadingCus}
         />
         
         {isEditing && (
@@ -268,14 +238,39 @@ const Expenses = () => {
   const { isLoading: isExpensesLoading,  refetch } = useGetExpensesQuery();
   const [label, setLabel] = useState('')
   const token = useSelector(selectCurrentToken)
-
+ const [isAddLoadingCus, setIsAddLoadingCus]=useState(false)
+  const [isDatatLoadingCus, setIsDataLoadingCus]=useState(false)
   const expensesData = useSelector(selectAllExpenses);
   useEffect(() => {
     console.log(expensesData);
   }, [expensesData]);
 
 
-  const [addExpense] = useAddExpenseMutation();
+ 
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsDataLoadingCus(false);
+    }, 5000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [expensesData]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsAddLoadingCus(false);
+    }, 2000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [expensesData]);
+
+
+
+  const [addExpense, {isLoading: isExpenseAdding}] = useAddExpenseMutation();
   const [updateExpense] = useUpdateExpenseMutation();
   const [deleteExpense, {isLoading: isDeleteLoading}] = useDeleteExpenseMutation();
 
@@ -332,7 +327,11 @@ const Expenses = () => {
          if (!response.ok) {
           // Handle HTTP errors
           throw new Error(`Error ${response.status}`);
-        } else{response.json()}
+        } else{
+          response.json()
+          setIsDataLoadingCus(true)
+        
+        }
   })
       .then((result) => refetch())
       .catch((error) => console.error(error));
@@ -366,8 +365,17 @@ const Expenses = () => {
       headerName: 'Actions',
       width: 60,
       renderCell: (params) => (
-        <DeleteIcon  color="error" onClick={() =>  handleDelete(params.row)} />
-      ),
+        
+          (isExpensesLoading || isExpenseAdding || isAddLoadingCus || isDatatLoadingCus) ? 
+          ( <span
+          className="spinner-border spinner-border-sm"
+          role="status"
+          aria-hidden="true"
+        ></span> )
+        :
+        ( <DeleteIcon  color="error" onClick={() =>  handleDelete(params.row)} />)
+        
+      )
     },
   ];
 
@@ -445,6 +453,7 @@ const Expenses = () => {
         label={label}
         setLabel={setLabel}
         expensesData={expensesData}
+        setIsAddLoadingCus={setIsAddLoadingCus}
       />
       <DeleteConfirmationDialog
         open={openDeleteDialog}

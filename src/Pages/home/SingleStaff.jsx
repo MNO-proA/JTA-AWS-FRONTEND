@@ -21,20 +21,21 @@ const SingleStaff = ({
     fullName,
     employmentType,
     jobTitle,
-    // eslint-disable-next-line no-unused-vars
     hourlyRate,
-    // onEdit,
-    onDelete
+    onDelete,
+    isStaffAddLoading,
+    isDatatLoadingCus,
+    isAddLoadingCus,
+    isDeleteLoading
   }) => {
     const theme = useTheme();
     const [isExpanded, setIsExpanded] = useState(false);
     const [accumTotal, setAccumTotal] = useState(0)
     const [accumTotalHours, setAccumTotalHours] = useState(0);
-    
-
     const {isLoading: isShiftsLoading} = useGetShiftsQuery()
-
     const shiftsData = useSelector(selectAllShifts)
+
+  
 
     function getTotalWageForStaff(shiftsData, staffID) {
         const totalWage = shiftsData.reduce((total, shift) => {
@@ -123,7 +124,15 @@ const SingleStaff = ({
           size="small"
           onClick={onDelete}
         >
-          Delete
+           {isStaffAddLoading || isAddLoadingCus || isDatatLoadingCus || isDeleteLoading  ? (
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                        ) : (
+                          "Delete"
+                        )}
         </Button>
         </CardActions>
         <Collapse
