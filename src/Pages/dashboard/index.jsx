@@ -147,6 +147,7 @@ useEffect(()=>{
                       Total Wage: ${data.totalWage.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}
                     </div>
                   )}
+                  label={d => (d.value > 0 ? `${d.value}` : '')} // Show label only when value is greater than 0
                   theme={{
                     axis: {
                       ticks: {
@@ -249,6 +250,7 @@ useEffect(()=>{
                       Total Hours: {data.totalHours}
                     </div>
                   )}
+                  label={d => (d.value > 0 ? `${d.value}` : '')} // Show label only when value is greater than 0
                   theme={{
                     axis: {
                       ticks: {
@@ -279,6 +281,7 @@ useEffect(()=>{
                         fontSize: '14px', // Font size for tooltip
                       },
                     },
+                    
                   }}
                 />
               </Box>
@@ -320,6 +323,7 @@ useEffect(()=>{
                     Absences: {data.yes}
                     </div>
                   )}
+                  label={d => (d.value > 0 ? `${d.value}` : '')} // Show label only when value is greater than 0
                   theme={{
                     axis: {
                       ticks: {
@@ -393,6 +397,7 @@ useEffect(()=>{
                     Frequency of status : {data.frequency}
                     </div>
                   )}
+                  label={d => (d.value > 0 ? `${d.value}` : '')} // Show label only when value is greater than 0
                   theme={{
                     axis: {
                       ticks: {
@@ -463,6 +468,7 @@ useEffect(()=>{
                   // arcLinkLabelsColor={{ from: 'color' }}
                   // arcLabelsSkipAngle={0.2}
                   // arcLabelsTextColor={{ from: 'color', modifiers: [['darker', 2]] }}
+                  
                   theme={{
                     axis: {
                    
@@ -508,6 +514,7 @@ useEffect(()=>{
                     // legendPosition: 'middle',
                     // legendOffset: -40
                   }}
+                  label={d => (d.value > 0 ? `${d.value}` : '')} // Show label only when value is greater than 0
                   theme={{
                     axis: {
                       ticks: {
