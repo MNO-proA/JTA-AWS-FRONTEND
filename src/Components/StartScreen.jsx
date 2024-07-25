@@ -1,6 +1,7 @@
 
 import { useEffect, useState } from 'react';
-import logo from '/1024x1024.png'
+import logo from '/icons/icon-1024x1024.png'
+
 
 const StartScreen = () => {
     const [showLogo, setShowLogo] = useState(true);

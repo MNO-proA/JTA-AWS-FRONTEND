@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import StartScreen from "../../Components/StartScreen"
-import logo from '/1024x1024.png'
+import logo from '/icons/icon-1024x1024.png'
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../../features/auth/authSlice";

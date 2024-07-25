@@ -5,7 +5,7 @@ import './App.css'
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { themeSettings } from "./theme.js";
-import PWABadge from './PWABadge.jsx'
+// import PWABadge from './PWABadge.jsx'
 import {
   createBrowserRouter,
   createRoutesFromElements,
@@ -54,5 +54,5 @@ function App() {
     </div>
   )
 }
-<PWABadge />
+{/* <PWABadge /> */}
 export default App

@@ -12,27 +12,22 @@ import {
   useTheme,
 } from "@mui/material";
 import {
-  SettingsOutlined,
+
   ChevronLeft,
   ChevronRightOutlined,
-  HomeOutlined,
-  ShoppingCartOutlined,
+
   Groups2Outlined,
-  ReceiptLongOutlined,
-  PublicOutlined,
-  PointOfSaleOutlined,
+
   TodayOutlined,
   CalendarMonthOutlined,
-  AdminPanelSettingsOutlined,
-  TrendingUpOutlined,
-  PieChartOutlined,
+
 } from "@mui/icons-material";
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import FlexBetween from "./FlexBetween";
-import logo from '/1024x1024.png'
+import logo from '/icons/icon-1024x1024.png'
 
 
 const navItems = [
