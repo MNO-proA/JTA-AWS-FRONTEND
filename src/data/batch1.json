@@ -1,0 +1,281 @@
+{
+   
+      "Staff": [
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA001" },
+              "fullName": { "S": "Afia Manu Duah" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "RCW" },
+              "hourlyRate": { "N": "12.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA002" },
+              "fullName": { "S": "Toluope Joseph Oke" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "RCW" },
+              "hourlyRate": { "N": "12.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA003" },
+              "fullName": { "S": "Olabisi Oladunmoye" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "RCW" },
+              "hourlyRate": { "N": "12.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA004" },
+              "fullName": { "S": "Adegenga Adebowale" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "SRCW" },
+              "hourlyRate": { "N": "13.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA005" },
+              "fullName": { "S": "Ramsey Uche Ezenagu" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "RCW" },
+              "hourlyRate": { "N": "12.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA006" },
+              "fullName": { "S": "Harrison Aguocha" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "RCW" },
+              "hourlyRate": { "N": "12.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA007" },
+              "fullName": { "S": "Kevin Atkinson" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "Team Leader" },
+              "hourlyRate": { "N": "15.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA008" },
+              "fullName": { "S": "Melisha Bell" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "SRCW" },
+              "hourlyRate": { "N": "13.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA009" },
+              "fullName": { "S": "Oluwatobiloba Oke (Tobi)" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "RCW" },
+              "hourlyRate": { "N": "12.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA010" },
+              "fullName": { "S": "Vanessa Nanjilal" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "RCW" },
+              "hourlyRate": { "N": "12.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA011" },
+              "fullName": { "S": "Abalene Gould-Ryan" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "SRCW" },
+              "hourlyRate": { "N": "13.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA012" },
+              "fullName": { "S": "Fracisca Dickson" },
+              "employmentType": { "S": "Bank" },
+              "jobTitle": { "S": "RCW" },
+              "hourlyRate": { "N": "12.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA013" },
+              "fullName": { "S": "Evelyn King Acquah" },
+              "employmentType": { "S": "Bank" },
+              "jobTitle": { "S": "RCW" },
+              "hourlyRate": { "N": "12.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA014" },
+              "fullName": { "S": "Vivian Ebele Agu" },
+              "employmentType": { "S": "Bank" },
+              "jobTitle": { "S": "RCW" },
+              "hourlyRate": { "N": "12.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA015" },
+              "fullName": { "S": "Ibukunoluwa O Rufai(Deborah)" },
+              "employmentType": { "S": "Bank" },
+              "jobTitle": { "S": "RCW" },
+              "hourlyRate": { "N": "12.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA016" },
+              "fullName": { "S": "Temi Esther" },
+              "employmentType": { "S": "Bank" },
+              "jobTitle": { "S": "RCW" },
+              "hourlyRate": { "N": "12.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA017" },
+              "fullName": { "S": "Ibukun Abolade" },
+              "employmentType": { "S": "Bank" },
+              "jobTitle": { "S": "RCW" },
+              "hourlyRate": { "N": "12.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA018" },
+              "fullName": { "S": "Jamie Ponde" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "SRCW" },
+              "hourlyRate": { "N": "13.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA019" },
+              "fullName": { "S": "Toluope Adeniji" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "RCW" },
+              "hourlyRate": { "N": "12.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA020" },
+              "fullName": { "S": "Joan Henry" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "RM" },
+              "hourlyRate": { "N": "0.00" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA021" },
+              "fullName": { "S": "Amel Morsli" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "Team Leader" },
+              "hourlyRate": { "N": "15.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA022" },
+              "fullName": { "S": "Moronfolu Wilfred Ogunsiakan (Fred)" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "SRCW" },
+              "hourlyRate": { "N": "13.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA023" },
+              "fullName": { "S": "Maria Andrew" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "Team Leader" },
+              "hourlyRate": { "N": "15.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA024" },
+              "fullName": { "S": "Ismail Lawal" },
+              "employmentType": { "S": "Permanent" },
+              "jobTitle": { "S": "RCW" },
+              "hourlyRate": { "N": "12.50" }
+            }
+          }
+        },
+        {
+          "PutRequest": {
+            "Item": {
+              "staffID": { "S": "JTA025" },
+              "fullName": { "S": "Joyce Kwefang" },
+              "employmentType": { "S": "Bank" },
+              "jobTitle": { "S": "RCW" },
+              "hourlyRate": { "N": "12.50" }
+            }
+          }
+        }
+      ]
+
+}
