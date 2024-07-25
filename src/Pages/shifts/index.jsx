@@ -427,6 +427,7 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, 
           helperText={formik.touched.startDate && formik.errors.startDate}
           InputLabelProps={{ shrink: true }}
         />
+         {formik.values.Absence === 'Yes' && (
         <TextField
           fullWidth
           id="Absence_Status"
@@ -439,16 +440,15 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, 
           helperText={formik.touched.Absence_Status && formik.errors.Absence_Status}
           InputLabelProps={{ shrink: true }}
         >
-       
-       {formik.values.Absence === 'No' &&  <MenuItem value="Present">Present</MenuItem>}
        {formik.values.Absence === 'Yes' && <MenuItem value="Sick">Sick</MenuItem>}
           {formik.values.Absence === 'Yes' && <MenuItem value="Personal">Personal</MenuItem>}
             {formik.values.Absence === 'Yes' && <MenuItem value="Absence Without Leave">Absence Without Leave</MenuItem>}
               {formik.values.Absence === 'Yes' && <MenuItem value="Holiday">Holiday</MenuItem>}
            
         </TextField>
+        )
 
-       
+}
 
         {formik.values.Absence === 'No' && (
           <>
