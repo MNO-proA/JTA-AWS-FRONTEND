@@ -19,17 +19,22 @@ import LockIcon from '@mui/icons-material/Lock';
 
 // Function to generate the next expenseID based on the largest existing expenseID in the expense data
 const generateExpenseID = (expenseData) => {
-  if (expenseData.length === 0) return 'exp001'; // Default ID if no expenses exist
+  const defaultID = 'exp001'; // Default ID if no expenses exist
+
+  if (expenseData.length === 0) return defaultID;
 
   // Find the maximum numeric part from all expenseIDs
   const maxNumericPart = expenseData.reduce((max, item) => {
-    const match = item.expenseID.match(/\d+/);
+    const match = item.expenseID.match(/\d+$/);
     if (match) {
       const numericPart = parseInt(match[0], 10);
       return Math.max(max, numericPart);
     }
     return max;
   }, 0);
+
+  // If no valid IDs found, return default
+  if (maxNumericPart === 0) return defaultID;
 
   const newNumericPart = maxNumericPart + 1; // Increment numeric part
   return `exp${newNumericPart.toString().padStart(3, '0')}`; // Construct new expense ID
@@ -73,7 +78,7 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel, expen
       expenseID: initialExpensesData,
       date: '',
      'Transport Expenses': 0,
-      IT: 0,
+     'IT/Purchases': 0,
       Maintenance: 0,
       Miscellaneous: 0,
       'Ofsted (Admin)': 0,
@@ -359,7 +364,7 @@ const Expenses = () => {
     { field: 'date', headerName: 'Date', flex: 1, minWidth: 100  },
     { field: 'expenseID', headerName: 'Expense ID', flex: 1, minWidth: 100  },
     { field: 'Transport Expenses', headerName: 'Transport Expenses', flex: 1, minWidth: 100  },
-    { field: 'IT', headerName: 'IT/Purchases', flex: 1 },
+    { field: 'IT/Purchases', headerName: 'IT/Purchases', flex: 1 },
     { field: 'Maintenance', headerName: 'Maintenance', flex: 1, minWidth: 100  },
     { field: 'Miscellaneous', headerName: 'Miscellaneous', flex: 1, minWidth: 100  },
     { field: 'Ofsted (Admin)', headerName: 'Ofsted (Admin)', flex: 1, minWidth: 100  },

@@ -129,7 +129,7 @@ const Login = () => {
                       <div className="form-group">
                         <input
                           type="text"
-                          className="form-control form-control-lg"
+                          className="form-control form-control-lg rounded-4"
                           id="exampleInputEmail1"
                           placeholder="Username"
                           ref={userRef}
@@ -137,12 +137,13 @@ const Login = () => {
                           onChange={handleUserInput}
                           required
                           autoComplete="off"
+                          
                         />
                       </div>
                       <div className="form-group">
                         <input
                           type="password"
-                          className="form-control form-control-lg"
+                          className="form-control form-control-lg rounded-4"
                           id="exampleInputPassword1"
                           placeholder="Password"
                           onChange={handlePwdInput}

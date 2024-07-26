@@ -18462,6 +18462,8 @@
   /* Auth */
   .auth .auth-form-light {
     background: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* slight shadow */
+    border-radius: 50px; /* slight border radius */
   }
   .auth .auth-form-light select {
     color: #c9c8c8;
@@ -19742,7 +19744,7 @@
   }
   
   .content-wrapper {
-    background: #f2edf3;
+    background: #F1F6F5;
     padding: 2.75rem 2.25rem;
     width: 100%;
     -webkit-box-flex: 1;
