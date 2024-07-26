@@ -395,7 +395,7 @@ const Overview = () => {
 
   return (
     <Box m="1.5rem 2.5rem">
-      <Header title="STAFFS" color='#10453e' />
+      <Header title="JTA Staff" color='#10453e' />
       <Button
         sx={{
           marginTop: '10px',
@@ -408,7 +408,7 @@ const Overview = () => {
         variant="contained"
         onClick={handleOpenDialog}
       >
-        Create New Staff
+         <strong style={{color: theme.palette.primary[100]}}> Create New Staff </strong>
       </Button>
       {staffData && !isStaffLoading ? (
         <Box

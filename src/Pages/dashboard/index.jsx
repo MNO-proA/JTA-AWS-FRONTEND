@@ -101,7 +101,8 @@ useEffect(()=>{
                         onClick={() => handleShortcutRange(range)}
                         sx={{ margin: '70px' }}// Add margin-bottom for better spacing on small screens
                       >
-                        {range}
+                      
+                      <strong style={{color: theme.palette.primary[100]}} >{range} </strong>
                       </Button>
                     ))}
                   </Stack>
@@ -144,7 +145,7 @@ useEffect(()=>{
                     <div style={{backgroundColor: theme.palette.primary[100], color: theme.palette.primary[900], padding: '8px' }}>
                       <strong>{data.fullName}</strong><br />
                       Staff ID: {data.staffID}<br />
-                      Total Wage: ${data.totalWage.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}
+                      Total Wage: {data.totalWage.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}
                     </div>
                   )}
                   label={d => (d.value > 0 ? `${d.value}` : '')} // Show label only when value is greater than 0

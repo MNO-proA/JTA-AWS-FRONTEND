@@ -72,7 +72,7 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel, expen
     initialValues: initialValues || {
       expenseID: initialExpensesData,
       date: '',
-      Administrative: 0,
+     'Transport Expenses': 0,
       IT: 0,
       Maintenance: 0,
       Miscellaneous: 0,
@@ -352,7 +352,7 @@ const Expenses = () => {
   const columns = [
     { field: 'date', headerName: 'Date', flex: 1, minWidth: 100  },
     { field: 'expenseID', headerName: 'Expense ID', flex: 1, minWidth: 100  },
-    { field: 'Administrative', headerName: 'Administrative', flex: 1, minWidth: 100  },
+    { field: 'Transport Expenses', headerName: 'Transport Expenses', flex: 1, minWidth: 100  },
     { field: 'IT', headerName: 'IT/Purchases', flex: 1 },
     { field: 'Maintenance', headerName: 'Maintenance', flex: 1, minWidth: 100  },
     { field: 'Miscellaneous', headerName: 'Miscellaneous', flex: 1, minWidth: 100  },
@@ -394,7 +394,7 @@ const Expenses = () => {
         variant="contained"
         onClick={handleOpenDialog}
       >
-        Record Expense
+          <strong style={{color: theme.palette.primary[100]}}>Record Expense</strong>
       </Button>
       <Box
         m="40px 0 0 0"

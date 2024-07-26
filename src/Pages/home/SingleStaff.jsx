@@ -76,6 +76,8 @@ const SingleStaff = ({
           backgroundImage: "none",
           backgroundColor: theme.palette.background.alt,
           borderRadius: "0.55rem",
+          position: 'relative',
+          paddingBottom: '3rem'
         
         }}
       >
@@ -88,52 +90,26 @@ const SingleStaff = ({
             { staffID}
           </Typography>
           <Typography variant="h5" component="div" sx={{ mb: "1.5rem" }}>
-            {fullName}
+            <strong style={{color: theme.palette.primary[100], fontSize: '1.3rem'}}>{fullName}</strong>
           </Typography>
-          <Typography sx={{ mb: "1.5rem" }} color={theme.palette.secondary[100]}>
+          <Typography sx={{ mb: "1rem" }} color={theme.palette.secondary[100]}>
             {jobTitle}
           </Typography>
-          <Typography sx={{ mb: "1.5rem" }} color={theme.palette.secondary[100]}>
+          <Typography sx={{ mb: "1rem" }} color={theme.palette.secondary[100]}>
             {employmentType}
           </Typography>
-          
-  
-          {/* <Typography variant="body2">{description}</Typography> */}
+
         </CardContent>
         <CardActions>
           <Button
             variant="primary"
             size="small"
             onClick={() => setIsExpanded(!isExpanded)}
-            sx={{marginRight: '1rem'}}
+            sx={{ position: 'absolute', bottom: '1rem', right: '1rem' }}
           >
             See More
           </Button>
-          {/* <Button
-          variant="primary"
-        //   color="success"
-          size="small"
-          onClick={onEdit}
-          
-        >
-          Edit
-        </Button> */}
-        <Button
-          variant="contained"
-          color="error"
-          size="small"
-          onClick={onDelete}
-        >
-           {isStaffAddLoading || isAddLoadingCus || isDatatLoadingCus || isDeleteLoading  ? (
-                          <span
-                            className="spinner-border spinner-border-sm"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                        ) : (
-                          "Delete"
-                        )}
-        </Button>
+       
         </CardActions>
         <Collapse
           in={isExpanded}
@@ -150,9 +126,25 @@ const SingleStaff = ({
             <Typography sx={{ mb: "1.5rem" }} >
               Acuumulated Total Hours: {accumTotalHours}
             </Typography> 
-            <Typography>
+            <Typography sx={{ mb: "1.5rem" }}>
               Hourly Rate: {hourlyRate}
             </Typography> 
+            <Button
+          variant="contained"
+          color="error"
+          size="small"
+          onClick={onDelete}
+        >
+           {isStaffAddLoading || isAddLoadingCus || isDatatLoadingCus || isDeleteLoading  ? (
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                        ) : (
+                          "Delete"
+                        )}
+        </Button>
           </CardContent>
         </Collapse>
       </Card>

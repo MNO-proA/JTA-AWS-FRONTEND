@@ -790,6 +790,7 @@ const revisedShiftsData = mapShiftAndStaffData(shiftsData, staffsData)
     { field: 'shiftID', headerName: 'Shift ID', flex: 0.5 },
     { field: 'startDate', headerName: 'Start Date', flex: 0.5 },
     { field: 'End_Date', headerName: 'End Date', flex: 0.5 },
+    { field: 'House', headerName: 'House', flex: 0.7 },
     { field: 'fullName', headerName: 'Full Name', flex: 0.7 },
     { field: 'Overtime', headerName: 'Overtime', flex: 0.3 },
     { field: 'Total_Hours', headerName: 'Total Hours', flex: 0.3 },
@@ -824,7 +825,7 @@ const revisedShiftsData = mapShiftAndStaffData(shiftsData, staffsData)
         variant="contained"
         onClick={handleOpenDialog}
       >
-        Record Shifts
+        <strong style={{color: theme.palette.primary[100]}}>Record Shifts</strong>
       </Button>
     
       <Box
