@@ -126,7 +126,7 @@
           "PutRequest": {
             "Item": {
               "staffID": { "S": "JTA012" },
-              "fullName": { "S": "Fracisca Dickson" },
+              "fullName": { "S": "Francisca Dickson" },
               "employmentType": { "S": "Bank" },
               "jobTitle": { "S": "RCW" },
               "hourlyRate": { "N": "12.50" }
@@ -271,8 +271,8 @@
               "staffID": { "S": "JTA025" },
               "fullName": { "S": "Joyce Kwefang" },
               "employmentType": { "S": "Bank" },
-              "jobTitle": { "S": "RCW" },
-              "hourlyRate": { "N": "12.50" }
+              "jobTitle": { "S": "SRCW" },
+              "hourlyRate": { "N": "13.50" }
             }
           }
         }
