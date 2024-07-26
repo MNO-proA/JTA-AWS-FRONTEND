@@ -13,8 +13,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { useSelector } from "react-redux";
-import { selectCurrentToken } from "../../features/auth/authSlice"
-
+import { selectCurrentToken, selectCurrentRole } from "../../features/auth/authSlice"
+import LockIcon from '@mui/icons-material/Lock';
 
 
 // Function to generate the next expenseID based on the largest existing expenseID in the expense data
@@ -238,9 +238,15 @@ const Expenses = () => {
   const { isLoading: isExpensesLoading,  refetch } = useGetExpensesQuery();
   const [label, setLabel] = useState('')
   const token = useSelector(selectCurrentToken)
- const [isAddLoadingCus, setIsAddLoadingCus]=useState(false)
+  const [isAddLoadingCus, setIsAddLoadingCus]=useState(false)
   const [isDatatLoadingCus, setIsDataLoadingCus]=useState(false)
   const expensesData = useSelector(selectAllExpenses);
+  const role = useSelector(selectCurrentRole)
+
+
+
+
+
   useEffect(() => {
     console.log(expensesData);
   }, [expensesData]);
@@ -372,20 +378,21 @@ const Expenses = () => {
           role="status"
           aria-hidden="true"
         ></span> )
-        :
-        ( <DeleteIcon  color="error" onClick={() =>  handleDelete(params.row)} />)
+        : (role === "ADMIN")? ( <DeleteIcon  color="error" onClick={() =>  handleDelete(params.row)} />) 
+        :   <LockIcon sx={{color: theme.palette.secondary[300]}}/>
+       
         
       )
-    },
+    }
   ];
 
   return (
     <Box m="20px">
       <Header title="EXPENSES" color='#10453e' />
-      <Button
+      {role === "ADMIN"? <Button
         sx={{
           marginTop: '10px',
-          color: '#10453e',
+          color: theme.palette.secondary[100],
           '&:hover': {
             backgroundColor: theme.palette.secondary[200],
             color: theme.palette.primary[900],
@@ -394,8 +401,11 @@ const Expenses = () => {
         variant="contained"
         onClick={handleOpenDialog}
       >
-          <strong style={{color: theme.palette.primary[100]}}>Record Expense</strong>
-      </Button>
+          <strong>Record Expense</strong>
+      </Button> 
+      :  
+      <LockIcon sx={{color: theme.palette.secondary[300]}}/>
+        }
       <Box
         m="40px 0 0 0"
         height="60vh"

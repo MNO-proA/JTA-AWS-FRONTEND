@@ -102,7 +102,7 @@ useEffect(()=>{
                         sx={{ margin: '70px' }}// Add margin-bottom for better spacing on small screens
                       >
                       
-                      <strong style={{color: theme.palette.primary[100]}} >{range} </strong>
+                      <strong style={{color: theme.palette.secondary[100]}} >{range} </strong>
                       </Button>
                     ))}
                   </Stack>

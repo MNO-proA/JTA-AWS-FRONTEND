@@ -8,7 +8,7 @@ import {
 import Header from "../../Components/Header";
 import { selectAllStaff, useGetStaffQuery, useAddStaffMutation, useUpdateStaffMutation, useDeleteStaffMutation, selectStaffIds } from "../../features/staffs/staffSlice";
 import { useSelector } from "react-redux";
-
+import { selectCurrentRole } from "../../features/auth/authSlice";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SingleStaff from "./SingleStaff";  // Assuming you have this component
@@ -23,33 +23,33 @@ import {
   DialogTitle,
   MenuItem,
 } from "@mui/material";
-
-
-
+import LockIcon from '@mui/icons-material/Lock';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 
 
 const generateStaffID = (staffsData) => {
-  if (staffsData.length === 0) return 'JTA001'; // Default ID if no staff exists
+  // Default ID if no staff exists or all IDs are invalid
+  const defaultID = 'JTA001';
 
   // Filter out elements that match the pattern JTA followed by digits
   const validStaffIDs = staffsData.filter(id => /^JTA\d+$/.test(id));
 
   // If no valid IDs found, return default
-  if (validStaffIDs.length === 0) return 'JTA001';
+  if (validStaffIDs.length === 0) return defaultID;
 
   // Extract numeric parts and find the largest number
-  const largestNumericPart = validStaffIDs
-    .map(id => parseInt(id.match(/\d+/)[0], 10))
-    .reduce((max, num) => Math.max(max, num), 0);
-
+  const numericParts = validStaffIDs.map(id => parseInt(id.slice(3), 10));
+  const largestNumericPart = Math.max(...numericParts);
+ 
   // Increment the largest number
   const newNumericPart = largestNumericPart + 1;
+ 
 
   // Construct new staff ID
   return `JTA${newNumericPart.toString().padStart(3, '0')}`;
 };
+
 
 
 
@@ -196,7 +196,7 @@ const StaffForm = ({ initialValues, onSubmit, onCancel, staffData, isStaffLoadin
 };
 
 // StaffDialog component
-const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData, staffsIds, isDatatLoadingCus,  isAddLoadingCus, isDeleteLoading }) => {
+const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData, staffsIds, isDatatLoadingCus,  isAddLoadingCus, isDeleteLoading, role }) => {
   const isEditing = Boolean(staff);
   const title = isEditing ? 'Edit Staff' : 'Create New Staff';
   const sortStaffDataByIDDesc = (staffData) => {
@@ -224,6 +224,7 @@ const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData, 
           isAddLoadingCus={ isAddLoadingCus}
           isDatatLoadingCus={isDatatLoadingCus}
           isDeleteLoading={isDeleteLoading}
+          role={role}
         />
         {isEditing && 
           <DeleteIcon sx={{
@@ -295,10 +296,15 @@ const Overview = () => {
   const [addStaff, {isLoading: isStaffAddLoading}] = useAddStaffMutation();
   const [updateStaff] = useUpdateStaffMutation();
   const [deleteStaff, {isLoading: isDeleteLoading}] = useDeleteStaffMutation();
+  const role = useSelector(selectCurrentRole)
 
 
   const [isAddLoadingCus, setIsAddLoadingCus]=useState(false)
   const [isDatatLoadingCus, setIsDataLoadingCus]=useState(false)
+
+  useEffect(()=>{
+    console.log(staffData)
+  },[staffData])
   
     useEffect(() => {
       const timer = setTimeout(() => {
@@ -396,10 +402,11 @@ const Overview = () => {
   return (
     <Box m="1.5rem 2.5rem">
       <Header title="JTA Staff" color='#10453e' />
+      {role === "ADMIN" ? 
       <Button
         sx={{
           marginTop: '10px',
-          color: '#10453e',
+          color: theme.palette.secondary[100],
           '&:hover': {
             backgroundColor: theme.palette.secondary[200],
             color: theme.palette.primary[900],
@@ -408,8 +415,9 @@ const Overview = () => {
         variant="contained"
         onClick={handleOpenDialog}
       >
-         <strong style={{color: theme.palette.primary[100]}}> Create New Staff </strong>
-      </Button>
+         <strong> Create New Staff </strong>
+      </Button> : <LockIcon sx={{color: theme.palette.secondary[300]}}/>
+}
       {staffData && !isStaffLoading ? (
         <Box
           mt="20px"
@@ -430,7 +438,7 @@ const Overview = () => {
               onDelete={() => handleDelete(staff)}
               isStaffLoading={isStaffLoading}
               isStaffAddLoading={isStaffAddLoading}
-              
+              role={role}
             />
           ))}
         </Box>
@@ -453,6 +461,7 @@ const Overview = () => {
         isAddLoadingCus={isAddLoadingCus}
         isDatatLoadingCus={isDatatLoadingCus}
         isDeleteLoading={isDeleteLoading}
+        role={role}
       />
       <DeleteConfirmationDialog
         open={openDeleteDialog}

@@ -14,8 +14,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useSelector } from "react-redux";
 import { selectAllStaff, useGetStaffQuery } from "../../features/staffs/staffSlice";
-import { selectCurrentToken } from "../../features/auth/authSlice"
+import { selectCurrentToken, selectCurrentRole } from "../../features/auth/authSlice"
 import { useNavigate } from 'react-router-dom';
+import LockIcon from '@mui/icons-material/Lock';
 
 
 
@@ -636,9 +637,11 @@ const Shifts = () => {
   const {isLoading: isShiftsLoading, refetch} = useGetShiftsQuery()
   const { isLoading: isStaffLoading } = useGetStaffQuery();
   const token = useSelector(selectCurrentToken)
+  const role = useSelector(selectCurrentRole)
   const shiftsIds = useSelector(selectShiftIds)
   const navigate = useNavigate();
   const shiftsData = useSelector(selectAllShifts)
+
   useEffect(()=>{
     console.log(shiftsData)
     console.log(shiftsIds)
@@ -765,6 +768,7 @@ const Shifts = () => {
               fullName: staff?.fullName,
               startDate: shift?.startDate,
               End_Date: shift?.End_Date,
+              House: shift?.House,
               Overtime: shift?.Overtime,
               Total_Hours: shift?.Total_Hours,
               Total_Wage: shift?.Total_Wage,
@@ -779,6 +783,7 @@ const Shifts = () => {
               Overtime: shift?.Overtime,
               Total_Hours: shift?.Total_Hours,
               Total_Wage: shift?.Total_Wage,
+              House: shift?.House,
             };
         }
     });
@@ -805,7 +810,8 @@ const revisedShiftsData = mapShiftAndStaffData(shiftsData, staffsData)
         role="status"
         aria-hidden="true"
       ></span>: 
-        <DeleteIcon color="error"  onClick={() => handleDelete(params.row)} />
+      (role === "ADMIN")? ( <DeleteIcon  color="error" onClick={() =>  handleDelete(params.row)} />) 
+        :   <LockIcon sx={{color: theme.palette.secondary[300]}}/>
       ),
     },
   ];
@@ -813,10 +819,11 @@ const revisedShiftsData = mapShiftAndStaffData(shiftsData, staffsData)
   return (
     <Box m="20px" >
       <Header title="SHIFTS"  color= '#10453e' />
+      {role === "ADMIN" ? 
       <Button
         sx={{
           marginTop: '10px',
-          color: '#10453e',
+          color: theme.palette.secondary[100],
           '&:hover': {
             backgroundColor: theme.palette.secondary[200],
             color: theme.palette.primary[900],
@@ -825,8 +832,12 @@ const revisedShiftsData = mapShiftAndStaffData(shiftsData, staffsData)
         variant="contained"
         onClick={handleOpenDialog}
       >
-        <strong style={{color: theme.palette.primary[100]}}>Record Shifts</strong>
+        <strong >Record Shifts</strong>
       </Button>
+      :
+      <LockIcon sx={{color: theme.palette.secondary[300]}}/>
+    }
+     
     
       <Box
            m="40px 0 0 0"

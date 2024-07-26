@@ -4,12 +4,9 @@ import {
   LightModeOutlined,
   DarkModeOutlined,
   Menu as MenuIcon,
-  Search,
-  SettingsOutlined,
-  ArrowDropDownOutlined,
 } from "@mui/icons-material";
 import FlexBetween from "./FlexBetween";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setMode } from "../features/global/globalSlice"
 import {
   AppBar,
@@ -17,21 +14,22 @@ import {
   Box,
   Typography,
   IconButton,
-  InputBase,
   Toolbar,
   Menu,
   MenuItem,
   useTheme,
 } from "@mui/material";
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
-import { logOut } from "../features/auth/authSlice";
-import { useNavigate } from "react-router-dom";
+// import { logOut } from "../features/auth/authSlice";
+// import { useNavigate } from "react-router-dom";
+import { selectCurrentRole } from "../features/auth/authSlice";
 
 
 const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
+  const role = useSelector(selectCurrentRole)
   const dispatch = useDispatch();
   const theme = useTheme();
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
   const [anchorEl, setAnchorEl] = useState(null);
   const isOpen = Boolean(anchorEl);
   const handleClick = (event) => setAnchorEl(event.currentTarget);
@@ -94,7 +92,7 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                   fontSize="0.85rem"
                   sx={{ color: theme.palette.secondary[100] }}
                 >
-                  ADMIN
+                  {String(role).split('_')[0]}
                 </Typography>
                 {/* <Typography
                   fontSize="0.85rem"

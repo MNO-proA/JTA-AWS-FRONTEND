@@ -11,7 +11,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import { useSelector } from "react-redux";
 import { selectAllStaff, useGetStaffQuery } from "../../features/staffs/staffSlice";
 import DeleteIcon from '@mui/icons-material/Delete';
-import { selectCurrentToken } from "../../features/auth/authSlice"
+import LockIcon from '@mui/icons-material/Lock';
+import { selectCurrentToken, selectCurrentRole } from "../../features/auth/authSlice"
 
 const AbsentReadOnly = () => {
     const theme = useTheme();
@@ -24,6 +25,7 @@ const AbsentReadOnly = () => {
     const [isDataLoadingCus, setIsDataLoadingCus] = useState(false)
     // const [isAddedDataLoadingCus, setIsAddedDataLoadingCus] = useState(false)
     const token = useSelector(selectCurrentToken)
+    const role = useSelector(selectCurrentRole)
     const [{isLoading: isDeleteLoading}] = useDeleteShiftMutation();
   
   
@@ -177,7 +179,9 @@ const AbsentReadOnly = () => {
           role="status"
           aria-hidden="true"
         ></span>: 
+        role === "ADMIN"?
           <DeleteIcon color="error"  onClick={() => handleDelete(params.row)} />
+          : <LockIcon sx={{color: theme.palette.secondary[300]}}/>
         ),
       },
     ];

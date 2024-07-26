@@ -9,6 +9,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import LockIcon from '@mui/icons-material/Lock';
 
 import { useGetShiftsQuery, selectAllShifts } from "../../features/shifts/shiftSlice";
 import { useSelector } from "react-redux";
@@ -26,7 +27,8 @@ const SingleStaff = ({
     isStaffAddLoading,
     isDatatLoadingCus,
     isAddLoadingCus,
-    isDeleteLoading
+    isDeleteLoading,
+    role
   }) => {
     const theme = useTheme();
     const [isExpanded, setIsExpanded] = useState(false);
@@ -90,7 +92,7 @@ const SingleStaff = ({
             { staffID}
           </Typography>
           <Typography variant="h5" component="div" sx={{ mb: "1.5rem" }}>
-            <strong style={{color: theme.palette.primary[100], fontSize: '1.3rem'}}>{fullName}</strong>
+            <strong style={{color: theme.palette.secondary[100], fontSize: '1.3rem'}}>{fullName}</strong>
           </Typography>
           <Typography sx={{ mb: "1rem" }} color={theme.palette.secondary[100]}>
             {jobTitle}
@@ -105,9 +107,9 @@ const SingleStaff = ({
             variant="primary"
             size="small"
             onClick={() => setIsExpanded(!isExpanded)}
-            sx={{ position: 'absolute', bottom: '1rem', right: '1rem' }}
+            sx={{ position: 'absolute', bottom: '1rem', right: '1rem', color: theme.palette.secondary[100] }}
           >
-            See More
+            <strong>SEE MORE</strong>
           </Button>
        
         </CardActions>
@@ -129,12 +131,13 @@ const SingleStaff = ({
             <Typography sx={{ mb: "1.5rem" }}>
               Hourly Rate: {hourlyRate}
             </Typography> 
+            {role === "ADMIN"? 
             <Button
-          variant="contained"
-          color="error"
-          size="small"
-          onClick={onDelete}
-        >
+              variant="contained"
+              color="error"
+              size="small"
+              onClick={onDelete}
+            >
            {isStaffAddLoading || isAddLoadingCus || isDatatLoadingCus || isDeleteLoading  ? (
                           <span
                             className="spinner-border spinner-border-sm"
@@ -144,7 +147,10 @@ const SingleStaff = ({
                         ) : (
                           "Delete"
                         )}
-        </Button>
+            </Button> :
+             <LockIcon sx={{color: theme.palette.secondary[300]}}/>
+            }
+           
           </CardContent>
         </Collapse>
       </Card>
