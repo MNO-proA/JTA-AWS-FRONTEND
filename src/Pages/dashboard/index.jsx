@@ -110,9 +110,111 @@ useEffect(()=>{
               </CardContent>
             </Card>
           </Grid>
-
-        {/* ++++++++++++++++++++++++++++ TOTAL WAGE BAR +++++++++++++++++++++++++++ */}
-        <Grid item xs={12} md={8}>
+               {/* ++++++++++++++++++++++++++++ TOTAL HOURS BAR  +++++++++++++++++++++++++++ */}
+               <Grid item xs={12} md={8}>
+          <Card  sx={{ bgcolor: theme.palette.background.default}}>
+            <CardContent>
+              <Typography variant="h6">Total Hours per Staff</Typography>
+              <Box height={500} sx={{mt: '20px'}}>
+                <ResponsiveBar
+                  data={sortedHoursData}
+                  keys={['totalHours']}
+                  indexBy="staffID"
+                  margin={{ top: 10, right: 90, bottom: 10, left: 50 }}
+                  padding={0.1}
+                  layout="horizontal"
+                  valueScale={{ type: 'linear' }}
+                  indexScale={{ type: 'band', round: true }}
+                  colors="#4dc4b8"
+                  axisTop={null}
+                  axisRight={null}
+                  axisBottom={null}
+                  innerPadding={4}
+                  axisLeft={{
+                    tickSize: 5,
+                    tickPadding: 8,
+                    tickRotation: 0,
+                    // legend: 'Employee',
+                    legendPosition: 'middle',
+                    legendOffset: -40
+                  }}
+                  tooltip={({ data }) => (
+                    <div style={{backgroundColor: theme.palette.primary[100], color: theme.palette.primary[900], padding: '8px' }}>
+                      <strong>{data.fullName}</strong><br />
+                      Staff ID: {data.staffID}<br />
+                      Total Hours: {data.totalHours}
+                    </div>
+                  )}
+                  label={d => (d.value > 0 ? `${d.value}` : '')} // Show label only when value is greater than 0
+                  theme={{
+                    axis: {
+                      ticks: {
+                        text: {
+                          fill: theme.palette.primary[100], // Font color for axis ticks
+                        },
+                      },
+                      legend: {
+                        text: {
+                          fill: theme.palette.primary[100],// Font color for axis legends
+                        },
+                      },
+                    },
+                    legends: {
+                      text: {
+                        fill: theme.palette.primary[100], // Font color for chart legends
+                      },
+                    },
+                    labels: {
+                      text: {
+                        fill: theme.palette.primary[100], // Font color for bar labels
+                      },
+                    },
+                    tooltip: {
+                      container: {
+                        background: theme.palette.primary[100], // Background color for tooltip
+                        color: theme.palette.primary[900], // Font color for tooltip
+                        fontSize: '14px', // Font size for tooltip
+                      },
+                    },
+                    
+                  }}
+                />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+       
+        {/* ++++++++++++++++++++++++++++ CARD TOTALS  +++++++++++++++++++++++++++ */}
+        <Grid item xs={12} md={4}>
+          <Card  sx={{ bgcolor: theme.palette.background.default, boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`} }>
+            <CardContent>
+              <Typography variant="h6">Total Employees</Typography>
+              <Typography variant="h3">{staffsTotal}</Typography>
+            </CardContent>
+          </Card>
+          <br />
+          <br />
+       
+          <Card  sx={{ bgcolor: theme.palette.background.default, boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`} }>
+            <CardContent>
+              <Typography variant="h6">Grand Total Wage</Typography>
+              <Typography variant="h3">{grandTotalWage.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}</Typography>
+            </CardContent>
+          </Card>
+          <br />
+          <br />
+      
+          <Card sx={{ bgcolor: theme.palette.background.default, boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`} } >
+            <CardContent>
+              <Typography variant="h6">Grand Total Expense</Typography>
+              <Typography variant="h3">{grandTotalExpense.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}</Typography>
+            </CardContent>
+          </Card>
+        {/* </Grid> */}
+        </Grid>
+  
+         {/* ++++++++++++++++++++++++++++ TOTAL WAGE BAR +++++++++++++++++++++++++++ */}
+         <Grid item xs={12} md={12}>
           <Card   sx={{   bgcolor: theme.palette.background.default  }}>
             <CardContent>
               <Typography variant="h6">Total Wages per Employee</Typography>
@@ -184,107 +286,6 @@ useEffect(()=>{
                 
                   // 5px 5px 5px 5px ${theme.palette.primary[900]}
                 /> 
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        {/* ++++++++++++++++++++++++++++ CARD TOTALS  +++++++++++++++++++++++++++ */}
-        <Grid item xs={12} md={4}>
-          <Card  sx={{ bgcolor: theme.palette.background.default, boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`} }>
-            <CardContent>
-              <Typography variant="h6">Total Employees</Typography>
-              <Typography variant="h3">{staffsTotal}</Typography>
-            </CardContent>
-          </Card>
-          <br />
-          <br />
-       
-          <Card  sx={{ bgcolor: theme.palette.background.default, boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`} }>
-            <CardContent>
-              <Typography variant="h6">Grand Total Wage</Typography>
-              <Typography variant="h3">{grandTotalWage.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}</Typography>
-            </CardContent>
-          </Card>
-          <br />
-          <br />
-      
-          <Card sx={{ bgcolor: theme.palette.background.default, boxShadow: `0.5px 0.5px 3px 0.5px  #0c7a75`} } >
-            <CardContent>
-              <Typography variant="h6">Grand Total Expense</Typography>
-              <Typography variant="h3">{grandTotalExpense.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}</Typography>
-            </CardContent>
-          </Card>
-        {/* </Grid> */}
-        </Grid>
-         {/* ++++++++++++++++++++++++++++ TOTAL HOURS BAR  +++++++++++++++++++++++++++ */}
-        <Grid item xs={12} md={8}>
-          <Card  sx={{ bgcolor: theme.palette.background.default}}>
-            <CardContent>
-              <Typography variant="h6">Total Hours per Staff</Typography>
-              <Box height={500} sx={{mt: '20px'}}>
-                <ResponsiveBar
-                  data={sortedHoursData}
-                  keys={['totalHours']}
-                  indexBy="staffID"
-                  margin={{ top: 10, right: 90, bottom: 10, left: 50 }}
-                  padding={0.1}
-                  layout="horizontal"
-                  valueScale={{ type: 'linear' }}
-                  indexScale={{ type: 'band', round: true }}
-                  colors="#4dc4b8"
-                  axisTop={null}
-                  axisRight={null}
-                  axisBottom={null}
-                  innerPadding={4}
-                  axisLeft={{
-                    tickSize: 5,
-                    tickPadding: 8,
-                    tickRotation: 0,
-                    // legend: 'Employee',
-                    legendPosition: 'middle',
-                    legendOffset: -40
-                  }}
-                  tooltip={({ data }) => (
-                    <div style={{backgroundColor: theme.palette.primary[100], color: theme.palette.primary[900], padding: '8px' }}>
-                      <strong>{data.fullName}</strong><br />
-                      Staff ID: {data.staffID}<br />
-                      Total Hours: {data.totalHours}
-                    </div>
-                  )}
-                  label={d => (d.value > 0 ? `${d.value}` : '')} // Show label only when value is greater than 0
-                  theme={{
-                    axis: {
-                      ticks: {
-                        text: {
-                          fill: theme.palette.primary[100], // Font color for axis ticks
-                        },
-                      },
-                      legend: {
-                        text: {
-                          fill: theme.palette.primary[100],// Font color for axis legends
-                        },
-                      },
-                    },
-                    legends: {
-                      text: {
-                        fill: theme.palette.primary[100], // Font color for chart legends
-                      },
-                    },
-                    labels: {
-                      text: {
-                        fill: theme.palette.primary[100], // Font color for bar labels
-                      },
-                    },
-                    tooltip: {
-                      container: {
-                        background: theme.palette.primary[100], // Background color for tooltip
-                        color: theme.palette.primary[900], // Font color for tooltip
-                        fontSize: '14px', // Font size for tooltip
-                      },
-                    },
-                    
-                  }}
-                />
               </Box>
             </CardContent>
           </Card>
@@ -442,7 +443,7 @@ useEffect(()=>{
          {/* ++++++++++++++++++++++++++++ DAY/NIGHT PIE +++++++++++++++++++++++++++ */}
         <Grid item xs={12} md={4} sx={{ mt: {
                   xs: 0, // No margin-top on extra-small and small screens
-                  md: '-290px', // Apply margin-top on medium and larger screens
+                  md: '146px', // Apply margin-top on medium and larger screens
                 }}}>
           <Card   sx={{
                     bgcolor: theme.palette.background.default,
@@ -496,13 +497,13 @@ useEffect(()=>{
         <Grid item xs={12} md={8}>
           <Card  sx={{ bgcolor: theme.palette.background.default}}>
             <CardContent>
-              <Typography variant="h6">Total Expenses</Typography>
-              <Box height={300} sx={{mt: '20px'}}>
+              <Typography variant="h6" sx={{marginLeft: "200px"}}>Total Expenses</Typography>
+              <Box height={500} sx={{mt: '20px'}}>
                 <ResponsiveBar
                   data={sortedExpenseData}
                   keys={['total']}
                   indexBy="category"
-                  margin={{ top: 50, right: 130, bottom: 50, left: 90 }}
+                  margin={{ top: 50, right: 130, bottom: 50, left: 200 }}
                   padding={0.3}
                   layout="horizontal"
                   valueScale={{ type: 'linear' }}
@@ -516,8 +517,8 @@ useEffect(()=>{
                     tickPadding: 8,
                     tickRotation: 0,
                     // legend: 'Value',
-                    // legendPosition: 'middle',
-                    // legendOffset: -40
+                    legendPosition: 'middle',
+                    legendOffset: -40
                   }}
                   label={d => (d.value > 0 ? `${d.value}` : '')} // Show label only when value is greater than 0
                   theme={{
@@ -560,7 +561,7 @@ useEffect(()=>{
          {/* ++++++++++++++++++++++++++++ STAFF LIST  +++++++++++++++++++++++++++ */}
         <Grid item xs={12} md={4} sx={{ mt: {
                   xs: 0, // No margin-top on extra-small and small screens
-                  md: '-890px', // Apply margin-top on medium and larger screens
+                  md: '-796px', // Apply margin-top on medium and larger screens
                 },
                 bgcolor: theme.palette.background.default}}>
         <Card>
