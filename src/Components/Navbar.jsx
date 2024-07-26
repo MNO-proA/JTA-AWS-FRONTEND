@@ -20,20 +20,26 @@ import {
   useTheme,
 } from "@mui/material";
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
-// import { logOut } from "../features/auth/authSlice";
-// import { useNavigate } from "react-router-dom";
+import { logOut } from "../features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
 import { selectCurrentRole } from "../features/auth/authSlice";
+// import { Link } from "react-router-dom";
+
 
 
 const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const role = useSelector(selectCurrentRole)
   const dispatch = useDispatch();
   const theme = useTheme();
-  // const navigate = useNavigate()
+  const navigate = useNavigate()
   const [anchorEl, setAnchorEl] = useState(null);
   const isOpen = Boolean(anchorEl);
   const handleClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
+  const handleLogout = () => {
+    navigate('/')
+    dispatch(logOut());
+  }
 
   return (
     <AppBar
@@ -111,7 +117,7 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
               onClose={handleClose}
               anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
             >
-              <MenuItem>Log Out</MenuItem>
+              <MenuItem onClick={handleLogout}>Log Out</MenuItem>
             </Menu>
           </FlexBetween>
         </FlexBetween>
