@@ -65,17 +65,15 @@ const Login = () => {
         setPwd("");
         navigate("overview")
       } catch (err) {
-        if (!err?.originalStatus) {
-          setErrMsg("An Error Ocurred");
-          console.log(err);
-          setErrMsg(err?.data?.message);
+        if (err?.status === 401) {
+          console.log(err.data);
+          setErrMsg(err?.data?.detail);
           if (err?.status === "FETCH_ERROR") {
             setErrMsg("Server not responding");
           } else if (err?.originalStatus === 400) {
-            setErrMsg("Missing Username or Password");
-          } else if (err?.originalStatus === 401) {
-            setErrMsg("Unauthorized");
-          } else if (err?.originalStatus === 404) {
+            setErrMsg("Incorrect Username or Password");
+          } 
+           else if (err?.originalStatus === 404) {
             setErrMsg("Login Failed");
           }
         } else {

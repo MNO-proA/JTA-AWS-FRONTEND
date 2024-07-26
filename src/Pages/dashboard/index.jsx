@@ -497,13 +497,13 @@ useEffect(()=>{
         <Grid item xs={12} md={8}>
           <Card  sx={{ bgcolor: theme.palette.background.default}}>
             <CardContent>
-              <Typography variant="h6" sx={{marginLeft: "200px"}}>Total Expenses</Typography>
+              <Typography variant="h6" sx={{marginLeft: "120px"}}>Total Expenses</Typography>
               <Box height={500} sx={{mt: '20px'}}>
                 <ResponsiveBar
                   data={sortedExpenseData}
                   keys={['total']}
                   indexBy="category"
-                  margin={{ top: 50, right: 130, bottom: 50, left: 200 }}
+                  margin={{ top: 50, right: 130, bottom: 50, left: 160 }}
                   padding={0.3}
                   layout="horizontal"
                   valueScale={{ type: 'linear' }}
@@ -513,8 +513,8 @@ useEffect(()=>{
                   axisRight={null}
                   axisBottom={null}
                   axisLeft={{
-                    tickSize: 5,
-                    tickPadding: 8,
+                    tickSize: 3,
+                    tickPadding: 13,
                     tickRotation: 0,
                     // legend: 'Value',
                     legendPosition: 'middle',
