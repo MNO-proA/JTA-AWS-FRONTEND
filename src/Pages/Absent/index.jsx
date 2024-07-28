@@ -1,10 +1,11 @@
 /* eslint-disable react/prop-types */
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import Header from "../../Components/Header";
-import { useTheme } from "@mui/material";
+import { useTheme, Checkbox, FormControlLabel, Button } from "@mui/material";
+// import { Checkbox, FormControlLabel, Button } from '@mui/material'
 import  { useState, useEffect, useCallback, useMemo} from 'react';
 import { Box,  } from '@mui/material';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, MenuItem } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, MenuItem } from '@mui/material';
 import 'react-toastify/dist/ReactToastify.css';
 import { useGetShiftsQuery, selectAllShifts , useDeleteShiftMutation, useAddShiftMutation, selectShiftIds } from "../../features/shifts/shiftSlice";
 import { toast, ToastContainer } from 'react-toastify';
@@ -277,7 +278,8 @@ const AbsentReadOnly = () => {
           Shift: '',
           Shift_Start: '',
           Shift_End: '',
-          Absence_Duration: 0
+          Absence_Duration: 0,
+          ReturnedToWork: false, 
         },
         validationSchema: shiftValidationSchema,
         onSubmit: (values) => {
@@ -292,6 +294,7 @@ const AbsentReadOnly = () => {
               End_Date: values.End_Date,
               House: values.House,
               Shift: values.Shift,
+              ReturnedToWork: values.ReturnedToWork,
               Shift_Start: '',
               Shift_End: '',
               Overtime: 0,
@@ -458,7 +461,32 @@ const AbsentReadOnly = () => {
               <MenuItem value="Absence Without Leave">Absence Without Leave</MenuItem>
               <MenuItem value="Holiday">Holiday</MenuItem>
             </TextField>
-          
+
+            <FormControlLabel
+                control={
+                  <Checkbox
+                    id="ReturnedToWork"
+                    name="ReturnedToWork"
+                    checked={formik.values.ReturnedToWork}
+                    onChange={formik.handleChange}
+                    sx={{
+                      color: theme.palette.secondary[200],
+                      '&.Mui-checked': {
+                        color: theme.palette.secondary[200],
+                      },
+                      '& .MuiSvgIcon-root': {
+                        borderColor: theme.palette.secondary[200],
+                      },
+                    }}
+                  />
+                }
+                label="Returned To Work"
+                sx={{
+                  '& .MuiFormControlLabel-label': {
+                    fontSize: '0.875rem',
+                  },
+                }}
+            />
             
     
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
@@ -672,14 +700,18 @@ const AbsentDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData
           const startDate = dayjs(shift.startDate);
           const endDate = dayjs(shift.End_Date);
           const today = dayjs();
-  
+    
           let absenceDuration = shift.Absence_Duration;
           if (typeof absenceDuration !== 'number' || isNaN(absenceDuration)) {
             absenceDuration = endDate.isValid() ? endDate.diff(startDate, 'day') + 1 : null;
           }
-  
-          const daysRemaining = endDate.isValid() ? endDate.diff(today, 'day') + 1 : null;
-  
+    
+          let daysRemaining = endDate.isValid() ? endDate.diff(today, 'day') + 1 : null;
+          // Adjust daysRemaining if staff has returned to work
+          if (shift.ReturnedToWork) {
+            daysRemaining = null; // or any other value indicating the absence is no longer valid
+          }
+    
           return {
             index: shiftRefined.length - index,
             shiftID: shift.shiftID,
@@ -690,13 +722,15 @@ const AbsentDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData
             Absence_Status: shift.Absence_Status,
             Absence_Duration: absenceDuration,
             daysRemaining: daysRemaining,
-            staffID: staff?.staffID
+            staffID: staff?.staffID,
+            ReturnedToWork: shift.ReturnedToWork // include this for reference
           };
         });
       };
-  
+    
       return mapShiftAndStaffData(shiftsData, staffsData);
     }, [shiftsData, staffsData]);
+    
   
     const columns = [
       { field: 'index', headerName: 'Index', flex: 0.1 },
@@ -707,15 +741,15 @@ const AbsentDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData
       { field: 'Absence_Status', headerName: 'Absence Status', flex: 0.4 },
       { 
         field: 'Absence_Duration', 
-        headerName: 'Absence Duration', 
+        headerName: 'Absence Duration (days)', 
         flex: 0.6,
         renderCell: (params) => {
           const { Absence_Duration, daysRemaining } = params.row;
           
           if (Absence_Duration === null || daysRemaining === null) {
             return (
-              <div style={{ backgroundColor: theme.palette.warning.light, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                Invalid Data
+              <div style={{ backgroundColor: theme.palette.secondary[700], width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {Absence_Duration}
               </div>
             );
           }
