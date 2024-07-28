@@ -293,7 +293,14 @@ const generateShiftID = (shiftData) => {
 // };
 
 
-const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, shiftsIds, navigate, setIsAddLoadingCus }) => {
+const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, shiftsIds, navigate, setIsAddLoadingCus, shift,
+  isShiftAdding,
+  isDatatLoadingCus,
+  isAddLoadingCus,
+  isShiftsLoading,
+  isEditing,
+
+}) => {
   const theme = useTheme();
   const initialShiftID = generateShiftID(shiftsIds);
   
@@ -309,27 +316,12 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, 
       Shift: '',
       Shift_Start: '',
       Shift_End: '',
+      Absence_Duration: 0
     },
     validationSchema: shiftValidationSchema,
     onSubmit: (values) => {
       let shiftData;
-      if (values.Absence === 'Yes') {
-        shiftData = {
-          shiftID: values.shiftID,
-          staffID: values.staffID,
-          startDate: values.startDate,
-          Absence: values.Absence,
-          Absence_Status: values.Absence_Status,
-          End_Date: '',
-          House: '',
-          Shift: '',
-          Shift_Start: '',
-          Shift_End: '',
-          Total_Hours: 0,
-          Total_Wage: 0,
-          Overtime: 0
-        };
-      } else {
+    
         const shiftStartTime = new Date(`${values.startDate}T${values.Shift_Start}`);
         const shiftEndTime = new Date(`${values.End_Date}T${values.Shift_End}`);
   
@@ -350,24 +342,32 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, 
         const totalWage = (totalHours) * hourlyRate;
   
         shiftData = {
-          ...values,
+          shiftID: values.shiftID,
+          staffID: values.staffID,
+          startDate: values.startDate,
+          Absence: values.Absence,
+          Absence_Status: values.Absence_Status,
+          End_Date: values.End_Date,
+          House: values.House,
+          Shift: values.Shift,
+          Shift_Start: values.Shift_Start,
+          Shift_End: values.Shift_End,
           Overtime: overtime.toFixed(2),
           Total_Hours: totalHours.toFixed(2),
           Total_Wage: totalWage.toFixed(2),
+          Absence_Duration: values.Absence_Duration
         };
-      }
+   
       onSubmit(shiftData);
       setIsAddLoadingCus(true)
-      if (values.Absence === 'Yes') {
-        navigate('/Absence');
-      }
-    },
+  
+    }
   });
 
   return (
     <form onSubmit={formik.handleSubmit}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: '10px' }}>
-        <TextField
+        {/* <TextField
           fullWidth
           id="shiftID"
           name="shiftID"
@@ -377,7 +377,7 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, 
           InputProps={{
             readOnly: true,
           }}
-        />
+        /> */}
         <TextField
           fullWidth
           id="staffID"
@@ -404,23 +404,9 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, 
         </TextField>
         <TextField
           fullWidth
-          id="Absence"
-          name="Absence"
-          label="Absence"
-          select
-          value={formik.values.Absence}
-          onChange={formik.handleChange}
-          error={formik.touched.Absence && Boolean(formik.errors.Absence)}
-          helperText={formik.touched.Absence && formik.errors.Absence}
-        >
-          <MenuItem value="No">No</MenuItem>
-          <MenuItem value="Yes">Yes</MenuItem>
-        </TextField>
-        <TextField
-          fullWidth
           id="startDate"
           name="startDate"
-          label={formik.values.Absence === 'Yes' ? 'Date' : 'Start Date'}
+          label='Start Date'
           type="date"
           value={formik.values.startDate}
           onChange={formik.handleChange}
@@ -428,31 +414,6 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, 
           helperText={formik.touched.startDate && formik.errors.startDate}
           InputLabelProps={{ shrink: true }}
         />
-         {formik.values.Absence === 'Yes' && (
-        <TextField
-          fullWidth
-          id="Absence_Status"
-          name="Absence_Status"
-          label="Absence Status"
-          select
-          value={formik.values.Absence_Status}
-          onChange={formik.handleChange}
-          error={formik.touched.Absence_Status && Boolean(formik.errors.Absence_Status)}
-          helperText={formik.touched.Absence_Status && formik.errors.Absence_Status}
-          InputLabelProps={{ shrink: true }}
-        >
-       {formik.values.Absence === 'Yes' && <MenuItem value="Sick">Sick</MenuItem>}
-          {formik.values.Absence === 'Yes' && <MenuItem value="Personal">Personal</MenuItem>}
-            {formik.values.Absence === 'Yes' && <MenuItem value="Absence Without Leave">Absence Without Leave</MenuItem>}
-              {formik.values.Absence === 'Yes' && <MenuItem value="Holiday">Holiday</MenuItem>}
-           
-        </TextField>
-        )
-
-}
-
-        {formik.values.Absence === 'No' && (
-          <>
             <TextField
               fullWidth
               id="End_Date"
@@ -517,8 +478,8 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, 
               helperText={formik.touched.Shift_End && formik.errors.Shift_End}
               InputLabelProps={{ shrink: true }}
             />
-          </>
-        )}
+        
+        
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
           <Button onClick={onCancel} sx={{ color: theme.palette.grey[500] }}>
@@ -535,7 +496,16 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, 
               },
             }}
           >
-            Submit
+            {isShiftAdding || isAddLoadingCus || isDatatLoadingCus || isShiftsLoading ? (
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                        ) : (
+                          isEditing?
+                          "Update":"Submit"
+                        )}
           </Button>
         </Box>
       </Box>
@@ -546,7 +516,10 @@ const ShiftForm = ({ initialValues, onSubmit, onCancel, staffsData, shiftsData, 
 
 
 // ShiftDialog component
-const ShiftDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData, shiftsData, shiftsIds, navigate, setIsAddLoadingCus }) => {
+const ShiftDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData, shiftsData, shiftsIds, navigate, setIsAddLoadingCus, isShiftAdding,
+  isDatatLoadingCus,
+  isAddLoadingCus,
+  isShiftsLoading }) => {
   const isEditing = Boolean(shift);
   const title = isEditing ? 'Edit Shift' : 'Record New Shift';
 
@@ -566,25 +539,29 @@ const ShiftDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData,
           shiftsIds={shiftsIds}
           navigate={navigate}
           setIsAddLoadingCus={setIsAddLoadingCus}
+          isShiftAdding={isShiftAdding}
+          isDatatLoadingCus={isDatatLoadingCus}
+          isAddLoadingCus={isAddLoadingCus}
+          isShiftsLoading={isShiftsLoading} 
+          isEditing={isEditing}
         />
         {isEditing? 
       
-        <DeleteIcon sx={{
-          mt: '-70px',
-          color: 'grey',
+        <DeleteIcon color="error" sx={{
+          mt: '-70px'
         }}
-        onClick={handleDelete}
+        onClick={() => handleDelete(shift)}
         /> : 
         ''}
-         
-         
       </DialogContent>
     </Dialog>
   );
 };
 
 // DeleteConfirmationDialog component
-const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme, isDeleteLoading  }) => {
+const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme, isDeleteLoading,
+  isDatatLoadingCus,
+  isShiftsLoading   }) => {
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Confirm Deletion</DialogTitle>
@@ -612,7 +589,7 @@ const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme, isDeleteLoa
             color: theme.palette.primary[900],
           },
         }} autoFocus>
-          {isDeleteLoading  ? (
+          {isDatatLoadingCus || isShiftsLoading? (
                           <span
                             className="spinner-border spinner-border-sm"
                             role="status"
@@ -648,7 +625,8 @@ const Shifts = () => {
   },[shiftsData, shiftsIds])
 
   const staffsData = useSelector(selectAllStaff);
-
+  const [addShift, {isLoading: isShiftAdding}] = useAddShiftMutation();
+  const [ {isLoading: isDeleteLoading}] = useDeleteShiftMutation();
   const [isAddLoadingCus, setIsAddLoadingCus]=useState(false)
   const [isDatatLoadingCus, setIsDataLoadingCus]=useState(false)
 
@@ -673,11 +651,6 @@ const Shifts = () => {
   }, [shiftsData]);
 
 
-
-  const [addShift, {isLoading: isShiftAdding}] = useAddShiftMutation();
-  // const [updateShift] = useUpdateShiftMutation();
-  const [ {isLoading: isDeleteLoading}] = useDeleteShiftMutation();
-
   
   const handleOpenDialog = () => {
     setEditingShift(null);
@@ -691,21 +664,49 @@ const Shifts = () => {
 
   const handleSubmit = async (values) => {
     try {
+      if (editingShift) {
+        const { shiftID, startDate, ...updates } = values;
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", `Bearer ${token}`);
+        myHeaders.append("Content-Type", "application/json");
+
+        const requestOptions = {
+          method: "PUT",
+          headers: myHeaders,
+          body: JSON.stringify({ updates }),
+          redirect: "follow"
+        };
+
+        const response = await fetch(`https://jta-node-api.onrender.com/shifts/${shiftID}/${startDate}`, requestOptions);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        await response.json();
+        toast.success('Shift updated successfully');
+        handleCloseDialog();
+        refetch();
+        setIsAddLoadingCus(true)
+      } else {
    
         await addShift(values).unwrap();
         toast.success('Shift added successfully');
         console.log(values)
        handleCloseDialog();
       //  setIsAddLoadingCus(true)
-    } catch (error) {
+    } 
+  }
+  catch (error) {
       toast.error('An error occurred. Please try again.');
     }
   };
 
-  // const handleEdit = (shift) => {
-  //   setEditingShift(shift);
-  //   setOpenDialog(true);
-  // };
+  const handleEdit = (shift) => {
+    console.log(shift)
+    setEditingShift(shift);
+    setOpenDialog(true);
+  };
 
   const handleDelete = (shift ) => {
     setOpenDeleteDialog(true);
@@ -714,8 +715,6 @@ const Shifts = () => {
 
  
   const handleConfirmDelete = async () => {
-  
-     
       try { 
         const {shiftID, startDate} = selectedShift
         console.log({shiftID, startDate})
@@ -734,9 +733,9 @@ const Shifts = () => {
               // Handle HTTP errors
               throw new Error(`Error ${response.status}`);
             } else{
-              response.json()
+              response.json()  
+              setOpenDialog(false)
               setIsDataLoadingCus(true)
-            
             }
       })
           .then((result) => refetch())
@@ -751,12 +750,9 @@ const Shifts = () => {
       } 
       finally{
         setOpenDeleteDialog(false);
+        setOpenDialog(false)
     }
   }
-
-
-
-
 
   function mapShiftAndStaffData(shiftData, staffData) {
     const shiftRefined = shiftData.filter((shift)=> shift.Absence !== "Yes" )
@@ -766,9 +762,13 @@ const Shifts = () => {
             return {
               shiftID: shift?.shiftID,
               fullName: staff?.fullName,
+              staffID: shift.staffID,
               startDate: shift?.startDate,
               End_Date: shift?.End_Date,
               House: shift?.House,
+              Shift: shift?.Shift,
+              Shift_Start: shift?.Shift_Start,
+              Shift_End: shift?. Shift_End,
               Overtime: shift?.Overtime,
               Total_Hours: shift?.Total_Hours,
               Total_Wage: shift?.Total_Wage,
@@ -790,9 +790,13 @@ const Shifts = () => {
 }
 
 const revisedShiftsData = mapShiftAndStaffData(shiftsData, staffsData)
-
+const revisedShiftsDataWithIndex = revisedShiftsData.map((shift, index) => ({
+  ...shift,
+  index: revisedShiftsData.length - index
+}));
+const getRowId = (row) => row.index;
   const columns = [
-    { field: 'shiftID', headerName: 'Shift ID', flex: 0.5 },
+    { field: 'index', headerName: 'Index', flex:0.2 },
     { field: 'startDate', headerName: 'Start Date', flex: 0.5 },
     { field: 'End_Date', headerName: 'End Date', flex: 0.5 },
     { field: 'House', headerName: 'House', flex: 0.7 },
@@ -810,11 +814,12 @@ const revisedShiftsData = mapShiftAndStaffData(shiftsData, staffsData)
         role="status"
         aria-hidden="true"
       ></span>: 
-      (role === "ADMIN")? ( <DeleteIcon  color="error" onClick={() =>  handleDelete(params.row)} />) 
+      (role === "ADMIN")? ( <EditIcon  onClick={() =>  handleEdit(params.row)} />) 
         :   <LockIcon sx={{color: theme.palette.secondary[300]}}/>
       ),
     },
   ];
+
 
   return (
     <Box m="20px" >
@@ -877,10 +882,10 @@ const revisedShiftsData = mapShiftAndStaffData(shiftsData, staffsData)
         >
         <DataGrid
           checkboxSelection
-          rows={revisedShiftsData }
+          rows={revisedShiftsDataWithIndex}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
-          getRowId={(row) => row.shiftID}
+          getRowId={getRowId}
         />
       </Box>
       <ShiftDialog
@@ -894,6 +899,10 @@ const revisedShiftsData = mapShiftAndStaffData(shiftsData, staffsData)
         shiftsIds={shiftsIds}
         navigate={navigate}
         setIsAddLoadingCus={ setIsAddLoadingCus}
+        isShiftAdding={isShiftAdding}
+        isDatatLoadingCus={isDatatLoadingCus}
+        isAddLoadingCus={isAddLoadingCus}
+        isShiftsLoading={isShiftsLoading}
       />
       <DeleteConfirmationDialog
         open={openDeleteDialog}
@@ -902,6 +911,8 @@ const revisedShiftsData = mapShiftAndStaffData(shiftsData, staffsData)
         theme={theme}
         isDeleteLoading = {isDeleteLoading }
         token = {token }
+        isDatatLoadingCus={isDatatLoadingCus}
+        isShiftsLoading={isShiftsLoading}
       />
       <ToastContainer />
     </Box>

@@ -10,6 +10,7 @@ import {
   useTheme,
 } from "@mui/material";
 import LockIcon from '@mui/icons-material/Lock';
+import EditIcon from '@mui/icons-material/Edit';
 
 import { useGetShiftsQuery, selectAllShifts } from "../../features/shifts/shiftSlice";
 import { useSelector } from "react-redux";
@@ -18,6 +19,7 @@ import { useSelector } from "react-redux";
 
 
 const SingleStaff = ({
+    index,
     staffID,
     fullName,
     employmentType,
@@ -28,7 +30,8 @@ const SingleStaff = ({
     isDatatLoadingCus,
     isAddLoadingCus,
     isDeleteLoading,
-    role
+    role,
+    onEdit
   }) => {
     const theme = useTheme();
     const [isExpanded, setIsExpanded] = useState(false);
@@ -89,10 +92,20 @@ const SingleStaff = ({
             color={theme.palette.secondary[200]}
             gutterBottom
           >
-            { staffID}
+            <strong>{index}</strong>
           </Typography>
           <Typography variant="h5" component="div" sx={{ mb: "1.5rem" }}>
-            <strong style={{color: theme.palette.secondary[100], fontSize: '1.3rem'}}>{fullName}</strong>
+            <strong style={{color: theme.palette.secondary[100], fontSize: '1.3rem'}}>
+            {isStaffAddLoading || isAddLoadingCus || isDatatLoadingCus || isDeleteLoading  ? (
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                        ) : (
+                        [fullName]
+                        )}
+              </strong>
           </Typography>
           <Typography sx={{ mb: "1rem" }} color={theme.palette.secondary[100]}>
             {jobTitle}
@@ -132,7 +145,17 @@ const SingleStaff = ({
               Hourly Rate: {hourlyRate}
             </Typography> 
             {role === "ADMIN"? 
-            <Button
+            <>
+             <Button
+             variant="contained"
+             color="primary"
+             size="small"
+             onClick={onEdit}
+             sx={{ marginRight: '10px' }}
+           >
+             <EditIcon />
+           </Button>
+            {/* <Button
               variant="contained"
               color="error"
               size="small"
@@ -147,7 +170,8 @@ const SingleStaff = ({
                         ) : (
                           "Delete"
                         )}
-            </Button> :
+            </Button> */}
+            </> :
              <LockIcon sx={{color: theme.palette.secondary[300]}}/>
             }
            

@@ -69,7 +69,7 @@ const expenseValidationSchema = Yup.object().shape({
 
 
 // ExpenseForm component
-const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel, expensesData, setIsAddLoadingCus }) => {
+const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel, expensesData, setIsAddLoadingCus, isAddLoadingCus, isEditing }) => {
   const theme = useTheme();
   const initialExpensesData = generateExpenseID(expensesData);
 
@@ -77,19 +77,19 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel, expen
     initialValues: initialValues || {
       expenseID: initialExpensesData,
       date: '',
-     'Transport Expenses': 0,
-     'IT/Purchases': 0,
+     Transport_Expenses: 0,
+     IT_Purchases: 0,
       Maintenance: 0,
       Miscellaneous: 0,
-      'Ofsted (Admin)': 0,
-      'Petty Cash': 0,
-      'REG 44': 0,
-      'Young Person Weekly Money': 0,
+      Ofsted_Admin: 0,
+      Petty_Cash: 0,
+      REG_44: 0,
+      Young_Person_Weekly_Money: 0,
     },
 
     validationSchema: expenseValidationSchema,
     onSubmit: (values) => {
-      const expenseData = {
+      let expenseData = {
         ...values,
       };
       onSubmit(expenseData);
@@ -103,7 +103,7 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel, expen
   return (
     <form onSubmit={formik.handleSubmit}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: '10px' }}>
-        <TextField
+        {/* <TextField
           fullWidth
           id="expenseID"
           name="expenseID"
@@ -112,9 +112,9 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel, expen
           InputProps={{
             readOnly: true,
           }}
-        />
+        /> */}
         {Object.keys(formik.initialValues)
-          .filter(field => field !== 'expenseID') // Exclude expenseID from this loop
+          .filter(field => field !== 'expenseID') // Exclude expenseID and index from this loop
           .map((field) => (
             <TextField
               key={field}
@@ -146,7 +146,16 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel, expen
               },
             }}
           >
-            Submit
+             {isAddLoadingCus  ? (
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                        ) : (
+                          isEditing?
+                          "Update":"Submit"
+                        )}
           </Button>
         </Box>
       </Box>
@@ -155,9 +164,44 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel, expen
 };
 
 // ExpenseDialog component
-const ExpenseDialog = ({ open, onClose, expense, onSubmit, handleDelete, label, expensesData,setIsAddLoadingCus }) => {
+// const ExpenseDialog = ({ open, onClose, expense, onSubmit, handleDelete, label, expensesData, setIsAddLoadingCus }) => {
+//   const isEditing = Boolean(expense);
+//   const title = isEditing ? 'Edit Expense' : 'Record New Expense';
+//   const theme = useTheme();
+
+//   return (
+//     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+//       <DialogTitle>{title}</DialogTitle>
+//       <DialogContent>
+//         <ExpenseForm
+//           initialValues={expense}
+//           onSubmit={(values) => {
+//             onSubmit(values);
+//           }}
+//           onCancel={onClose}
+//           label={label}
+//           expensesData={expensesData}
+//           setIsAddLoadingCus={setIsAddLoadingCus}
+//         />
+        
+//         {isEditing && (
+//           <DeleteIcon
+//             sx={{
+//               mt: '10px',
+//               color: 'grey',
+//               cursor: 'pointer'
+//             }}
+//             onClick={() => handleDelete(expense)}
+//           />
+//         )}
+//       </DialogContent>
+//     </Dialog>
+//   );
+// };
+const ExpenseDialog = ({ open, onClose, expense, onSubmit, handleDelete, label, expensesData, setIsAddLoadingCus, isAddLoadingCus }) => {
   const isEditing = Boolean(expense);
   const title = isEditing ? 'Edit Expense' : 'Record New Expense';
+  const theme = useTheme();
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -167,21 +211,22 @@ const ExpenseDialog = ({ open, onClose, expense, onSubmit, handleDelete, label, 
           initialValues={expense}
           onSubmit={(values) => {
             onSubmit(values);
-            onClose();
           }}
           onCancel={onClose}
           label={label}
           expensesData={expensesData}
           setIsAddLoadingCus={setIsAddLoadingCus}
+          isEditing={isEditing}
+          isAddLoadingCus={isAddLoadingCus}
         />
         
         {isEditing && (
-          <DeleteIcon
+          <DeleteIcon color='error'
             sx={{
               mt: '-70px',
-              color: 'grey',
+              cursor: 'pointer'
             }}
-            onClick={handleDelete}
+            onClick={() => handleDelete(expense)}
           />
         )}
       </DialogContent>
@@ -295,20 +340,65 @@ const Expenses = () => {
     setEditingExpense(null);
   };
 
+
+
+
+
+
+
   const handleSubmit = async (values) => {
+    setIsAddLoadingCus(true);
     try {
-    //   if (editingExpense) {
-    //     await updateExpense(values).unwrap();
-    //     toast.success('Expense updated successfully');
-    //   } else {
+      if (editingExpense) {
+        const { expenseID, date, index, ...updates } = values;
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", `Bearer ${token}`);
+        myHeaders.append("Content-Type", "application/json");
+
+        const requestOptions = {
+          method: "PUT",
+          headers: myHeaders,
+          body: JSON.stringify({ updates }),
+          redirect: "follow"
+        };
+
+        const response = await fetch(`https://jta-node-api.onrender.com/expense/${expenseID}/${date}`, requestOptions);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        await response.json();
+        toast.success('Expense updated successfully');
+        refetch();
+      } else {
         await addExpense(values).unwrap();
         toast.success('Expense added successfully');
-      // }
-      handleCloseDialog();
+      }
     } catch (error) {
-      toast.error('An error occurred. Please try again.');
+      toast.error(`An error occurred: ${error.message}`);
+    } finally {
+      setIsAddLoadingCus(false);
+      handleCloseDialog();
     }
   };
+
+
+
+  // const handleSubmit = async (values) => {
+  //   try {
+  //   //   if (editingExpense) {
+  //   //     await updateExpense(values).unwrap();
+  //   //     toast.success('Expense updated successfully');
+  //   //   } else {
+  //       await addExpense(values).unwrap();
+  //       toast.success('Expense added successfully');
+  //     // }
+  //     handleCloseDialog();
+  //   } catch (error) {
+  //     toast.error('An error occurred. Please try again.');
+  //   }
+  // };
 
   const handleEdit = (expense) => {
     setEditingExpense(expense);
@@ -339,8 +429,10 @@ const Expenses = () => {
           // Handle HTTP errors
           throw new Error(`Error ${response.status}`);
         } else{
-          response.json()
+          response.json() 
+          setOpenDialog(false);
           setIsDataLoadingCus(true)
+         
         
         }
   })
@@ -358,19 +450,23 @@ const Expenses = () => {
     setOpenDeleteDialog(false);
 }
 }
-  
+const expensesDataWithIndex = expensesData.map((expense, index) => ({
+  ...expense,
+  index: expensesData.length - index
+}));
 
+const getRowId = (row) => row.index;
   const columns = [
+    { field: 'index', headerName: 'Index', flex: 0.2 },
     { field: 'date', headerName: 'Date', flex: 1, minWidth: 100  },
-    { field: 'expenseID', headerName: 'Expense ID', flex: 1, minWidth: 100  },
-    { field: 'Transport Expenses', headerName: 'Transport Expenses', flex: 1, minWidth: 100  },
-    { field: 'IT/Purchases', headerName: 'IT/Purchases', flex: 1 },
+    { field: 'Transport_Expenses', headerName: 'Transport Expenses', flex: 1, minWidth: 100  },
+    { field: 'IT_Purchases', headerName: 'IT/Purchases', flex: 1 },
     { field: 'Maintenance', headerName: 'Maintenance', flex: 1, minWidth: 100  },
     { field: 'Miscellaneous', headerName: 'Miscellaneous', flex: 1, minWidth: 100  },
-    { field: 'Ofsted (Admin)', headerName: 'Ofsted (Admin)', flex: 1, minWidth: 100  },
-    { field: 'Petty Cash', headerName: 'Petty Cash', flex: 1, minWidth: 100  },
-    { field: 'REG 44', headerName: 'REG 44', flex: 1, minWidth: 100  },
-    { field: 'Young Person Weekly Money', headerName: 'YPWM', flex: 1, minWidth: 100  },
+    { field: 'Ofsted_Admin', headerName: 'Ofsted (Admin)', flex: 1, minWidth: 100  },
+    { field: 'Petty_Cash', headerName: 'Petty Cash', flex: 1, minWidth: 100  },
+    { field: 'REG_44', headerName: 'REG 44', flex: 1, minWidth: 100  },
+    { field: 'Young_Person_Weekly_Money', headerName: 'YPWM', flex: 1, minWidth: 100  },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -383,7 +479,10 @@ const Expenses = () => {
           role="status"
           aria-hidden="true"
         ></span> )
-        : (role === "ADMIN")? ( <DeleteIcon  color="error" onClick={() =>  handleDelete(params.row)} />) 
+        : (role === "ADMIN")? (  <EditIcon 
+          style={{ cursor: 'pointer', marginRight: '10px' }} 
+          onClick={() => handleEdit(params.row)} 
+        />) 
         :   <LockIcon sx={{color: theme.palette.secondary[300]}}/>
        
         
@@ -449,10 +548,10 @@ const Expenses = () => {
       >
         <DataGrid
           checkboxSelection
-          rows={expensesData}
+          rows={expensesDataWithIndex}
           columns={columns}
           components={{ Toolbar: GridToolbar }}
-          getRowId={(row) => row.expenseID}
+          getRowId={getRowId}
           width="100%"
           disableExtendRowFullWidth={false}
           scrollbarSize={10}
@@ -469,6 +568,7 @@ const Expenses = () => {
         setLabel={setLabel}
         expensesData={expensesData}
         setIsAddLoadingCus={setIsAddLoadingCus}
+        isAddLoadingCus={isAddLoadingCus}
       />
       <DeleteConfirmationDialog
         open={openDeleteDialog}

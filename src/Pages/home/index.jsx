@@ -8,7 +8,7 @@ import {
 import Header from "../../Components/Header";
 import { selectAllStaff, useGetStaffQuery, useAddStaffMutation, useUpdateStaffMutation, useDeleteStaffMutation, selectStaffIds } from "../../features/staffs/staffSlice";
 import { useSelector } from "react-redux";
-import { selectCurrentRole } from "../../features/auth/authSlice";
+import { selectCurrentRole, selectCurrentToken } from "../../features/auth/authSlice";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import SingleStaff from "./SingleStaff";  // Assuming you have this component
@@ -92,7 +92,8 @@ const staffValidationSchema = Yup.object().shape({
 
 
 // StaffForm component
-const StaffForm = ({ initialValues, onSubmit, onCancel, staffData, isStaffLoading,staffsIds }) => {
+const StaffForm = ({ initialValues, onSubmit, onCancel, staffData, isStaffLoading, staffsIds,  isAddLoadingCus, 
+  isDatatLoadingCus, isEditing, isStaffAddLoading }) => {
   const theme = useTheme();
   const initialStaffID = generateStaffID(staffsIds);
   const formik = useFormik({
@@ -112,7 +113,7 @@ const StaffForm = ({ initialValues, onSubmit, onCancel, staffData, isStaffLoadin
   return (
     <form onSubmit={formik.handleSubmit}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: '10px' }}>
-      <TextField
+      {/* <TextField
           fullWidth
           id="staffID"
           name="staffID"
@@ -121,7 +122,7 @@ const StaffForm = ({ initialValues, onSubmit, onCancel, staffData, isStaffLoadin
           InputProps={{
             readOnly: true,
           }}
-        />
+        /> */}
         <TextField
           fullWidth
           id="fullName"
@@ -170,14 +171,15 @@ const StaffForm = ({ initialValues, onSubmit, onCancel, staffData, isStaffLoadin
             Cancel
           </Button>
           <button type="submit" className="btn btn-block btn-color btn-lg font-weight-medium auth-form-btn">
-                        {isStaffLoading ? (
+                        {isStaffLoading || isAddLoadingCus || isDatatLoadingCus || isStaffAddLoading ? (
                           <span
                             className="spinner-border spinner-border-sm"
                             role="status"
                             aria-hidden="true"
                           ></span>
                         ) : (
-                          "Submit"
+                          isEditing?
+                          "Update":"Submit"
                         )}
                       </button>
                       {/* <Button type="submit" variant="contained" sx={{
@@ -196,16 +198,17 @@ const StaffForm = ({ initialValues, onSubmit, onCancel, staffData, isStaffLoadin
 };
 
 // StaffDialog component
-const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData, staffsIds, isDatatLoadingCus,  isAddLoadingCus, isDeleteLoading, role }) => {
+const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData,  onEdit, staffsIds, isDatatLoadingCus,  isAddLoadingCus, isDeleteLoading, role, isStaffAddLoading }) => {
   const isEditing = Boolean(staff);
   const title = isEditing ? 'Edit Staff' : 'Create New Staff';
-  const sortStaffDataByIDDesc = (staffData) => {
-    return staffData.sort((a, b) => {
-      const numA = parseInt(a.staffID.match(/\d+/)[0], 10);
-      const numB = parseInt(b.staffID.match(/\d+/)[0], 10);
-      return numB - numA; // For descending order
-    });
-  };
+  // const sortStaffDataByIDDesc = (staffData) => {
+  //   return staffData.sort((a, b) => {
+  //     const numA = parseInt(a.staffID.match(/\d+/)[0], 10);
+  //     const numB = parseInt(b.staffID.match(/\d+/)[0], 10);
+  //     return numB - numA; // For descending order
+  //   });
+  // };
+  const theme = useTheme();
   
 
   return (
@@ -216,22 +219,25 @@ const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData, 
           initialValues={staff}
           onSubmit={(values) => {
             onSubmit(values);
-            onClose();
+            // onClose();
           }}
           onCancel={onClose}
-          staffData = {sortStaffDataByIDDesc(staffData)}
+          // staffData = {sortStaffDataByIDDesc(staffData)}
           staffsIds={staffsIds}
           isAddLoadingCus={ isAddLoadingCus}
           isDatatLoadingCus={isDatatLoadingCus}
           isDeleteLoading={isDeleteLoading}
+          isStaffAddLoading={isStaffAddLoading}
           role={role}
+          onEdit={onEdit}
+          isEditing={isEditing}
         />
         {isEditing && 
-          <DeleteIcon sx={{
+          <DeleteIcon color="error" sx={{
             mt: '-70px',
-            color: 'grey',
+            cursor: 'pointer'
           }}
-          onClick={handleDelete}
+          onClick={() => handleDelete(staff)}
           />
         }
       </DialogContent>
@@ -286,7 +292,7 @@ const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme, isDeleteLoa
 const Overview = () => {
   const isNonMobile = useMediaQuery("(min-width: 1000px)");
   const theme = useTheme();
-  const { isLoading: isStaffLoading } = useGetStaffQuery();
+  const { isLoading: isStaffLoading, refetch } = useGetStaffQuery();
   const staffData = useSelector(selectAllStaff);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
@@ -297,6 +303,7 @@ const Overview = () => {
   const [updateStaff] = useUpdateStaffMutation();
   const [deleteStaff, {isLoading: isDeleteLoading}] = useDeleteStaffMutation();
   const role = useSelector(selectCurrentRole)
+  const token = useSelector(selectCurrentToken);
 
 
   const [isAddLoadingCus, setIsAddLoadingCus]=useState(false)
@@ -359,17 +366,39 @@ const Overview = () => {
         }
   
         if (Object.keys(updates).length > 0) {
-          const staffID = editingStaff.staffID; // Ensure we're using the correct staffID
-          console.log({ staffID, updates });
-          await updateStaff({ staffID, updates }).unwrap();
+          setIsAddLoadingCus(true);
+          const myHeaders = new Headers();
+          myHeaders.append("Authorization", `Bearer ${token}`);
+          myHeaders.append("Content-Type", "application/json");
+
+          const requestOptions = {
+            method: "PUT",
+            headers: myHeaders,
+            body: JSON.stringify({ updates }),
+            redirect: "follow"
+          };
+
+          const response = await fetch(`https://jta-node-api.onrender.com/staff/${staffID}`, requestOptions);
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          await response.json();
           toast.success('Staff updated successfully');
+          setIsAddLoadingCus(true)
+          setIsDataLoadingCus(true)
+          refetch(); 
+         
         } else {
           toast.info('No changes to update');
         }
       } else {
         await addStaff(values).unwrap();
+        setOpenDialog(false);
         toast.success('Staff added successfully');
         setIsAddLoadingCus(true)
+     
       }
       handleCloseDialog();
       console.log(values);
@@ -397,6 +426,7 @@ const Overview = () => {
       toast.error('An error occurred while deleting staff. Please try again.');
     }
     setOpenDeleteDialog(false);
+    setOpenDialog(false);
   };
 
   return (
@@ -430,17 +460,18 @@ const Overview = () => {
             "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
           }}
         >
-          {staffData.map((staff) => (
-            <SingleStaff
-              key={staff.staffID}
-              {...staff}
-              onEdit={() => handleEdit(staff)}
-              onDelete={() => handleDelete(staff)}
-              isStaffLoading={isStaffLoading}
-              isStaffAddLoading={isStaffAddLoading}
-              role={role}
-            />
-          ))}
+        {[...staffData].reverse().map((staff, index) => (
+          <SingleStaff
+            key={staff.staffID}
+            index={staffData.length - index} // convert zero-based index to one-based index
+            {...staff}
+            onEdit={() => handleEdit(staff)}
+            onDelete={() => handleDelete(staff)}
+            isStaffLoading={isStaffLoading}
+            isStaffAddLoading={isStaffAddLoading}
+            role={role}
+          />
+        ))}
         </Box>
       ) : (
         <>Loading...
@@ -461,7 +492,9 @@ const Overview = () => {
         isAddLoadingCus={isAddLoadingCus}
         isDatatLoadingCus={isDatatLoadingCus}
         isDeleteLoading={isDeleteLoading}
+        isStaffAddLoading={isStaffAddLoading}
         role={role}
+        onEdit={() => handleEdit(editingStaff)}
       />
       <DeleteConfirmationDialog
         open={openDeleteDialog}

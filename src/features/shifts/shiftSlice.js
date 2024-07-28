@@ -4,7 +4,11 @@ import { apiSlice } from '../../app/api/apiSlice';
 
 const shiftsAdapter = createEntityAdapter({
     selectId: (entity) => entity.shiftID,
-    sortComparer: (a, b) => new Date(b.startDate) - new Date(a.startDate),
+    sortComparer: (a, b) => {
+      const startDateComparison = new Date(b.startDate) - new Date(a.startDate);
+      if (startDateComparison !== 0) return startDateComparison;
+      return new Date(b.End_Date) - new Date(a.End_Date);
+    }
 });
 
 const initialState = shiftsAdapter.getInitialState();

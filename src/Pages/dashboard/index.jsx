@@ -119,18 +119,15 @@ useEffect(()=>{
                 <ResponsiveBar
                   data={sortedHoursData}
                   keys={['totalHours']}
-                  indexBy="staffID"
-                  margin={{ top: 10, right: 90, bottom: 10, left: 50 }}
+                  indexBy="fullName"
+                  margin={{ top: 10, right: 250, bottom: 10, left: 20 }}
                   padding={0.1}
                   layout="horizontal"
                   valueScale={{ type: 'linear' }}
                   indexScale={{ type: 'band', round: true }}
                   colors="#4dc4b8"
                   axisTop={null}
-                  axisRight={null}
-                  axisBottom={null}
-                  innerPadding={4}
-                  axisLeft={{
+                  axisRight={{
                     tickSize: 5,
                     tickPadding: 8,
                     tickRotation: 0,
@@ -138,10 +135,13 @@ useEffect(()=>{
                     legendPosition: 'middle',
                     legendOffset: -40
                   }}
+                  axisBottom={null}
+                  innerPadding={4}
+                  axisLeft={null}
                   tooltip={({ data }) => (
                     <div style={{backgroundColor: theme.palette.primary[100], color: theme.palette.primary[900], padding: '8px' }}>
                       <strong>{data.fullName}</strong><br />
-                      Staff ID: {data.staffID}<br />
+                      {/* Staff ID: {data.staffID}<br /> */}
                       Total Hours: {data.totalHours}
                     </div>
                   )}
@@ -222,8 +222,8 @@ useEffect(()=>{
               <ResponsiveBar
                   data={sortedWageData}
                   keys={['totalWage']}
-                  indexBy="staffID"
-                  margin={{ top: 10, right: 90, bottom: 10, left: 50 }}
+                  indexBy="fullName"
+                  margin={{ top: 10, right: 250, bottom: 10, left: 20 }}
                   sx={{height: '900px'}}
                   padding={0.1}
                   layout="horizontal"
@@ -232,10 +232,7 @@ useEffect(()=>{
                   indexScale={{ type: 'band', round: true }}
                   // colors={{ scheme: 'nivo' }}
                   axisTop={null}
-                  axisRight={null}
-                  innerPadding={4}
-                  axisBottom={null}
-                  axisLeft={{
+                  axisRight={{
                     tickSize: 5,
                     tickPadding: 8,
                     tickRotation: 0,
@@ -243,10 +240,13 @@ useEffect(()=>{
                     // legendPosition: 'middle',
                     legendOffset: -40
                   }}
+                  innerPadding={4}
+                  axisBottom={null}
+                  axisLeft={null}
                   tooltip={({ data }) => (
                     <div style={{backgroundColor: theme.palette.primary[100], color: theme.palette.primary[900], padding: '8px' }}>
                       <strong>{data.fullName}</strong><br />
-                      Staff ID: {data.staffID}<br />
+                      {/* Staff ID: {data.staffID}<br /> */}
                       Total Wage: {data.totalWage.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}
                     </div>
                   )}
@@ -299,18 +299,15 @@ useEffect(()=>{
                  <ResponsiveBar
                  data={sortedAbsenceData }
                  keys={['yes']}
-                 indexBy="staffID"
-                 margin={{ top: 10, right: 90, bottom: 10, left: 50 }}
+                 indexBy="fullName"
+                 margin={{ top: 10, right: 250, bottom: 10, left: 20 }}
                  padding={0.1}
                   layout="horizontal"
                   valueScale={{ type: 'linear' }}
                   indexScale={{ type: 'band', round: true }}
                   colors="#4dc4b8"
                   axisTop={null}
-                  axisRight={null}
-                  axisBottom={null}
-                  innerPadding={4}
-                  axisLeft={{
+                  axisRight={{
                     tickSize: 5,
                     tickPadding: 8,
                     tickRotation: 0,
@@ -318,10 +315,13 @@ useEffect(()=>{
                     // legendPosition: 'middle',
                     // legendOffset: -40
                   }}
+                  axisBottom={null}
+                  innerPadding={4}
+                  axisLeft={null}
                   tooltip={({  data }) => (
                     <div style={{backgroundColor: theme.palette.primary[100], color: theme.palette.primary[900], padding: '8px' }}>
                     <strong>{data.fullName}</strong><br />
-                    Staff ID: {data.staffID}<br />
+                    {/* Staff ID: {data.staffID}<br /> */}
                     Absences: {data.yes}
                     {/* Absensce_Status */}
                     </div>
@@ -503,23 +503,23 @@ useEffect(()=>{
                   data={sortedExpenseData}
                   keys={['total']}
                   indexBy="category"
-                  margin={{ top: 50, right: 130, bottom: 50, left: 160 }}
+                  margin={{ top: 10, right: 250, bottom: 10, left: 20 }}
                   padding={0.3}
                   layout="horizontal"
                   valueScale={{ type: 'linear' }}
                   indexScale={{ type: 'band', round: true }}
                   colors="#4dc4b8"
                   axisTop={null}
-                  axisRight={null}
-                  axisBottom={null}
-                  axisLeft={{
+                  axisRight={{
                     tickSize: 3,
-                    tickPadding: 13,
+                    tickPadding: 5,
                     tickRotation: 0,
                     // legend: 'Value',
                     legendPosition: 'middle',
                     legendOffset: -40
                   }}
+                  axisBottom={null}
+                  axisLeft={null}
                   label={d => (d.value > 0 ? `${d.value}` : '')} // Show label only when value is greater than 0
                   theme={{
                     axis: {
@@ -559,7 +559,7 @@ useEffect(()=>{
         </Grid>
         
          {/* ++++++++++++++++++++++++++++ STAFF LIST  +++++++++++++++++++++++++++ */}
-        <Grid item xs={12} md={4} sx={{ mt: {
+        {/* <Grid item xs={12} md={4} sx={{ mt: {
                   xs: 0, // No margin-top on extra-small and small screens
                   md: '-796px', // Apply margin-top on medium and larger screens
                 },
@@ -575,7 +575,7 @@ useEffect(()=>{
             ))}
           </CardContent>
         </Card>
-      </Grid>
+      </Grid> */}
        
       </Grid>
       <br />

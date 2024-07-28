@@ -9,7 +9,7 @@ const extractNumericPart = (staffID) => {
 
 const staffAdapter = createEntityAdapter({
     selectId: (entity) => entity.staffID,
-    sortComparer: (a, b) => extractNumericPart(b.staffID) - extractNumericPart(a.staffID), // Sort by numeric part of staffID in descending order
+    sortComparer: (a, b) => extractNumericPart(a.staffID) - extractNumericPart(b.staffID), // Sort by numeric part of staffID in ascending order
 });
 
 const initialState = staffAdapter.getInitialState();
