@@ -520,6 +520,13 @@ useEffect(()=>{
                   }}
                   axisBottom={null}
                   axisLeft={null}
+                  tooltip={({ data }) => (
+                    <div style={{backgroundColor: theme.palette.primary[100], color: theme.palette.primary[900], padding: '8px' }}>
+                      <strong>{data.category}</strong><br />
+                      {/* Staff ID: {data.staffID}<br /> */}
+                      Total: {data.total.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}
+                    </div>
+                  )}
                   label={d => (d.value > 0 ? `${d.value}` : '')} // Show label only when value is greater than 0
                   theme={{
                     axis: {
