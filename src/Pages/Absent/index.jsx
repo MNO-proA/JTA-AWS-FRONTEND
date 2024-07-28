@@ -2,7 +2,7 @@
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import Header from "../../Components/Header";
 import { useTheme } from "@mui/material";
-import  { useState, useEffect, useCallback} from 'react';
+import  { useState, useEffect, useCallback, useMemo} from 'react';
 import { Box,  } from '@mui/material';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, MenuItem } from '@mui/material';
 import 'react-toastify/dist/ReactToastify.css';
@@ -626,51 +626,123 @@ const AbsentDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData
     // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
  
-    function mapShiftAndStaffData(shiftData, staffData) {
-      const shiftRefined = shiftData.filter((shift)=> shift.Absence === "Yes" )
-        return shiftRefined.map(shift => {
-            const staff = staffData.find(staff => staff.staffID === shift.staffID);
-            if (staff) {
-                return {
-                    shiftID: shift.shiftID,
-                    startDate: shift.startDate,
-                    End_Date: shift?.End_Date,
-                    fullName: staff.fullName,
-                    Absence: shift.Absence,
-                    Absence_Status: shift.Absence_Status,
-                    Absence_Duration: shift?.Absence_Duration,
-                    staffID: staff?.staffID
-                };
-            } else {
-                // Handle case where staffID is not found in staffData
-                return {
-                  shiftID: shift.shiftID,
-                  startDate: shift.startDate,
-                  End_Date: shift?.End_Date,
-                  fullName: " ",
-                  Absence: shift.Absence,
-                  Absence_Status: shift.Absence_Status,
-                  Absence_Duration: shift?.Absence_Duration,
-                  staffID: staff?.staffID
-                };
-            }
+    // function mapShiftAndStaffData(shiftData, staffData) {
+    //   const shiftRefined = shiftData.filter((shift)=> shift.Absence === "Yes" )
+    //     return shiftRefined.map(shift => {
+    //         const staff = staffData.find(staff => staff.staffID === shift.staffID);
+    //         if (staff) {
+    //             return {
+    //                 shiftID: shift.shiftID,
+    //                 startDate: shift.startDate,
+    //                 End_Date: shift?.End_Date,
+    //                 fullName: staff.fullName,
+    //                 Absence: shift.Absence,
+    //                 Absence_Status: shift.Absence_Status,
+    //                 Absence_Duration: shift?.Absence_Duration,
+    //                 staffID: staff?.staffID
+    //             };
+    //         } else {
+    //             // Handle case where staffID is not found in staffData
+    //             return {
+    //               shiftID: shift.shiftID,
+    //               startDate: shift.startDate,
+    //               End_Date: shift?.End_Date,
+    //               fullName: " ",
+    //               Absence: shift.Absence,
+    //               Absence_Status: shift.Absence_Status,
+    //               Absence_Duration: shift?.Absence_Duration,
+    //               staffID: staff?.staffID
+    //             };
+    //         }
+    //     });
+    // }
+    // const AbsenceData = mapShiftAndStaffData(shiftsData, staffsData)
+    // const AbsenceDataWithIndex = AbsenceData.map((absence, index) => ({
+    //   ...absence,
+    //   index: AbsenceData.length - index
+    // }));
+    // const getRowId = (row) => row.index;
+
+
+    const processedAbsenceData = useMemo(() => {
+      const mapShiftAndStaffData = (shiftData, staffData) => {
+        const shiftRefined = shiftData.filter((shift) => shift.Absence === "Yes");
+        return shiftRefined.map((shift, index) => {
+          const staff = staffData.find(staff => staff.staffID === shift.staffID);
+          const startDate = dayjs(shift.startDate);
+          const endDate = dayjs(shift.End_Date);
+          const today = dayjs();
+  
+          let absenceDuration = shift.Absence_Duration;
+          if (typeof absenceDuration !== 'number' || isNaN(absenceDuration)) {
+            absenceDuration = endDate.isValid() ? endDate.diff(startDate, 'day') + 1 : null;
+          }
+  
+          const daysRemaining = endDate.isValid() ? endDate.diff(today, 'day') + 1 : null;
+  
+          return {
+            index: shiftRefined.length - index,
+            shiftID: shift.shiftID,
+            startDate: startDate.isValid() ? startDate.format('YYYY-MM-DD') : 'Invalid Date',
+            End_Date: endDate.isValid() ? endDate.format('YYYY-MM-DD') : 'Invalid Date',
+            fullName: staff ? staff.fullName : "Unknown Staff",
+            Absence: shift.Absence,
+            Absence_Status: shift.Absence_Status,
+            Absence_Duration: absenceDuration,
+            daysRemaining: daysRemaining,
+            staffID: staff?.staffID
+          };
         });
-    }
-    const AbsenceData = mapShiftAndStaffData(shiftsData, staffsData)
-    const AbsenceDataWithIndex = AbsenceData.map((absence, index) => ({
-      ...absence,
-      index: AbsenceData.length - index
-    }));
-    const getRowId = (row) => row.index;
+      };
+  
+      return mapShiftAndStaffData(shiftsData, staffsData);
+    }, [shiftsData, staffsData]);
   
     const columns = [
-      { field: 'index', headerName: 'Index', flex:0.2 },
-      { field: 'startDate', headerName: 'StartDate', flex: 0.3},
-      { field: 'End_Date', headerName: 'StartDate', flex: 0.3},
+      { field: 'index', headerName: 'Index', flex: 0.1 },
+      { field: 'startDate', headerName: 'Start Date', flex: 0.3},
+      { field: 'End_Date', headerName: 'End Dtae', flex: 0.3},
       { field: 'fullName', headerName: 'Staff Name', flex: 0.5},
       { field: 'Absence', headerName: 'Absence', flex: 0.3},
-      { field: 'Absence_Status', headerName: 'Absence Status', flex: 0.3 },
-      { field: 'Absence_Duration', headerName: 'Absence Duration', flex: 0.3 },
+      { field: 'Absence_Status', headerName: 'Absence Status', flex: 0.4 },
+      { 
+        field: 'Absence_Duration', 
+        headerName: 'Absence Duration', 
+        flex: 0.6,
+        renderCell: (params) => {
+          const { Absence_Duration, daysRemaining } = params.row;
+          
+          if (Absence_Duration === null || daysRemaining === null) {
+            return (
+              <div style={{ backgroundColor: theme.palette.warning.light, width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                Invalid Data
+              </div>
+            );
+          }
+          
+          const cellStyle = {
+            backgroundColor: daysRemaining <= 0 ? theme.palette.error.light : theme.palette.success.light,
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0 8px',
+          };
+  
+          const durationText = `${Absence_Duration} day(s)`;
+          const remainingText = daysRemaining <= 0 
+            ? `(${Math.abs(daysRemaining)} day(s) overdue)` 
+            : `(${daysRemaining} day(s) remaining)`;
+  
+          return (
+            <div style={cellStyle}>
+              <span>{durationText}</span>
+              <span style={{ fontStyle: 'italic' }}>{remainingText}</span>
+            </div>
+          );
+        },
+      },
       {
         field: 'actions',
         headerName: 'Actions',
@@ -749,10 +821,10 @@ const AbsentDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData
           >
           <DataGrid
             checkboxSelection
-            rows={AbsenceDataWithIndex}
+            rows={processedAbsenceData}
             columns={columns}
             components={{ Toolbar: GridToolbar }}
-            getRowId={getRowId}
+            getRowId={(row) => row.index}
           />
         </Box>
         <AbsentDialog
