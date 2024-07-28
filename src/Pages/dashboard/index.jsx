@@ -72,10 +72,11 @@ useEffect(()=>{
 
   return (
     <Box m="20px">
-      <Grid container spacing={3}>
         {/* <CaptureDashboardButton /> */}
+        <div id="dashboard-content">    
+          <Grid container spacing={3}>
           <Grid item xs={12}>
-            <Card sx={{   bgcolor: theme.palette.background.default }}>
+            <Card sx={{   bgcolor: theme.palette.background.default }} className="date-range-picker">
               <CardContent>
                 {/* <Typography mb={2} variant="h6">Date Range Picker</Typography> */}
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -564,34 +565,8 @@ useEffect(()=>{
             </CardContent>
           </Card>
         </Grid>
-        
-         {/* ++++++++++++++++++++++++++++ STAFF LIST  +++++++++++++++++++++++++++ */}
-        {/* <Grid item xs={12} md={4} sx={{ mt: {
-                  xs: 0, // No margin-top on extra-small and small screens
-                  md: '-796px', // Apply margin-top on medium and larger screens
-                },
-                bgcolor: theme.palette.background.default}}>
-        <Card>
-          <CardContent>
-            <Typography variant="h4">STAFF LISTS</Typography>
-            <hr />
-            {staffList.map(staff => (
-              <Typography key={staff.staffID}>
-                {staff.staffID} - {staff.fullName}
-              </Typography>
-            ))}
-          </CardContent>
-        </Card>
-      </Grid> */}
-       
       </Grid>
-      <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-      
+    </div>
     </Box>
     
   );

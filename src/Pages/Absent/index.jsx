@@ -735,7 +735,7 @@ const AbsentDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData
     const columns = [
       { field: 'index', headerName: 'Index', flex: 0.1 },
       { field: 'startDate', headerName: 'Start Date', flex: 0.3},
-      { field: 'End_Date', headerName: 'End Dtae', flex: 0.3},
+      { field: 'End_Date', headerName: 'End Date', flex: 0.3},
       { field: 'fullName', headerName: 'Staff Name', flex: 0.5},
       { field: 'Absence', headerName: 'Absence', flex: 0.3},
       { field: 'Absence_Status', headerName: 'Absence Status', flex: 0.4 },
