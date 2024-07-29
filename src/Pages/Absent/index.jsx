@@ -221,8 +221,8 @@ const AbsentReadOnly = () => {
       const shiftValidationSchema = Yup.object().shape({
         staffID: Yup.string().required('Staff ID is required'),
         startDate: Yup.date().required('Start date is required'),
-        End_Date: Yup.date().required('End date is required'),
-        Absence_Duration: Yup.number().required('Duration is required'),
+        // End_Date: Yup.date().required('End date is required'),
+        // Absence_Duration: Yup.number().required('Duration is required'),
       });
 
       const generateShiftID = (shiftData) => {
@@ -715,8 +715,8 @@ const AbsentDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData
           return {
             index: shiftRefined.length - index,
             shiftID: shift.shiftID,
-            startDate: startDate.isValid() ? startDate.format('YYYY-MM-DD') : 'Invalid Date',
-            End_Date: endDate.isValid() ? endDate.format('YYYY-MM-DD') : 'Invalid Date',
+            startDate: startDate.isValid() ? startDate.format('YYYY-MM-DD') : 'Input Start Date',
+            End_Date: endDate.isValid() ? endDate.format('YYYY-MM-DD') : 'Input End Date',
             fullName: staff ? staff.fullName : "Unknown Staff",
             Absence: shift.Absence,
             Absence_Status: shift.Absence_Status,

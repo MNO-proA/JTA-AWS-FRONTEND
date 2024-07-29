@@ -797,14 +797,14 @@ const revisedShiftsDataWithIndex = revisedShiftsData.map((shift, index) => ({
 const getRowId = (row) => row.index;
   const columns = [
     { field: 'index', headerName: 'Index', flex:0.2 },
-    { field: 'startDate', headerName: 'Start Date', flex: 0.5 },
-    { field: 'End_Date', headerName: 'End Date', flex: 0.5 },
-    { field: 'Shift', headerName: 'Shift', flex: 0.5 },
-    { field: 'House', headerName: 'House', flex: 0.7 },
+    { field: 'startDate', headerName: 'Start Date', flex: 0.4 },
+    { field: 'End_Date', headerName: 'End Date', flex: 0.4 },
+    { field: 'Shift', headerName: 'Shift', flex: 0.2 },
+    { field: 'House', headerName: 'House', flex: 0.5 },
     { field: 'fullName', headerName: 'Full Name', flex: 0.7 },
     { field: 'Overtime', headerName: 'Overtime', flex: 0.3 },
     { field: 'Total_Hours', headerName: 'Total Hours', flex: 0.3 },
-    { field: 'Total_Wage', headerName: 'Total Wage', flex: 0.3 },
+    { field: 'Total_Wage', headerName: 'Total Wage(£)', flex: 0.4 },
     {
       field: 'actions',
       headerName: 'Actions',
