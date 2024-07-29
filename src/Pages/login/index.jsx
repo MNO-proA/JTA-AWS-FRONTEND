@@ -99,7 +99,7 @@ const Login = () => {
               <div className="row w-100">
                 <div className="col-lg-4 mx-auto">
                   <div className="auth-form-light text-center p-5">
-                    <div className="brand-logo">
+                    <div className="brand-logo" style={{marginBottom: '-10px'}}>
                       <img src={logo} alt="Logo" className="mx-auto d-block" />
                     </div>
                     {/* eslint-disable-next-line react/no-unescaped-entities */}

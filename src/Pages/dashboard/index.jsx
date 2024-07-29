@@ -251,7 +251,7 @@ useEffect(()=>{
                       Total Wage: {data.totalWage.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}
                     </div>
                   )}
-                  label={d => (d.value > 0 ? `${d.value}` : '')} // Show label only when value is greater than 0
+                  label={d => (d.value > 0 ? `${d.value.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}` : '')} // Show label only when value is greater than 0
                   theme={{
                     axis: {
                       ticks: {
@@ -528,7 +528,7 @@ useEffect(()=>{
                       Total: {data.total.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}
                     </div>
                   )}
-                  label={d => (d.value > 0 ? `${d.value}` : '')} // Show label only when value is greater than 0
+                  label={d => (d.value > 0 ? `${d.value.toLocaleString('en-GB', { style: 'currency', currency: 'GBP' })}` : '')} // Show label only when value is greater than 0
                   theme={{
                     axis: {
                       ticks: {

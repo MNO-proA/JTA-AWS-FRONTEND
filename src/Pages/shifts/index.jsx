@@ -799,6 +799,7 @@ const getRowId = (row) => row.index;
     { field: 'index', headerName: 'Index', flex:0.2 },
     { field: 'startDate', headerName: 'Start Date', flex: 0.5 },
     { field: 'End_Date', headerName: 'End Date', flex: 0.5 },
+    { field: 'Shift', headerName: 'Shift', flex: 0.5 },
     { field: 'House', headerName: 'House', flex: 0.7 },
     { field: 'fullName', headerName: 'Full Name', flex: 0.7 },
     { field: 'Overtime', headerName: 'Overtime', flex: 0.3 },
