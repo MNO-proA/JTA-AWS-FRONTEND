@@ -378,7 +378,7 @@ const Overview = () => {
             redirect: "follow"
           };
 
-          const response = await fetch(`${import.meta.env.VITE_API_URL}/${staffID}`, requestOptions);
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/staff/${staffID}`, requestOptions);
           
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
