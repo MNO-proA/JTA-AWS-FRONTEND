@@ -677,7 +677,7 @@ const Shifts = () => {
           redirect: "follow"
         };
 
-        const response = await fetch(`https://jta-node-api.onrender.com/shifts/${shiftID}/${startDate}`, requestOptions);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/shifts/${shiftID}/${startDate}`, requestOptions);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -727,7 +727,7 @@ const Shifts = () => {
           redirect: "follow"
         };
         
-        fetch(`https://jta-node-api.onrender.com/shifts/${shiftID}/${startDate}`, requestOptions)
+        fetch(`${import.meta.env.VITE_API_URL}/shifts/${shiftID}/${startDate}`, requestOptions)
           .then((response) => {
              if (!response.ok) {
               // Handle HTTP errors

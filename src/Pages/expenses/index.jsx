@@ -362,7 +362,7 @@ const Expenses = () => {
           redirect: "follow"
         };
 
-        const response = await fetch(`https://jta-node-api.onrender.com/expense/${expenseID}/${date}`, requestOptions);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/expense/${expenseID}/${date}`, requestOptions);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -423,7 +423,7 @@ const Expenses = () => {
       redirect: "follow"
     };
     
-    fetch(`https://jta-node-api.onrender.com/expense/${expenseID}/${date}`, requestOptions)
+    fetch(`${import.meta.env.VITE_API_URL}/expense/${expenseID}/${date}`, requestOptions)
       .then((response) => {
          if (!response.ok) {
           // Handle HTTP errors

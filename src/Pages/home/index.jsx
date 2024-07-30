@@ -378,7 +378,7 @@ const Overview = () => {
             redirect: "follow"
           };
 
-          const response = await fetch(`https://jta-node-api.onrender.com/staff/${staffID}`, requestOptions);
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/${staffID}`, requestOptions);
           
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
