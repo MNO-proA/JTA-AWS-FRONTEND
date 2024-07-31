@@ -4,7 +4,7 @@ import { logOut } from "../../features/auth/authSlice";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_API_URL,
-  credentials: "include",
+  credentials: "omit",
   prepareHeaders: (headers, { getState }) => {
     const token = getState().auth.token;
     if (token) {
