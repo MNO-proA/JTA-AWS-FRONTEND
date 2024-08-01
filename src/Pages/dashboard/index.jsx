@@ -12,6 +12,8 @@ import { selectAllStaff, selectStaffsTotal, useGetStaffQuery } from "../../featu
 import { useSelector } from 'react-redux';
 import useDashboardData from './hook/Dataprocessing';
 // import CaptureDashboardButton from './CaptureDashboardButton';
+import GeneratePDFButton from './CaptureDashboardButton';
+import DownloadCSVButton from './DownloadCSVButton';
 
 
 
@@ -72,7 +74,14 @@ useEffect(()=>{
 
   return (
     <Box m="20px">
-        {/* <CaptureDashboardButton /> */}
+      <div className='d-flex gap-4 mb-3'>
+      <GeneratePDFButton />
+      <DownloadCSVButton
+       staffData={staffsData}
+       shiftData={shiftsData}
+       expenseData={expensesData} />
+      </div>
+      
         <div id="dashboard-content">    
           <Grid container spacing={3}>
           <Grid item xs={12}>
@@ -113,7 +122,7 @@ useEffect(()=>{
           </Grid>
                {/* ++++++++++++++++++++++++++++ TOTAL HOURS BAR  +++++++++++++++++++++++++++ */}
                <Grid item xs={12} md={8}>
-          <Card  sx={{ bgcolor: theme.palette.background.default}}>
+          <Card  sx={{ bgcolor: theme.palette.background.default}} className="chart-container">
             <CardContent>
               <Typography variant="h6">Total Hours per Staff</Typography>
               <Box height={500} sx={{mt: '20px'}}>
@@ -216,7 +225,7 @@ useEffect(()=>{
   
          {/* ++++++++++++++++++++++++++++ TOTAL WAGE BAR +++++++++++++++++++++++++++ */}
          <Grid item xs={12} md={12}>
-          <Card   sx={{   bgcolor: theme.palette.background.default  }}>
+          <Card   sx={{   bgcolor: theme.palette.background.default  }} className="chart-container">
             <CardContent>
               <Typography variant="h6">Total Wages per Employee</Typography>
               <Box height={500} sx={{mt: '20px'}}>
@@ -293,7 +302,7 @@ useEffect(()=>{
         </Grid>
          {/* ++++++++++++++++++++++++++++ ABSENCE BAR +++++++++++++++++++++++++++ */}
          <Grid item xs={12} md={8}>
-          <Card  sx={{ bgcolor: theme.palette.background.default}}>
+          <Card  sx={{ bgcolor: theme.palette.background.default}} className="chart-container">
             <CardContent>
               <Typography variant="h6">Total Absence</Typography>
               <Box height={500} sx={{mt: '20px'}}>
@@ -369,7 +378,7 @@ useEffect(()=>{
         </Grid>
          {/* ++++++++++++++++++++++++++++ ABSENCE STATUS BAR +++++++++++++++++++++++++++ */}
         <Grid item xs={12} md={8}>
-          <Card  sx={{ bgcolor: theme.palette.background.default}}>
+          <Card  sx={{ bgcolor: theme.palette.background.default}} className="chart-container">
             <CardContent>
               <Typography variant="h6">Distribution of Absence Status</Typography>
               <Box height={500} sx={{mt: '20px'}}>
@@ -453,7 +462,7 @@ useEffect(()=>{
                       xs: 0, // No margin-top on extra-small and small screens
                       md: '-750px', // Apply margin-top on medium and larger screens
                     },
-                  }}>
+                  }} className="chart-container">
             <CardContent>
               <Typography variant="h6">Shifts</Typography>
               <Box height={300}>
@@ -496,7 +505,7 @@ useEffect(()=>{
         </Grid>
          {/* ++++++++++++++++++++++++++++ TOTAL EXPENSE BAR +++++++++++++++++++++++++++ */}
         <Grid item xs={12} md={8}>
-          <Card  sx={{ bgcolor: theme.palette.background.default}}>
+          <Card  sx={{ bgcolor: theme.palette.background.default}} className="chart-container">
             <CardContent>
               <Typography variant="h6" sx={{marginLeft: "120px"}}>Total Expenses</Typography>
               <Box height={500} sx={{mt: '20px'}}>

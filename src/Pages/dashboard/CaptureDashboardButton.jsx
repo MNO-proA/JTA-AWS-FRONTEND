@@ -1,25 +1,28 @@
-import React from 'react';
+import { useTheme } from '@mui/material';
 import { Button } from '@mui/material';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
-const CaptureDashboardButton = () => {
-  const captureDashboard = () => {
-    const input = document.getElementById('dashboard-content');
-    if (!input) {
-      console.error('Dashboard content not found');
-      return;
-    }
+const GeneratePDFButton = () => {
+  const theme = useTheme()
+  const generatePDF = async () => {
+    const charts = document.querySelectorAll('.chart-container');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    let pageNumber = 1;
 
-    // Hide the date range picker
-    const dateRangePicker = document.querySelector('.date-range-picker');
-    if (dateRangePicker) {
-      dateRangePicker.style.display = 'none';
-    }
+    for (const chart of charts) {
+      // Temporarily remove background and border
+      const originalStyle = chart.style.cssText;
+      chart.style.background = 'none';
+      chart.style.border = 'none';
 
-    html2canvas(input).then((canvas) => {
+      const canvas = await html2canvas(chart, { scale: 2 });
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
+
+      if (pageNumber > 1) {
+        pdf.addPage();
+      }
+
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       const imgWidth = canvas.width;
@@ -29,25 +32,21 @@ const CaptureDashboardButton = () => {
       const imgY = 30;
 
       pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-      pdf.save('dashboard.pdf');
 
-      // Show the date range picker again
-      if (dateRangePicker) {
-        dateRangePicker.style.display = '';
-      }
-    });
+      // Restore original style
+      chart.style.cssText = originalStyle;
+
+      pageNumber++;
+    }
+
+    pdf.save('dashboard_charts.pdf');
   };
 
   return (
-    <Button
-      variant="contained"
-      color="primary"
-      onClick={captureDashboard}
-      sx={{ marginBottom: '9' }}
-    >
-      Capture Dashboard as PDF
+    <Button variant="contained" style={{color: theme.palette.secondary[100]}} onClick={generatePDF}>
+      <strong>Generate Chart PDF</strong>
     </Button>
   );
 };
 
-export default CaptureDashboardButton;
+export default GeneratePDFButton;
