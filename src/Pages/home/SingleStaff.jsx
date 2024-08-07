@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from "react";
 import {
@@ -155,22 +156,6 @@ const SingleStaff = ({
            >
              <EditIcon />
            </Button>
-            {/* <Button
-              variant="contained"
-              color="error"
-              size="small"
-              onClick={onDelete}
-            >
-           {isStaffAddLoading || isAddLoadingCus || isDatatLoadingCus || isDeleteLoading  ? (
-                          <span
-                            className="spinner-border spinner-border-sm"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                        ) : (
-                          "Delete"
-                        )}
-            </Button> */}
             </> :
              <LockIcon sx={{color: theme.palette.secondary[300]}}/>
             }

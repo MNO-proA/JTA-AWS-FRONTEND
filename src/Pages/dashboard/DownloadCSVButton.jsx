@@ -2,9 +2,12 @@
 import { Button } from '@mui/material';
 import { useTheme } from '@mui/material';
 import { saveAs } from 'file-saver';
+import { useState } from 'react';
 
 const DownloadCSVButton = ({ staffData, shiftData, expenseData }) => {
     const theme = useTheme()
+    const [isLoading, setIsLoading] = useState(false)
+    
     const convertToCSV = (data, fields) => {
         const csvRows = [];
     
@@ -27,6 +30,7 @@ const DownloadCSVButton = ({ staffData, shiftData, expenseData }) => {
 
     const handleDownload = () => {
         // Join staff and shift data on staffID
+        setIsLoading(true)
         const joinedData = shiftData.map(shift => {
             const staff = staffData.find(staff => staff.staffID === shift.staffID);
             return {
@@ -70,10 +74,19 @@ const DownloadCSVButton = ({ staffData, shiftData, expenseData }) => {
         const expenseBlob = new Blob([expenseCSV], { type: 'text/csv;charset=utf-8;' });
         saveAs(shiftBlob, 'shift_data.csv');
         saveAs(expenseBlob, 'expense_data.csv');
+        setIsLoading(false)
     };
     return (
         <Button variant="contained" style={{color: theme.palette.secondary[100]}} onClick={handleDownload}>
-           <strong>Download CSV</strong> 
+            <strong> {isLoading ? (
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                        ) : (
+                          "Download CSV"
+                        )}</strong> 
         </Button>
     );
 

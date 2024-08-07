@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import {
   Box,
@@ -11,7 +12,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentRole, selectCurrentToken } from "../../features/auth/authSlice";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import SingleStaff from "./SingleStaff";  // Assuming you have this component
+import SingleStaff from "./SingleStaff";  
 /* eslint-disable react/prop-types */
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -182,15 +183,6 @@ const StaffForm = ({ initialValues, onSubmit, onCancel, staffData, isStaffLoadin
                           "Update":"Submit"
                         )}
                       </button>
-                      {/* <Button type="submit" variant="contained" sx={{
-            color: 'grey',
-            '&:hover': {
-              backgroundColor: theme.palette.secondary[200],
-              color: theme.palette.primary[900],
-            },
-          }}>
-            Submit
-          </Button> */}
         </Box>
       </Box>
     </form>
@@ -201,13 +193,6 @@ const StaffForm = ({ initialValues, onSubmit, onCancel, staffData, isStaffLoadin
 const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData,  onEdit, staffsIds, isDatatLoadingCus,  isAddLoadingCus, isDeleteLoading, role, isStaffAddLoading }) => {
   const isEditing = Boolean(staff);
   const title = isEditing ? 'Edit Staff' : 'Create New Staff';
-  // const sortStaffDataByIDDesc = (staffData) => {
-  //   return staffData.sort((a, b) => {
-  //     const numA = parseInt(a.staffID.match(/\d+/)[0], 10);
-  //     const numB = parseInt(b.staffID.match(/\d+/)[0], 10);
-  //     return numB - numA; // For descending order
-  //   });
-  // };
   const theme = useTheme();
   
 
@@ -277,7 +262,7 @@ const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme, isDeleteLoa
                             aria-hidden="true"
                           ></span>
                         ) : (
-                          "Submit"
+                          "Delete"
                         )}
         </Button>
       </DialogActions>
@@ -287,8 +272,6 @@ const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme, isDeleteLoa
 
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
 const Overview = () => {
   const isNonMobile = useMediaQuery("(min-width: 1000px)");
   const theme = useTheme();
@@ -304,14 +287,12 @@ const Overview = () => {
   const [deleteStaff, {isLoading: isDeleteLoading}] = useDeleteStaffMutation();
   const role = useSelector(selectCurrentRole)
   const token = useSelector(selectCurrentToken);
-
-
   const [isAddLoadingCus, setIsAddLoadingCus]=useState(false)
   const [isDatatLoadingCus, setIsDataLoadingCus]=useState(false)
 
-  useEffect(()=>{
-    console.log(staffData)
-  },[staffData])
+  // useEffect(()=>{
+  //   console.log(staffData)
+  // },[staffData])
   
     useEffect(() => {
       const timer = setTimeout(() => {
@@ -333,8 +314,6 @@ const Overview = () => {
       };
     }, [staffData]);
   
-
-
 
   const handleOpenDialog = () => {
     setEditingStaff(null);
@@ -401,7 +380,7 @@ const Overview = () => {
      
       }
       handleCloseDialog();
-      console.log(values);
+      // console.log(values);
     } catch (error) {
       toast.error('An error occurred. Please try again.');
     }

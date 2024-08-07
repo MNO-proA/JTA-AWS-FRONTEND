@@ -17,18 +17,10 @@ const Login = () => {
     const [pwd, setPwd] = useState("");
     const [errMsg, setErrMsg] = useState("");
     const navigate = useNavigate();
-    // const [login, { isLoading }] = useLoginMutation();
-    // const [isLoading, setIsLoading] = useState(false)
     const [login, { isLoading }] = useLoginMutation();
-
-   
-  
-    const dispatch = useDispatch();
-  
+    const dispatch = useDispatch(); 
     const [successMsg, setSuccessMsg] = useState("");
-  
-    // const dispatch = useDispatch();
-  
+
     useEffect(() => {
       userRef.current.focus();
     }, []);
@@ -59,7 +51,7 @@ const Login = () => {
         };
         const userData = await login(requestData).unwrap();
         dispatch(setCredentials({ ...userData }));
-        console.log(userData);
+        // console.log(userData);
         setSuccessMsg("Successful, redirecting...");
         setUser("");
         setPwd("");

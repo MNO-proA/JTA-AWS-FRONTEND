@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 import  { useEffect, useState } from 'react';
 import { Box, Grid, Card, CardContent, Typography, Button, Stack } from '@mui/material';
 import { ResponsiveBar } from '@nivo/bar';
@@ -11,7 +13,6 @@ import { useGetExpensesQuery, selectAllExpenses } from '../../features/expenses/
 import { selectAllStaff, selectStaffsTotal, useGetStaffQuery } from "../../features/staffs/staffSlice";
 import { useSelector } from 'react-redux';
 import useDashboardData from './hook/Dataprocessing';
-// import CaptureDashboardButton from './CaptureDashboardButton';
 import GeneratePDFButton from './CaptureDashboardButton';
 import DownloadCSVButton from './DownloadCSVButton';
 
@@ -27,15 +28,15 @@ const AllDashboard = () => {
   const expensesData = useSelector(selectAllExpenses)
   const staffsTotal = useSelector(selectStaffsTotal)
 
-  useEffect(()=>{
-    console.log(staffsData)
-  }, [staffsData])
-  useEffect(()=>{
-    console.log(shiftsData)
-  }, [shiftsData])
-  useEffect(()=>{
-    console.log(expensesData)
-  }, [expensesData])
+  // useEffect(()=>{
+  //   console.log(staffsData)
+  // }, [staffsData])
+  // useEffect(()=>{
+  //   console.log(shiftsData)
+  // }, [shiftsData])
+  // useEffect(()=>{
+  //   console.log(expensesData)
+  // }, [expensesData])
 
 
 
@@ -66,9 +67,9 @@ const AllDashboard = () => {
   // Sort expenseData in ascending order by 'total'
   const sortedExpenseData = expenseData.sort((a, b) => a.total - b.total);
   const sortedAbsenceStatusData = absenceStatusFrequency.sort((a, b) => a.frequency - b.frequency);
-useEffect(()=>{
-  console.log(sortedAbsenceStatusData)
-}, [sortedAbsenceStatusData])
+// useEffect(()=>{
+//   console.log(sortedAbsenceStatusData)
+// }, [sortedAbsenceStatusData])
 
   const theme = useTheme()
 
@@ -386,7 +387,7 @@ useEffect(()=>{
                  data={sortedAbsenceStatusData}
                  keys={['frequency']}
                  indexBy="status"
-                 margin={{ top: 10, right: 90, bottom: 10, left: 50 }}
+                 margin={{ top: 10, right: 90, bottom: 10, left: 70 }}
                  padding={0.1}
                   layout="horizontal"
                   valueScale={{ type: 'linear' }}

@@ -1,9 +1,9 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import Header from "../../Components/Header";
 import { useTheme, Checkbox, FormControlLabel, Button } from "@mui/material";
-// import { Checkbox, FormControlLabel, Button } from '@mui/material'
-import  { useState, useEffect, useCallback, useMemo} from 'react';
+import  { useState, useEffect, useMemo} from 'react';
 import { Box,  } from '@mui/material';
 import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, MenuItem } from '@mui/material';
 import 'react-toastify/dist/ReactToastify.css';
@@ -16,11 +16,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import EditIcon from '@mui/icons-material/Edit';
 import { selectCurrentToken, selectCurrentRole } from "../../features/auth/authSlice"
 import * as Yup from 'yup';
-import { differenceInDays } from 'date-fns';
-import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useFormik } from 'formik';
-// import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 
@@ -41,11 +37,6 @@ const AbsentReadOnly = () => {
     const role = useSelector(selectCurrentRole)
     const [{isLoading: isDeleteLoading}] = useDeleteShiftMutation();
     const [addShift, {isLoading: isShiftAdding}] = useAddShiftMutation();
-    // const [updateShift] = useUpdateShiftMutation();
-    // const [ {isLoading: isDeleteLoading}] = useDeleteShiftMutation();
-    // const [absenceDuration, setAbsenceDuration] = useState('');
-    
-    
     const staffsData = useSelector(selectAllStaff);
     const shiftsData = useSelector(selectAllShifts)
     const [isAddLoadingCus, setIsAddLoadingCus]=useState(false)
@@ -71,32 +62,12 @@ const AbsentReadOnly = () => {
     };
   }, [shiftsData]);
 
-
-  //  useEffect((startDate, End_Date) => {
-  //   if (startDate && End_Date) {
-  //     const duration = dayjs(End_Date).diff(dayjs(startDate), 'day') + 1; // +1 to include both start and end days
-  //     setAbsenceDuration(duration);
-  //   }
-  // }, []);
-
-  // const handleDateDuration = (startDate, End_Date)=>{
-  //   if (startDate && End_Date) {
-  //     const duration = dayjs(End_Date).diff(dayjs(startDate), 'day') + 1; // +1 to include both start and end days
-  //     console.log('daterange')
-  //     return duration
-  //     // setAbsenceDuration(duration);
-      
-  //   }
-  //   console.log('not working')
-  // }
-
-  // const absenceDuration = handleDateDuration()
  
-  useEffect(()=>{
-    console.log(shiftsIds)
-    // console.log(absenceDuration)
-    // console.log(endDate)
-  },[shiftsIds])
+  // useEffect(()=>{
+  //   console.log(shiftsIds)
+  //   // console.log(absenceDuration)
+  //   // console.log(endDate)
+  // },[shiftsIds])
 
 
   
@@ -124,16 +95,16 @@ const AbsentReadOnly = () => {
       setEditingShift(null);
     };
     const handleEdit = (shift) => {
-      console.log(shift)
+      // console.log(shift)
       setEditingShift(shift);
       setOpenDialog(true);
     };
 
     const handleConfirmDelete = async () => {
       try { 
-        console.log(selectedShift)
+        // console.log(selectedShift)
         const {shiftID, startDate} = selectedShift
-        console.log({shiftID, startDate})
+        // console.log({shiftID, startDate})
         const myHeaders = new Headers();
         myHeaders.append("Authorization", `Bearer ${token}`);
         
@@ -171,53 +142,7 @@ const AbsentReadOnly = () => {
     }
   }
   
-  
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    // const useDateRangePicker = () => {
-    //   const [startDate, setStartDate] = useState(null);
-    //   const [endDate, setEndDate] = useState(null);
-    
-    //   const handleDateRangeChange = useCallback((start, end) => {
-    //     setStartDate(start);
-    //     setEndDate(end);
-    //   }, []);
-    
-    //   const handleShortcutRange = useCallback((range) => {
-    //       const today = dayjs();
-    //       switch (range) {
-    //         case 'This Week':
-    //           handleDateRangeChange(today.startOf('week'), today.endOf('week'));
-    //           break;
-    //         case 'Last Week': {
-    //           const lastWeek = today.subtract(1, 'week');
-    //           handleDateRangeChange(lastWeek.startOf('week'), lastWeek.endOf('week'));
-    //           break;
-    //         }
-    //         case 'This Month':
-    //           handleDateRangeChange(today.startOf('month'), today.endOf('month'));
-    //           break;
-    //         case 'Last Month': {
-    //           const lastMonth = today.subtract(1, 'month');
-    //           handleDateRangeChange(lastMonth.startOf('month'), lastMonth.endOf('month'));
-    //           break;
-    //         }
-    //         case 'Reset':
-    //           handleDateRangeChange(null, null);
-    //           break;
-    //         default:
-    //           break;
-    //       }
-    //     }, [handleDateRangeChange]);
-        
-    
-    //   return {
-    //     startDate,
-    //     endDate,
-    //     handleDateRangeChange,
-    //     handleShortcutRange
-    //   };
-    // };
-// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
       const shiftValidationSchema = Yup.object().shape({
         staffID: Yup.string().required('Staff ID is required'),
         startDate: Yup.date().required('Start date is required'),
@@ -254,15 +179,7 @@ const AbsentReadOnly = () => {
     }) => {
       const theme = useTheme();
       const initialShiftID = generateShiftID(shiftsIds);
-     
-      // const updateAbsenceDuration = (startDate, End_Date) => {
-      //   if (startDate && End_Date) {
-      //     const duration = dayjs(End_Date).diff(dayjs(startDate), 'day') + 1; // +1 to include both start and end days
-      //     return duration
-      //   }
-      // };
-      // const startDate = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()).padStart(2, '0')}`;
-      // const endDate = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(new Date().getDate()+1).padStart(2, '0')}`;
+
       
 
       const formik = useFormik({
@@ -330,33 +247,6 @@ const AbsentReadOnly = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, [formik.values.startDate, formik.values.End_Date, formik.values.Absence_Duration]);
-      
-    
-      
-      
-
-   
-
-      // const duration = calculateAbsenceDuration(formik.values.startDate, formik.values.End_Date);
-      // setAbsenceDuration(duration);
-      // useEffect(() => {
-      //   const duration = calculateAbsenceDuration(formik.values.startDate, formik.values.End_Date);
-      //   setAbsenceDuration(duration);
-      //   formik.setFieldValue('Absence_Duration', duration, false); // Pass false to avoid validation
-      // // eslint-disable-next-line react-hooks/exhaustive-deps
-      // }, [calculateAbsenceDuration, formik.values.startDate, formik.values.End_Date]);
-    
-      // const handleDateDuration = (startDate, End_Date)=>{
-      //   if (startDate && End_Date) {
-      //     const duration = dayjs(End_Date).diff(dayjs(startDate), 'day') + 1; 
-      //     formik.setFieldValue('Absence_Duration', duration, false)
-      //     console.log('daterange')
-      //   }
-      //   else{
-      //     console.log('not working')
-      //   }
-      // }
-      // Add this function to calculate the duration
       return (
         <form onSubmit={formik.handleSubmit}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: '10px' }}>
@@ -433,16 +323,6 @@ const AbsentReadOnly = () => {
           error={formik.touched.Absence_Duration && Boolean(formik.errors.Absence_Duration)}
           helperText={formik.touched.Absence_Duration && formik.errors.Absence_Duration}
         />
-          {/* <Button onClick={() => handleDateDuration(formik.values.startDate, formik.values.End_Date)}  sx={{
-                  color: theme.palette.primary[400],
-                  backgroundColor: theme.palette.primary[600],
-                  '&:hover': {
-                    backgroundColor: theme.palette.secondary[200],
-                    color: theme.palette.primary[900],
-                  },
-                }}><strong>cal</strong></Button> */}
-
-
             <TextField
             fullWidth
             id="Absence_Status"
@@ -553,7 +433,7 @@ const AbsentReadOnly = () => {
 
           await addShift(values).unwrap();
           toast.success('Shift added successfully');
-          console.log(values)
+          // console.log(values)
           handleCloseDialog();
       } 
     }
@@ -644,7 +524,7 @@ const AbsentDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData
                                 aria-hidden="true"
                               ></span>
                             ) : (
-                              "Submit"
+                              "Delete"
                             )}
             </Button>
           </DialogActions>
@@ -652,45 +532,6 @@ const AbsentDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData
       );
     };
     // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
- 
-    // function mapShiftAndStaffData(shiftData, staffData) {
-    //   const shiftRefined = shiftData.filter((shift)=> shift.Absence === "Yes" )
-    //     return shiftRefined.map(shift => {
-    //         const staff = staffData.find(staff => staff.staffID === shift.staffID);
-    //         if (staff) {
-    //             return {
-    //                 shiftID: shift.shiftID,
-    //                 startDate: shift.startDate,
-    //                 End_Date: shift?.End_Date,
-    //                 fullName: staff.fullName,
-    //                 Absence: shift.Absence,
-    //                 Absence_Status: shift.Absence_Status,
-    //                 Absence_Duration: shift?.Absence_Duration,
-    //                 staffID: staff?.staffID
-    //             };
-    //         } else {
-    //             // Handle case where staffID is not found in staffData
-    //             return {
-    //               shiftID: shift.shiftID,
-    //               startDate: shift.startDate,
-    //               End_Date: shift?.End_Date,
-    //               fullName: " ",
-    //               Absence: shift.Absence,
-    //               Absence_Status: shift.Absence_Status,
-    //               Absence_Duration: shift?.Absence_Duration,
-    //               staffID: staff?.staffID
-    //             };
-    //         }
-    //     });
-    // }
-    // const AbsenceData = mapShiftAndStaffData(shiftsData, staffsData)
-    // const AbsenceDataWithIndex = AbsenceData.map((absence, index) => ({
-    //   ...absence,
-    //   index: AbsenceData.length - index
-    // }));
-    // const getRowId = (row) => row.index;
-
 
     const processedAbsenceData = useMemo(() => {
       const mapShiftAndStaffData = (shiftData, staffData) => {
@@ -723,7 +564,7 @@ const AbsentDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData
             Absence_Duration: absenceDuration,
             daysRemaining: daysRemaining,
             staffID: staff?.staffID,
-            ReturnedToWork: shift.ReturnedToWork // include this for reference
+            ReturnedToWork: shift.ReturnedToWork 
           };
         });
       };
@@ -798,7 +639,7 @@ const AbsentDialog = ({ open, onClose, shift, onSubmit, handleDelete, staffsData
   
     return (
       <Box m="20px" >
-        <Header title="Absence"  color= '#10453e' />
+        <Header title="ABSENCE"  color= '#10453e' />
         {role === "ADMIN" ? 
       <Button
         sx={{

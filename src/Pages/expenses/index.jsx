@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, MenuItem, IconButton } from '@mui/material';
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
@@ -39,16 +40,6 @@ const generateExpenseID = (expenseData) => {
   const newNumericPart = maxNumericPart + 1; // Increment numeric part
   return `exp${newNumericPart.toString().padStart(3, '0')}`; // Construct new expense ID
 };
-
-
-// const generateExpenseID = (expenseData) => {
-//   if (expenseData.length === 0) return 'exp001'; // Default ID if no expenses exist
-
-//   const lastExpenseID = expenseData[0]?.expenseID; // Get the ID of the last expense (first in descending order)
-//   const numericPart = parseInt(lastExpenseID.match(/\d+/)[0], 10); // Extract numeric part
-//   const newNumericPart = numericPart + 1; // Increment numeric part
-//   return `exp${newNumericPart.toString().padStart(3, '0')}`; // Construct new expense ID
-// };
 
 
 
@@ -163,45 +154,12 @@ const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel, expen
   );
 };
 
-// ExpenseDialog component
-// const ExpenseDialog = ({ open, onClose, expense, onSubmit, handleDelete, label, expensesData, setIsAddLoadingCus }) => {
-//   const isEditing = Boolean(expense);
-//   const title = isEditing ? 'Edit Expense' : 'Record New Expense';
-//   const theme = useTheme();
 
-//   return (
-//     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-//       <DialogTitle>{title}</DialogTitle>
-//       <DialogContent>
-//         <ExpenseForm
-//           initialValues={expense}
-//           onSubmit={(values) => {
-//             onSubmit(values);
-//           }}
-//           onCancel={onClose}
-//           label={label}
-//           expensesData={expensesData}
-//           setIsAddLoadingCus={setIsAddLoadingCus}
-//         />
-        
-//         {isEditing && (
-//           <DeleteIcon
-//             sx={{
-//               mt: '10px',
-//               color: 'grey',
-//               cursor: 'pointer'
-//             }}
-//             onClick={() => handleDelete(expense)}
-//           />
-//         )}
-//       </DialogContent>
-//     </Dialog>
-//   );
-// };
 const ExpenseDialog = ({ open, onClose, expense, onSubmit, handleDelete, label, expensesData, setIsAddLoadingCus, isAddLoadingCus }) => {
   const isEditing = Boolean(expense);
   const title = isEditing ? 'Edit Expense' : 'Record New Expense';
   const theme = useTheme();
+  
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -235,7 +193,7 @@ const ExpenseDialog = ({ open, onClose, expense, onSubmit, handleDelete, label, 
 };
 
 // DeleteConfirmationDialog component
-const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme, isDeleteLoading  }) => {
+const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme, isDatatLoadingCus, isExpensesLoading }) => {
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Confirm Deletion</DialogTitle>
@@ -263,14 +221,14 @@ const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme, isDeleteLoa
             color: theme.palette.primary[900],
           },
         }} autoFocus>
-          {isDeleteLoading  ? (
+          {isDatatLoadingCus || isExpensesLoading  ? (
                           <span
                             className="spinner-border spinner-border-sm"
                             role="status"
                             aria-hidden="true"
                           ></span>
                         ) : (
-                          "Submit"
+                          "Delete"
                         )}
         </Button>
       </DialogActions>
@@ -292,17 +250,14 @@ const Expenses = () => {
   const [isDatatLoadingCus, setIsDataLoadingCus]=useState(false)
   const expensesData = useSelector(selectAllExpenses);
   const role = useSelector(selectCurrentRole)
+  const [addExpense, {isLoading: isExpenseAdding}] = useAddExpenseMutation();
+  const [updateExpense] = useUpdateExpenseMutation();
+  const [deleteExpense, {isLoading: isDeleteLoading}] = useDeleteExpenseMutation();
 
+  // useEffect(() => {
+  //   console.log(expensesData);
+  // }, [expensesData]);
 
-
-
-
-  useEffect(() => {
-    console.log(expensesData);
-  }, [expensesData]);
-
-
- 
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -323,12 +278,7 @@ const Expenses = () => {
       clearTimeout(timer);
     };
   }, [expensesData]);
-
-
-
-  const [addExpense, {isLoading: isExpenseAdding}] = useAddExpenseMutation();
-  const [updateExpense] = useUpdateExpenseMutation();
-  const [deleteExpense, {isLoading: isDeleteLoading}] = useDeleteExpenseMutation();
+ 
 
   const handleOpenDialog = () => {
     setEditingExpense(null);
@@ -339,11 +289,6 @@ const Expenses = () => {
     setOpenDialog(false);
     setEditingExpense(null);
   };
-
-
-
-
-
 
 
   const handleSubmit = async (values) => {
@@ -384,24 +329,9 @@ const Expenses = () => {
   };
 
 
-
-  // const handleSubmit = async (values) => {
-  //   try {
-  //   //   if (editingExpense) {
-  //   //     await updateExpense(values).unwrap();
-  //   //     toast.success('Expense updated successfully');
-  //   //   } else {
-  //       await addExpense(values).unwrap();
-  //       toast.success('Expense added successfully');
-  //     // }
-  //     handleCloseDialog();
-  //   } catch (error) {
-  //     toast.error('An error occurred. Please try again.');
-  //   }
-  // };
-
   const handleEdit = (expense) => {
-    setEditingExpense(expense);
+    const {index, ...updatedExpense} = expense
+    setEditingExpense(updatedExpense);
     setOpenDialog(true);
   };
 
@@ -413,7 +343,7 @@ const Expenses = () => {
   const handleConfirmDelete = async () => {
   try { 
     const {expenseID, date} = selectedExpense
-    console.log({ expenseID, date})
+    // console.log({ expenseID, date})
     const myHeaders = new Headers();
     myHeaders.append("Authorization", `Bearer ${token}`);
     
@@ -431,14 +361,12 @@ const Expenses = () => {
         } else{
           response.json() 
           setOpenDialog(false);
-          setIsDataLoadingCus(true)
-         
-        
+          setIsDataLoadingCus(true) 
+          toast.success('Selected expense(s) deleted successfully');
         }
   })
       .then((result) => refetch())
       .catch((error) => console.error(error));
-      toast.success('Selected expense(s) deleted successfully');
       setSelectedExpense(null);
 
   } catch (error) {
@@ -484,15 +412,13 @@ const getRowId = (row) => row.index;
           onClick={() => handleEdit(params.row)} 
         />) 
         :   <LockIcon sx={{color: theme.palette.secondary[300]}}/>
-       
-        
       )
     }
   ];
 
   return (
     <Box m="20px">
-      <Header title="EXPENSES" color='#10453e' />
+      <Header title="EXPENSE" color='#10453e' />
       {role === "ADMIN"? <Button
         sx={{
           marginTop: '10px',
@@ -569,6 +495,7 @@ const getRowId = (row) => row.index;
         expensesData={expensesData}
         setIsAddLoadingCus={setIsAddLoadingCus}
         isAddLoadingCus={isAddLoadingCus}
+        
       />
       <DeleteConfirmationDialog
         open={openDeleteDialog}
@@ -576,6 +503,8 @@ const getRowId = (row) => row.index;
         onConfirm={handleConfirmDelete}
         theme={theme}
         isDeleteLoading = {isDeleteLoading }
+        isDatatLoadingCus={isDatatLoadingCus}
+        isExpensesLoading={isExpensesLoading}
       />
       <ToastContainer />
     </Box>
