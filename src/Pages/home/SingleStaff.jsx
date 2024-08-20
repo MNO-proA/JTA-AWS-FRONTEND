@@ -123,7 +123,13 @@ const SingleStaff = ({
             onClick={() => setIsExpanded(!isExpanded)}
             sx={{ position: 'absolute', bottom: '1rem', right: '1rem', color: theme.palette.secondary[100] }}
           >
-            <strong>SEE MORE</strong>
+            <strong>
+              {isExpanded? 
+            'SEE LESS'
+              : 
+            'SEE MORE'
+            }
+            </strong>
           </Button>
        
         </CardActions>

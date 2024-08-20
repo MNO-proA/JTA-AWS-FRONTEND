@@ -16,225 +16,11 @@ import AddIcon from '@mui/icons-material/Add';
 import { useSelector } from "react-redux";
 import { selectCurrentToken, selectCurrentRole } from "../../features/auth/authSlice"
 import LockIcon from '@mui/icons-material/Lock';
-
-
-// Function to generate the next expenseID based on the largest existing expenseID in the expense data
-const generateExpenseID = (expenseData) => {
-  const defaultID = 'exp001'; // Default ID if no expenses exist
-
-  if (expenseData.length === 0) return defaultID;
-
-  // Find the maximum numeric part from all expenseIDs
-  const maxNumericPart = expenseData.reduce((max, item) => {
-    const match = item.expenseID.match(/\d+$/);
-    if (match) {
-      const numericPart = parseInt(match[0], 10);
-      return Math.max(max, numericPart);
-    }
-    return max;
-  }, 0);
-
-  // If no valid IDs found, return default
-  if (maxNumericPart === 0) return defaultID;
-
-  const newNumericPart = maxNumericPart + 1; // Increment numeric part
-  return `exp${newNumericPart.toString().padStart(3, '0')}`; // Construct new expense ID
-};
-
-
-
-// Validation schema for the expense form
-const expenseValidationSchema = Yup.object().shape({
-  // Administrative: Yup.number().required('Administrative expense is required'),
-  // IT: Yup.number().required('IT expense is required'),
-  // Maintenance: Yup.number().required('Maintenance expense is required'),
-  // Miscellaneous: Yup.number().required('Miscellaneous expense is required'),
-  // 'Ofsted (Admin)': Yup.number().required('Ofsted (Admin) expense is required'),
-  // 'Petty Cash': Yup.number().required('Petty Cash expense is required'),
-  // 'REG 44': Yup.number().required('REG 44 expense is required'),
-  // 'Young Person Weekly Money': Yup.number().required('Young Person Weekly Money expense is required'),
-  date: Yup.date().required('Date is required'),
-});
-
-
-
-
-// ExpenseForm component
-const ExpenseForm = ({ initialValues, onSubmit, onCancel, label, setLabel, expensesData, setIsAddLoadingCus, isAddLoadingCus, isEditing }) => {
-  const theme = useTheme();
-  const initialExpensesData = generateExpenseID(expensesData);
-
-  const formik = useFormik({
-    initialValues: initialValues || {
-      expenseID: initialExpensesData,
-      date: '',
-     Transport_Expenses: 0,
-     IT_Purchases: 0,
-      Maintenance: 0,
-      Miscellaneous: 0,
-      Ofsted_Admin: 0,
-      Petty_Cash: 0,
-      REG_44: 0,
-      Young_Person_Weekly_Money: 0,
-    },
-
-    validationSchema: expenseValidationSchema,
-    onSubmit: (values) => {
-      let expenseData = {
-        ...values,
-      };
-      onSubmit(expenseData);
-      setIsAddLoadingCus(true);
-      
-    },
-  });
-
-
-
-  return (
-    <form onSubmit={formik.handleSubmit}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: '10px' }}>
-        {/* <TextField
-          fullWidth
-          id="expenseID"
-          name="expenseID"
-          label="Expense ID"
-          value={formik.values.expenseID}
-          InputProps={{
-            readOnly: true,
-          }}
-        /> */}
-        {Object.keys(formik.initialValues)
-          .filter(field => field !== 'expenseID') // Exclude expenseID and index from this loop
-          .map((field) => (
-            <TextField
-              key={field}
-              fullWidth
-              id={field}
-              name={field}
-              label={field}
-              type={field === 'date' ? 'date' : 'number'}
-              value={formik.values[field]}
-              onChange={formik.handleChange}
-              error={formik.touched[field] && Boolean(formik.errors[field])}
-              helperText={formik.touched[field] && formik.errors[field]}
-              InputLabelProps={field === 'date' ? { shrink: true } : {}}
-            />
-          ))}
-    
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-          <Button onClick={onCancel} sx={{ color: theme.palette.grey[500] }}>
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{
-              color: 'grey',
-              '&:hover': {
-                backgroundColor: theme.palette.secondary[200],
-                color: theme.palette.primary[900],
-              },
-            }}
-          >
-             {isAddLoadingCus  ? (
-                          <span
-                            className="spinner-border spinner-border-sm"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                        ) : (
-                          isEditing?
-                          "Update":"Submit"
-                        )}
-          </Button>
-        </Box>
-      </Box>
-    </form>
-  );
-};
-
-
-const ExpenseDialog = ({ open, onClose, expense, onSubmit, handleDelete, label, expensesData, setIsAddLoadingCus, isAddLoadingCus }) => {
-  const isEditing = Boolean(expense);
-  const title = isEditing ? 'Edit Expense' : 'Record New Expense';
-  const theme = useTheme();
-  
-
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
-        <ExpenseForm
-          initialValues={expense}
-          onSubmit={(values) => {
-            onSubmit(values);
-          }}
-          onCancel={onClose}
-          label={label}
-          expensesData={expensesData}
-          setIsAddLoadingCus={setIsAddLoadingCus}
-          isEditing={isEditing}
-          isAddLoadingCus={isAddLoadingCus}
-        />
-        
-        {isEditing && (
-          <DeleteIcon color='error'
-            sx={{
-              mt: '-70px',
-              cursor: 'pointer'
-            }}
-            onClick={() => handleDelete(expense)}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
-  );
-};
+import { ExpenseDialog } from './expenseDialog';
+import { DeleteConfirmationDialog } from './DeleteConfirmationDialog';
 
 // DeleteConfirmationDialog component
-const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme, isDatatLoadingCus, isExpensesLoading }) => {
-  return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Confirm Deletion</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          Are you sure you want to delete the selected expense(s)?
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} sx={{
-          marginTop: '10px',
-          color: 'grey',
-          '&:hover': {
-            backgroundColor: theme.palette.secondary[200],
-            color: theme.palette.primary[900],
-          },
-        }}>
-          Cancel
-        </Button>
-        <Button onClick={onConfirm} sx={{
-          marginTop: '10px',
-          color: 'grey',
-          '&:hover': {
-            backgroundColor: theme.palette.secondary[200],
-            color: theme.palette.primary[900],
-          },
-        }} autoFocus>
-          {isDatatLoadingCus || isExpensesLoading  ? (
-                          <span
-                            className="spinner-border spinner-border-sm"
-                            role="status"
-                            aria-hidden="true"
-                          ></span>
-                        ) : (
-                          "Delete"
-                        )}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
+
 
 // Updated Expenses component
 const Expenses = () => {
@@ -247,7 +33,7 @@ const Expenses = () => {
   const [label, setLabel] = useState('')
   const token = useSelector(selectCurrentToken)
   const [isAddLoadingCus, setIsAddLoadingCus]=useState(false)
-  const [isDatatLoadingCus, setIsDataLoadingCus]=useState(false)
+  const [isDataLoadingCus, setIsDataLoadingCus]=useState(false)
   const expensesData = useSelector(selectAllExpenses);
   const role = useSelector(selectCurrentRole)
   const [addExpense, {isLoading: isExpenseAdding}] = useAddExpenseMutation();
@@ -360,9 +146,10 @@ const Expenses = () => {
           throw new Error(`Error ${response.status}`);
         } else{
           response.json() 
-          setOpenDialog(false);
           setIsDataLoadingCus(true) 
+          refetch()
           toast.success('Selected expense(s) deleted successfully');
+          
         }
   })
       .then((result) => refetch())
@@ -376,6 +163,7 @@ const Expenses = () => {
   } 
   finally{
     setOpenDeleteDialog(false);
+    handleCloseDialog()
 }
 }
 const expensesDataWithIndex = expensesData.map((expense, index) => ({
@@ -401,7 +189,7 @@ const getRowId = (row) => row.index;
       width: 60,
       renderCell: (params) => (
         
-          (isExpensesLoading || isExpenseAdding || isAddLoadingCus || isDatatLoadingCus) ? 
+          (isExpensesLoading || isExpenseAdding || isAddLoadingCus || isDataLoadingCus) ? 
           ( <span
           className="spinner-border spinner-border-sm"
           role="status"
@@ -503,7 +291,7 @@ const getRowId = (row) => row.index;
         onConfirm={handleConfirmDelete}
         theme={theme}
         isDeleteLoading = {isDeleteLoading }
-        isDatatLoadingCus={isDatatLoadingCus}
+        isDataLoadingCus={isDataLoadingCus}
         isExpensesLoading={isExpensesLoading}
       />
       <ToastContainer />

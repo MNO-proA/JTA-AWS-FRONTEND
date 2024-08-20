@@ -1,6 +1,5 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-
-//************************* For Future Modularization of Project Files ***************************************
 
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -15,24 +14,73 @@ import {
   MenuItem,
 } from "@mui/material";
 import { useTheme } from "@mui/material";
-
 import DeleteIcon from '@mui/icons-material/Delete';
 
 
+const generateStaffID = (staffsData) => {
+  // Default ID if no staff exists or all IDs are invalid
+  const defaultID = 'JTA001';
+
+  // Filter out elements that match the pattern JTA followed by digits
+  const validStaffIDs = staffsData.filter(id => /^JTA\d+$/.test(id));
+
+  // If no valid IDs found, return default
+  if (validStaffIDs.length === 0) return defaultID;
+
+  // Extract numeric parts and find the largest number
+  const numericParts = validStaffIDs.map(id => parseInt(id.slice(3), 10));
+  const largestNumericPart = Math.max(...numericParts);
+ 
+  // Increment the largest number
+  const newNumericPart = largestNumericPart + 1;
+ 
+
+  // Construct new staff ID
+  return `JTA${newNumericPart.toString().padStart(3, '0')}`;
+};
+
 // Validation schema for the staff form
+const isAllCaps = (value) => {
+  if (!value) {
+    // Skip validation if value is empty or undefined
+    return true;
+  }
+
+  return value === value.toUpperCase();
+};
+const capitalizeFirstLetter = (value) => {
+  if (!value) {
+    // Skip validation if value is empty or undefined
+    return true;
+  }
+
+  const words = value.split(' ');
+  return words.every((word) => /^[A-Z]/.test(word));
+};
+
 const staffValidationSchema = Yup.object().shape({
-  fullName: Yup.string().required('Full name is required'),
-  employmentType: Yup.string().required('Employment type is required'),
-  jobTitle: Yup.string().required('Job title is required'),
-  hourlyRate: Yup.number().positive('Hourly rate must be positive').required('Hourly rate is required'),
+  fullName: Yup.string()
+    .required('Full name is required')
+    .test('capitalized', 'Please capitalize the first letter of each word', capitalizeFirstLetter),
+  employmentType: Yup.string()
+    .required('Employment type is required')
+    .test('capitalized', 'Please capitalize the first letter of each word', capitalizeFirstLetter),
+  jobTitle: Yup.string()
+    .required('Job title is required')
+    .test('allCaps', 'Job title must be all uppercase', isAllCaps),
+  hourlyRate: Yup.number()
+    .positive('Hourly rate must be positive')
+    .required('Hourly rate is required'),
 });
 
 // StaffForm component
-const StaffForm = ({ initialValues, onSubmit, onCancel }) => {
+const StaffForm = ({ initialValues, onSubmit, onCancel, staffData, isStaffLoading, staffsIds,  isAddLoadingCus, 
+  isDatatLoadingCus, isEditing, isStaffAddLoading }) => {
   const theme = useTheme();
-
+  const initialStaffID = generateStaffID(staffsIds);
   const formik = useFormik({
     initialValues: initialValues || {
+      staffID: initialStaffID,
       fullName: '',
       employmentType: '',
       jobTitle: '',
@@ -46,7 +94,17 @@ const StaffForm = ({ initialValues, onSubmit, onCancel }) => {
 
   return (
     <form onSubmit={formik.handleSubmit}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: '10px' }}>
+      {/* <TextField
+          fullWidth
+          id="staffID"
+          name="staffID"
+          label="Staff ID"
+          value={formik.values.staffID}
+          InputProps={{
+            readOnly: true,
+          }}
+        /> */}
         <TextField
           fullWidth
           id="fullName"
@@ -62,16 +120,13 @@ const StaffForm = ({ initialValues, onSubmit, onCancel }) => {
           id="employmentType"
           name="employmentType"
           label="Employment Type"
-          select
           value={formik.values.employmentType}
           onChange={formik.handleChange}
           error={formik.touched.employmentType && Boolean(formik.errors.employmentType)}
           helperText={formik.touched.employmentType && formik.errors.employmentType}
-        >
-          <MenuItem value="Full-time">Full-time</MenuItem>
-          <MenuItem value="Part-time">Part-time</MenuItem>
-          <MenuItem value="Bank">Bank</MenuItem>
-        </TextField>
+        />
+       
+       
         <TextField
           fullWidth
           id="jobTitle"
@@ -97,15 +152,18 @@ const StaffForm = ({ initialValues, onSubmit, onCancel }) => {
           <Button onClick={onCancel} sx={{ color: theme.palette.grey[500] }}>
             Cancel
           </Button>
-          <Button type="submit" variant="contained" sx={{
-            color: 'grey',
-            '&:hover': {
-              backgroundColor: theme.palette.secondary[200],
-              color: theme.palette.primary[900],
-            },
-          }}>
-            Submit
-          </Button>
+          <button type="submit" className="btn btn-block btn-color btn-lg font-weight-medium auth-form-btn">
+                        {isStaffLoading || isAddLoadingCus || isDatatLoadingCus || isStaffAddLoading ? (
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                        ) : (
+                          isEditing?
+                          "Update":"Submit"
+                        )}
+                      </button>
         </Box>
       </Box>
     </form>
@@ -113,9 +171,11 @@ const StaffForm = ({ initialValues, onSubmit, onCancel }) => {
 };
 
 // StaffDialog component
-const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete }) => {
+const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete, staffData,  onEdit, staffsIds, isDatatLoadingCus,  isAddLoadingCus, isDeleteLoading, role, isStaffAddLoading }) => {
   const isEditing = Boolean(staff);
   const title = isEditing ? 'Edit Staff' : 'Create New Staff';
+  const theme = useTheme();
+  
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -125,16 +185,25 @@ const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete }) => {
           initialValues={staff}
           onSubmit={(values) => {
             onSubmit(values);
-            onClose();
+            // onClose();
           }}
           onCancel={onClose}
+          // staffData = {sortStaffDataByIDDesc(staffData)}
+          staffsIds={staffsIds}
+          isAddLoadingCus={ isAddLoadingCus}
+          isDatatLoadingCus={isDatatLoadingCus}
+          isDeleteLoading={isDeleteLoading}
+          isStaffAddLoading={isStaffAddLoading}
+          role={role}
+          onEdit={onEdit}
+          isEditing={isEditing}
         />
         {isEditing && 
-          <DeleteIcon sx={{
+          <DeleteIcon color="error" sx={{
             mt: '-70px',
-            color: 'grey',
+            cursor: 'pointer'
           }}
-          onClick={handleDelete}
+          onClick={() => handleDelete(staff)}
           />
         }
       </DialogContent>
@@ -143,7 +212,7 @@ const StaffDialog = ({ open, onClose, staff, onSubmit, handleDelete }) => {
 };
 
 // DeleteConfirmationDialog component
-const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme }) => {
+const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme, isDeleteLoading }) => {
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Confirm Deletion</DialogTitle>
@@ -167,7 +236,15 @@ const DeleteConfirmationDialog = ({ open, onClose, onConfirm, theme }) => {
             color: theme.palette.primary[900],
           },
         }} autoFocus>
-          Delete
+           {isDeleteLoading  ? (
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                        ) : (
+                          "Delete"
+                        )}
         </Button>
       </DialogActions>
     </Dialog>
